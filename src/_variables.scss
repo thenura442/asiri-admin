@@ -1,0 +1,83 @@
+:root {
+  // Brand
+  --brand:    #002B4C;
+  --brand-d:  #001e36;
+  --brand-l:  #004575;
+
+  // Accent
+  --accent:    #3FBCB9;
+  --accent-d:  #2d9e9b;
+  --accent-l:  #6dd4d1;
+  --accent-gl: rgba(63, 188, 185, 0.08);
+
+  // Surfaces
+  --surface: #ffffff;
+  --page:    #f6f8fa;
+
+  // Borders
+  --b1: rgba(0, 43, 76, 0.03);
+  --b2: rgba(0, 43, 76, 0.06);
+  --b3: rgba(0, 43, 76, 0.1);
+
+  // Text hierarchy
+  --t1: #002B4C;
+  --t2: #3d5a73;
+  --t3: #6b8299;
+  --t4: #94a7b8;
+  --t5: #bcc8d4;
+
+  // Status — Green
+  --sg:  #10b981;
+  --sgb: #edfcf5;
+  --sgt: #06785a;
+
+  // Status — Amber
+  --sa:  #eab308;
+  --sab: #fefce8;
+  --sat: #854d0e;
+
+  // Status — Red
+  --sr:  #ef4444;
+  --srb: #fef2f2;
+  --srt: #b91c1c;
+
+  // Status — Blue (21 pages use --sbl prefix)
+  --sbl:  #3b82f6;
+  --sblb: #eff6ff;
+  --sblt: #1d4ed8;
+  // Aliases — dashboard uses --sb prefix
+  --sb:  #3b82f6;
+  --sbb: #eff6ff;
+  --sbt: #1d4ed8;
+
+  // VIP Gold
+  --gold:    #ca8a04;
+  --gold-bg: #fef9c3;
+  --gold-t:  #854d0e;
+
+  // Purple (Lab Technician badge — user-management only)
+  --purple:    #8b5cf6;
+  --purple-bg: #f5f3ff;
+  --purple-t:  #6d28d9;
+
+  // Layout
+  --sw:     72px;   // Sidebar collapsed width
+  --sw-exp: 264px;  // Sidebar expanded width
+  --hh:     0px;    // Header height offset (dashboard)
+
+  // Radius
+  --r:  12px;  // Standard
+  --rl: 16px;  // Large (cards)
+  --rx: 24px;  // Extra large (login card)
+
+  // Shadows
+  --s1: 0 1px 2px rgba(0, 43, 76, 0.03);
+  --s2: 0 2px 8px rgba(0, 43, 76, 0.04), 0 0 0 1px rgba(0, 43, 76, 0.03);
+  --s3: 0 8px 32px rgba(0, 43, 76, 0.06), 0 0 0 1px rgba(0, 43, 76, 0.03);
+  --s4: 0 20px 60px rgba(0, 43, 76, 0.1), 0 0 0 1px rgba(0, 43, 76, 0.02);
+
+  // Animation easings
+  --ease:   cubic-bezier(0.4, 0, 0.2, 1);
+  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --smooth: cubic-bezier(0.16, 1, 0.3, 1);
+}

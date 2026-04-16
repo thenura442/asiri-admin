@@ -1,0 +1,566 @@
+// ─── Design system tokens ─────────────────────────────────────
+@use 'variables';
+@use 'mixins';
+
+// ─── Reset ────────────────────────────────────────────────────
+*,
+*::before,
+*::after {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--page);
+  color: var(--t2);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+// ─── Scrollbar ────────────────────────────────────────────────
+// Chrome, Safari, Edge
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--b3); border-radius: 10px; }
+// Firefox
+* { scrollbar-width: thin; scrollbar-color: var(--b3) transparent; }
+
+// ─── Typography base ──────────────────────────────────────────
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: var(--t1);
+  line-height: 1.3;
+}
+
+a { text-decoration: none; color: inherit; }
+
+button {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+input, select, textarea {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+// ─── Utility ──────────────────────────────────────────────────
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+// ─── Entry animations ─────────────────────────────────────────
+@-webkit-keyframes enter {
+  from {
+    opacity: 0;
+    -webkit-transform: translateY(20px);
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+  }
+}
+@keyframes enter {
+  from {
+    opacity: 0;
+    -webkit-transform: translateY(20px);
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+  }
+}
+
+.en {
+  -webkit-animation: enter 0.65s var(--smooth) forwards;
+  animation: enter 0.65s var(--smooth) forwards;
+  opacity: 0;
+}
+.e1 { -webkit-animation-delay: .03s; animation-delay: .03s; }
+.e2 { -webkit-animation-delay: .08s; animation-delay: .08s; }
+.e3 { -webkit-animation-delay: .14s; animation-delay: .14s; }
+.e4 { -webkit-animation-delay: .22s; animation-delay: .22s; }
+.e5 { -webkit-animation-delay: .30s; animation-delay: .30s; }
+.e6 { -webkit-animation-delay: .38s; animation-delay: .38s; }
+.e7 { -webkit-animation-delay: .46s; animation-delay: .46s; }
+
+// ─── Ambient orbs (rendered in main-layout) ───────────────────
+.ambient {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  -webkit-filter: blur(100px);
+  filter: blur(100px);
+  opacity: 0.3;
+  -webkit-animation: drift 20s ease-in-out infinite alternate;
+  animation: drift 20s ease-in-out infinite alternate;
+}
+
+.orb-1 {
+  width: 600px;
+  height: 600px;
+  background: rgba(63, 188, 185, 0.1);
+  top: -200px;
+  right: -100px;
+}
+
+.orb-2 {
+  width: 500px;
+  height: 500px;
+  background: rgba(0, 43, 76, 0.05);
+  bottom: -150px;
+  left: -100px;
+  -webkit-animation-delay: -7s;
+  animation-delay: -7s;
+}
+
+@-webkit-keyframes drift {
+  0%   { -webkit-transform: translate(0, 0) scale(1);        transform: translate(0, 0) scale(1); }
+  50%  { -webkit-transform: translate(40px, -30px) scale(1.1); transform: translate(40px, -30px) scale(1.1); }
+  100% { -webkit-transform: translate(-20px, 20px) scale(.95); transform: translate(-20px, 20px) scale(.95); }
+}
+@keyframes drift {
+  0%   { -webkit-transform: translate(0, 0) scale(1);        transform: translate(0, 0) scale(1); }
+  50%  { -webkit-transform: translate(40px, -30px) scale(1.1); transform: translate(40px, -30px) scale(1.1); }
+  100% { -webkit-transform: translate(-20px, 20px) scale(.95); transform: translate(-20px, 20px) scale(.95); }
+}
+
+// ─── Badge base ───────────────────────────────────────────────
+.bd {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: 5px;
+  letter-spacing: 0.2px;
+
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    -webkit-flex-shrink: 0;
+    -ms-flex-negative: 0;
+    flex-shrink: 0;
+  }
+}
+
+// Badge colour variants
+.bd-active, .bd-avail, .bd-online, .bd-done, .bd-complete, .bd-a { background: var(--sgb);      color: var(--sgt); }
+.bd-pend, .bd-busy, .bd-arriving, .bd-locked, .bd-b              { background: var(--sab);      color: var(--sat); }
+.bd-prog, .bd-received, .bd-p                                     { background: var(--sblb);     color: var(--sblt); }
+.bd-processing, .bd-alloc                                         { background: var(--accent-gl); color: var(--accent-d); }
+.bd-rej, .bd-suspended, .bd-issue, .bd-e                          { background: var(--srb);      color: var(--srt); }
+.bd-inactive, .bd-offline                                         { background: var(--page);     color: var(--t4); }
+
+// ─── Global buttons ───────────────────────────────────────────
+.btn {
+  padding: 10px 20px;
+  border-radius: var(--r);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: 8px;
+  -webkit-transition: all 0.25s var(--spring);
+  transition: all 0.25s var(--spring);
+  border: 1.5px solid rgba(0, 43, 76, 0.08);
+  background: var(--surface);
+  color: var(--t2);
+  box-shadow: var(--s1);
+
+  svg { width: 16px; height: 16px; }
+
+  &:hover {
+    border-color: var(--accent);
+    color: var(--accent-d);
+    -webkit-transform: translateY(-2px);
+    -ms-transform: translateY(-2px);
+    transform: translateY(-2px);
+    box-shadow: var(--s2);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    -webkit-transform: none;
+    -ms-transform: none;
+    transform: none;
+  }
+}
+
+.btn-primary {
+  background: var(--brand);
+  color: #fff;
+  border-color: var(--brand);
+  box-shadow: 0 2px 12px rgba(0, 43, 76, 0.15);
+
+  &:hover {
+    background: var(--brand-l);
+    border-color: var(--brand-l);
+    color: #fff;
+    box-shadow: 0 6px 24px rgba(0, 43, 76, 0.2);
+  }
+}
+
+.btn-danger {
+  &:hover {
+    border-color: var(--sr);
+    color: var(--srt);
+    background: var(--srb);
+    -webkit-transform: translateY(-2px);
+    -ms-transform: translateY(-2px);
+    transform: translateY(-2px);
+  }
+}
+
+// ─── Notify Super Admin button ────────────────────────────────
+.notify-btn {
+  padding: 8px 16px;
+  border-radius: var(--r);
+  border: 1.5px solid rgba(239, 68, 68, 0.15);
+  background: var(--srb);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--srt);
+  cursor: pointer;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: 6px;
+  -webkit-transition: all 0.2s var(--spring);
+  transition: all 0.2s var(--spring);
+
+  svg { width: 14px; height: 14px; }
+
+  &:hover {
+    background: var(--sr);
+    color: #fff;
+    border-color: var(--sr);
+    -webkit-transform: translateY(-1px);
+    -ms-transform: translateY(-1px);
+    transform: translateY(-1px);
+  }
+}
+
+// ─── Icon button (topbar bell etc.) ──────────────────────────
+.ib {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r);
+  border: 1.5px solid rgba(0, 43, 76, 0.08);
+  background: rgba(255, 255, 255, 0.6);
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-transition: all 0.25s var(--spring);
+  transition: all 0.25s var(--spring);
+  color: var(--t3);
+  position: relative;
+
+  svg { width: 18px; height: 18px; }
+
+  &:hover {
+    border-color: rgba(0, 43, 76, 0.12);
+    color: var(--t1);
+    -webkit-transform: translateY(-2px);
+    -ms-transform: translateY(-2px);
+    transform: translateY(-2px);
+    box-shadow: var(--s2);
+  }
+}
+
+.nd {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 8px;
+  height: 8px;
+  background: var(--sr);
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+// ─── Avatar button (topbar) ───────────────────────────────────
+.ib-av {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--brand);
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  color: var(--accent-l);
+  font-weight: 700;
+  font-size: 11px;
+  cursor: pointer;
+  margin-left: 2px;
+  -webkit-transition: all 0.25s var(--spring);
+  transition: all 0.25s var(--spring);
+
+  &:hover {
+    -webkit-transform: scale(1.08);
+    -ms-transform: scale(1.08);
+    transform: scale(1.08);
+    box-shadow: 0 0 0 3px rgba(63, 188, 185, 0.25), 0 2px 12px rgba(0, 43, 76, 0.12);
+  }
+}
+
+// ─── Brand footer ─────────────────────────────────────────────
+.brand-footer {
+  margin: 32px 0 0;
+  padding: 20px 24px;
+  background: var(--surface);
+  border-radius: var(--rl);
+  border: 1px solid rgba(0, 43, 76, 0.05);
+  box-shadow: var(--s1);
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+}
+
+.bf-left {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: 14px;
+}
+
+.bf-logo {
+  width: 32px;
+  height: 32px;
+  background: var(--brand);
+  border-radius: 8px;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  opacity: 0.5;
+
+  svg { width: 16px; height: 16px; }
+}
+
+.bf-text {
+  font-size: 12px;
+  color: var(--t4);
+  line-height: 1.5;
+  strong { color: var(--t3); }
+}
+
+.bf-right {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: 24px;
+}
+
+.bf-status {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  color: var(--t4);
+}
+
+.bf-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--sg);
+}
+
+.bf-div {
+  width: 1px;
+  height: 16px;
+  background: rgba(0, 43, 76, 0.08);
+}
+
+.bf-meta {
+  font-size: 11px;
+  color: var(--t5);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+// ─── Form input base ──────────────────────────────────────────
+.form-input {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--t1);
+  background: var(--surface);
+  border: 1.5px solid var(--b3);
+  border-radius: var(--r);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  -webkit-transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+  &::-webkit-input-placeholder { color: var(--t5); }
+  &::-moz-placeholder          { color: var(--t5); opacity: 1; }
+  &:-ms-input-placeholder      { color: var(--t5); }
+  &::placeholder               { color: var(--t5); }
+
+  &:hover { border-color: rgba(0, 43, 76, 0.18); }
+
+  &:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(63, 188, 185, 0.12);
+  }
+
+  &.is-invalid {
+    border-color: var(--sr);
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.08);
+  }
+}
+
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--t3);
+  margin-bottom: 8px;
+
+  .required { color: var(--sr); margin-left: 2px; }
+}
+
+.form-error {
+  display: block;
+  font-size: 12px;
+  color: var(--srt);
+  margin-top: 6px;
+}
+
+// ─── Toast container ──────────────────────────────────────────
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  background: var(--surface);
+  border: 1px solid var(--b2);
+  border-radius: var(--rl);
+  padding: 16px 20px;
+  box-shadow: var(--s4);
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: flex-start;
+  -webkit-align-items: flex-start;
+  -ms-flex-align: start;
+  align-items: flex-start;
+  gap: 14px;
+  max-width: 360px;
+}

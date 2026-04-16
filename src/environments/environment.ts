@@ -1,0 +1,15 @@
+export const environment = {
+  production: false,
+  supabaseUrl: 'https://your-project.supabase.co',
+  supabaseAnonKey: 'your-anon-key',
+  apiUrl: 'http://localhost:3000/api',
+  osrmUrl: 'https://router.project-osrm.org',
+  sessionTimeout: 24 * 60 * 60 * 1000,
+  maxLoginAttempts: 5,
+  lockoutDuration: 30 * 60 * 1000,
+  realtimeEnabled: true,
+  defaultPageSize: 10,
+  maxFileSize: 10 * 1024 * 1024,
+  supportedImageTypes: ['image/png', 'image/jpeg'],
+  supportedDocTypes: ['application/pdf', 'image/png', 'image/jpeg'],
+};
