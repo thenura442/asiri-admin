@@ -1,0 +1,38 @@
+@if (type === 'row') {
+  <div class="sk-table">
+    @for (r of rowArray; track $index) {
+      <div class="sk-row">
+        <div class="sk-cell sk-avatar"></div>
+        <div class="sk-cell sk-text-lg"></div>
+        <div class="sk-cell sk-text-md"></div>
+        <div class="sk-cell sk-text-sm"></div>
+        <div class="sk-cell sk-badge"></div>
+        <div class="sk-cell sk-actions"></div>
+      </div>
+    }
+  </div>
+}
+
+@if (type === 'stat') {
+  <div class="sk-stats">
+    @for (r of rowArray; track $index) {
+      <div class="sk-stat-card">
+        <div class="sk-stat-ico"></div>
+        <div class="sk-stat-data">
+          <div class="sk-line sk-line--sm"></div>
+          <div class="sk-line sk-line--lg"></div>
+          <div class="sk-line sk-line--md"></div>
+        </div>
+      </div>
+    }
+  </div>
+}
+
+@if (type === 'card') {
+  <div class="sk-card">
+    <div class="sk-line sk-line--sm"></div>
+    <div class="sk-line sk-line--full"></div>
+    <div class="sk-line sk-line--full"></div>
+    <div class="sk-line sk-line--md"></div>
+  </div>
+}
