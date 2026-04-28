@@ -1,0 +1,65 @@
+:host { display: inline-block; }
+
+.bd {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: .2px;
+
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    -webkit-flex-shrink: 0;
+    -ms-flex-negative: 0;
+    flex-shrink: 0;
+  }
+
+  // ── Green ──────────────────────────────────────
+  &-active     { background: var(--sgb); color: var(--sgt); &::before { background: var(--sg); } }
+  &-avail      { background: var(--sgb); color: var(--sgt); &::before { background: var(--sg); } }
+  &-online     { background: var(--sgb); color: var(--sgt); &::before { background: var(--sg); } }
+  &-done       { background: var(--sgb); color: var(--sgt); &::before { background: var(--sg); } }
+  &-complete   { background: var(--sgb); color: var(--sgt); &::before { background: var(--sg); } }
+  &-regular    { background: var(--sgb); color: var(--sgt); &::before { background: var(--sg); } }
+
+  // ── Blue ───────────────────────────────────────
+  &-received   { background: var(--sblb); color: var(--sblt); &::before { background: var(--sbl); } }
+  &-prog       { background: var(--sblb); color: var(--sblt); &::before { background: var(--sbl); } }
+
+  // ── Teal ───────────────────────────────────────
+  &-processing { background: var(--accent-gl); color: var(--accent-d); &::before { background: var(--accent); } }
+  &-alloc      { background: var(--accent-gl); color: var(--accent-d); &::before { background: var(--accent); } }
+
+  // ── Amber ──────────────────────────────────────
+  &-pend       { background: var(--sab); color: var(--sat); &::before { background: var(--sa); } }
+  &-busy       { background: var(--sab); color: var(--sat); &::before { background: var(--sa); } }
+  &-arriving   { background: var(--sab); color: var(--sat); &::before { background: var(--sa); } }
+  &-locked     { background: var(--sab); color: var(--sat); &::before { background: var(--sa); } }
+  &-new        { background: var(--sab); color: var(--sat); &::before { background: var(--sa); } }
+
+  // ── Red ────────────────────────────────────────
+  &-rej        { background: var(--srb); color: var(--srt); &::before { background: var(--sr); } }
+  &-suspended  { background: var(--srb); color: var(--srt); &::before { background: var(--sr); } }
+  &-issue      { background: var(--srb); color: var(--srt); &::before { background: var(--sr); } }
+  &-blacklisted{ background: var(--srb); color: var(--srt); &::before { background: var(--sr); } }
+
+  // ── Gold ───────────────────────────────────────
+  &-vip        { background: var(--gold-bg); color: var(--gold-t); &::before { background: var(--gold); } }
+
+  // ── Gray ───────────────────────────────────────
+  &-inactive   { background: var(--page); color: var(--t4); &::before { background: var(--t5); } }
+  &-offline    { background: var(--page); color: var(--t4); &::before { background: var(--t5); } }
+}

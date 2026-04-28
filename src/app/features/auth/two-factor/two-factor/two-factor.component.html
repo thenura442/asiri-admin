@@ -1,0 +1,113 @@
+<div class="layout">
+
+  <!-- Left: Brand Panel -->
+  <div class="brand-panel">
+    <div class="bp-orb bp-o1"></div>
+    <div class="bp-orb bp-o2"></div>
+    <div class="bp-orb bp-o3"></div>
+    <div class="bp-content">
+      <div class="bp-logo bp-en bp-e1">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round">
+          <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
+        </svg>
+      </div>
+      <h1 class="bp-title bp-en bp-e2">
+        Two-Factor <span>Authentication</span>
+      </h1>
+      <p class="bp-desc bp-en bp-e3">
+        An extra layer of security to protect sensitive healthcare data. A verification code has been sent to your registered email.
+      </p>
+      <div class="bp-shield bp-en bp-e3">
+        <div class="bp-shield-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="M9 12l2 2 4-4"/>
+          </svg>
+        </div>
+        <div class="bp-shield-text">
+          <strong>HIPAA-grade security</strong><br>
+          Every access point is verified to protect patient data and system integrity.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Form Panel -->
+  <div class="form-panel">
+    <div class="form-panel-orb"></div>
+    <div class="form-container">
+      <div class="card en e1">
+
+        <div class="card-header">
+          <div class="card-header-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </div>
+          <h1>Enter verification code</h1>
+          <p>We've sent a 6-digit code to your email address</p>
+          <div class="email-chip">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22 6 12 13 2 6"/>
+            </svg>
+            arjuna.s****&#64;asiri.lk
+          </div>
+        </div>
+
+        <div class="otp-group">
+          <input class="otp-input" type="text" maxlength="1" autofocus />
+          <input class="otp-input" type="text" maxlength="1" />
+          <input class="otp-input" type="text" maxlength="1" />
+          <input class="otp-input" type="text" maxlength="1" />
+          <input class="otp-input" type="text" maxlength="1" />
+          <input class="otp-input" type="text" maxlength="1" />
+        </div>
+
+        <div class="otp-meta">
+          <div class="otp-timer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            Code expires in <strong>{{ timerDisplay() }}</strong>
+          </div>
+          <a class="resend-link" [class.disabled]="!resendEnabled()">Resend Code</a>
+        </div>
+
+        <button class="btn-primary" routerLink="/dashboard">
+          <span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <path d="M9 12l2 2 4-4"/>
+            </svg>
+            Verify &amp; Sign In
+          </span>
+        </button>
+
+        <div class="alt-method">
+          Didn't receive the code? <a href="#">Try SMS instead</a>
+        </div>
+
+        <div class="back-wrap">
+          <a class="back-link" routerLink="/login">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            Back to Sign In
+          </a>
+        </div>
+
+      </div>
+
+      <div class="form-footer en e3">
+        <p>Secured by Asiri Laboratories</p>
+        <div class="sys-status">
+          <div class="sys-dot"></div>
+          All systems operational
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,36 @@
+<div class="sec-head">
+  <h3>Recent requests</h3>
+  <a routerLink="/job-requests" class="view-link">
+    View All
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M5 12h14M12 5l7 7-7 7"/>
+    </svg>
+  </a>
+</div>
+
+<div class="req-grid">
+  @for (job of jobs(); track job.id) {
+    <a class="rq" [routerLink]="['/job-requests', job.id, 'tracking']">
+      <div class="rq-top">
+        <span class="rq-id">#{{ job.requestNumber }}</span>
+        <span class="rq-badge" [ngStyle]="statusStyle(job.status)">
+          {{ statusLabel(job.status) }}
+        </span>
+      </div>
+      <div class="rq-name">{{ job.patientName }}</div>
+      <div class="rq-test">{{ job.testNames.join(' · ') }}</div>
+      <div class="rq-bottom">
+        <span class="rq-loc">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          {{ job.address }}
+        </span>
+        <span class="rq-time">{{ job.createdAt | timeAgo }}</span>
+      </div>
+    </a>
+  } @empty {
+    <div class="rq-empty">No recent requests</div>
+  }
+</div>

@@ -1,0 +1,156 @@
+.drv-card {
+  background: var(--surface);
+  border-radius: var(--rl);
+  border: 1px solid rgba(0, 43, 76, 0.05);
+  box-shadow: var(--s1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex: 1;
+}
+
+.drv-head {
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(0, 43, 76, 0.04);
+  flex-shrink: 0;
+
+  h3 { font-size: 15px; font-weight: 700; color: var(--t1); }
+}
+
+.view-link {
+  font-size: 12px;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s;
+
+  &:hover { color: var(--accent-d); gap: 6px; }
+  svg { width: 14px; height: 14px; }
+}
+
+.drv-list {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 280px;
+
+  &::-webkit-scrollbar { width: 3px; }
+  &::-webkit-scrollbar-thumb { background: var(--b2); border-radius: 10px; }
+  scrollbar-width: thin;
+  scrollbar-color: var(--b2) transparent;
+}
+
+.dv {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 22px;
+  border-bottom: 1px solid rgba(0, 43, 76, 0.04);
+  transition: all 0.2s var(--ease);
+  cursor: pointer;
+
+  &:last-child { border-bottom: none; }
+  &:hover { background: rgba(0, 43, 76, 0.015); padding-left: 26px; }
+}
+
+.dv-av {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--page);
+  border: 1.5px solid var(--b2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--t1);
+  flex-shrink: 0;
+  position: relative;
+  transition: border-color 0.2s;
+
+  .dv:hover & { border-color: var(--accent-l); }
+}
+
+.dv-dot {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2.5px solid var(--surface);
+}
+
+.dv-info { flex: 1; min-width: 0; }
+
+.dv-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--t1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dv-vehicle {
+  font-size: 10.5px;
+  color: var(--t4);
+  margin-top: 2px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+}
+
+.dv-prog {
+  margin-top: 5px;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--b1);
+  overflow: hidden;
+  max-width: 120px;
+}
+
+.dv-prog-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--accent);
+  transition: width 0.6s var(--smooth);
+}
+
+// Badges
+.bd {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  letter-spacing: 0.2px;
+
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  &.bd-available { background: var(--sgb); color: var(--sgt); &::before { background: var(--sg); } }
+  &.bd-progress  { background: var(--sbb); color: var(--sbt); &::before { background: var(--sb); } }
+  &.bd-offline   { background: var(--b1);  color: var(--t4);  &::before { background: var(--t5); } }
+}
+
+.drv-empty {
+  padding: 24px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--t4);
+}

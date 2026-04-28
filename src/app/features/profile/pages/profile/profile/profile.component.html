@@ -1,0 +1,366 @@
+<div class="pg">
+  <div class="pg-hdr">
+    <div class="pg-hdr-l">
+      <h1>My Profile</h1>
+      <p>Manage your account settings and preferences</p>
+    </div>
+  </div>
+
+  <div class="profile-grid">
+    <!-- ── Left: Profile Identity Card ── -->
+    <div class="profile-card">
+      <div class="profile-card-top">
+        <div class="p-avatar">{{ initials }}</div>
+        <div class="p-name">{{ fullName() }}</div>
+        <div class="p-role">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          {{ role }}
+        </div>
+      </div>
+      <div class="profile-card-body">
+        <div class="p-info-row">
+          <div class="p-info-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22 6 12 13 2 6"/>
+            </svg>
+          </div>
+          <div>
+            <div class="p-info-label">Email</div>
+            <div class="p-info-val">{{ email() }}</div>
+          </div>
+        </div>
+        <div class="p-info-row">
+          <div class="p-info-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="p-info-label">Phone</div>
+            <div class="p-info-val">{{ phone() }}</div>
+          </div>
+        </div>
+        <div class="p-info-row">
+          <div class="p-info-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2"/>
+              <path d="M16 2v4M8 2v4M3 10h18"/>
+            </svg>
+          </div>
+          <div>
+            <div class="p-info-label">Member Since</div>
+            <div class="p-info-val p-info-val--mono">{{ memberSince }}</div>
+          </div>
+        </div>
+        <div class="p-info-row">
+          <div class="p-info-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <div>
+            <div class="p-info-label">Last Login</div>
+            <div class="p-info-val p-info-val--mono">{{ lastLogin }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Right column ── -->
+    <div class="right-col">
+
+      <!-- Personal Information -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-head-l">
+            <div class="card-head-ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <div class="card-head-text">
+              <h3>Personal Information</h3>
+              <p>Update your name, email, and contact details</p>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input class="form-input" [value]="fullName()"
+                     (input)="fullName.set($any($event.target).value)"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input class="form-input" type="email" [value]="email()"
+                     (input)="email.set($any($event.target).value)"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone</label>
+              <input class="form-input" type="tel" [value]="phone()"
+                     (input)="phone.set($any($event.target).value)"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Role</label>
+              <input class="form-input" [value]="role" disabled/>
+            </div>
+          </div>
+        </div>
+        <div class="card-foot">
+          <button class="btn" type="button">Cancel</button>
+          <button class="btn btn-primary" (click)="savePersonalInfo()" [disabled]="!canSavePersonal" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+              <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+            </svg>
+            Save Changes
+          </button>
+        </div>
+      </div>
+
+      <!-- Branch Status toggle (Front Office) -->
+      <div class="card card--branch">
+        <div class="card-head">
+          <div class="card-head-l">
+            <div class="card-head-ico card-head-ico--teal">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-d)" stroke-width="1.8">
+                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+            </div>
+            <div class="card-head-text">
+              <h3>Branch Status</h3>
+              <p>Toggle your branch online or offline (Front Office only)</p>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="branch-toggle-row">
+            <div class="branch-label">
+              <div class="branch-dot" [class.branch-dot--off]="!branchOnline()"></div>
+              <div>
+                <div class="branch-status-text">
+                  {{ branchOnline() ? 'Currently Online' : 'Currently Offline' }}
+                </div>
+                <div class="branch-name">{{ branchName }}</div>
+              </div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" [checked]="branchOnline()"
+                     (change)="toggleBranch()"/>
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+          @if (branchOnline()) {
+            <div class="branch-status-note branch-status-note--ok">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+              No active dispatched jobs — safe to go offline
+            </div>
+          } @else {
+            <div class="branch-status-note branch-status-note--warn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M4.93 4.93l14.14 14.14"/>
+              </svg>
+              Branch is offline — no new jobs will be dispatched
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Change Password -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-head-l">
+            <div class="card-head-ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <rect x="3" y="11" width="18" height="11" rx="2"/>
+                <path d="M7 11V7a5 5 0 0110 0v4"/>
+              </svg>
+            </div>
+            <div class="card-head-text">
+              <h3>Change Password</h3>
+              <p>Update your account password</p>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="form-grid">
+            <div class="form-group full">
+              <label class="form-label">Current Password</label>
+              <input class="form-input" type="password"
+                     [value]="currentPw()" (input)="currentPw.set($any($event.target).value)"
+                     placeholder="Enter current password"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">New Password</label>
+              <input class="form-input" type="password"
+                     [value]="newPw()" (input)="newPw.set($any($event.target).value)"
+                     placeholder="Enter new password"
+                     [class.form-input--error]="newPw().length > 0 && newPw().length < 8"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirm New Password</label>
+              <input class="form-input" type="password"
+                     [value]="confirmPw()" (input)="confirmPw.set($any($event.target).value)"
+                     placeholder="Confirm new password"
+                     [class.form-input--error]="confirmPw().length > 0 && confirmPw() !== newPw()"/>
+            </div>
+          </div>
+          <div class="pw-rules">
+            Password must be at least 8 characters and include: uppercase letter, lowercase letter, and a number.
+          </div>
+        </div>
+        <div class="card-foot">
+          <button class="btn btn-primary" (click)="changePassword()"
+                  [disabled]="!canChangePassword" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2"/>
+              <path d="M7 11V7a5 5 0 0110 0v4"/>
+            </svg>
+            Update Password
+          </button>
+        </div>
+      </div>
+
+      <!-- Two-Factor Authentication -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-head-l">
+            <div class="card-head-ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </div>
+            <div class="card-head-text">
+              <h3>Two-Factor Authentication</h3>
+              <p>Add an extra layer of security to your account</p>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="toggle-row toggle-row--no-pad-top">
+            <div class="toggle-info">
+              <h4>Enable 2FA</h4>
+              <p>Require a verification code when signing in</p>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" [checked]="twoFaEnabled()"
+                     (change)="twoFaEnabled.set($any($event.target).checked)"/>
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+          @if (twoFaEnabled()) {
+            <div class="twofa-note twofa-note--active">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+              2FA is currently enabled and enforced by your administrator
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Active Sessions -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-head-l">
+            <div class="card-head-ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <rect x="2" y="3" width="20" height="14" rx="2"/>
+                <path d="M8 21h8M12 17v4"/>
+              </svg>
+            </div>
+            <div class="card-head-text">
+              <h3>Active Sessions</h3>
+              <p>Manage devices where you're currently logged in</p>
+            </div>
+          </div>
+          <button class="btn btn-danger-sm" (click)="logOutAll()" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
+            </svg>
+            Log Out All Others
+          </button>
+        </div>
+        <div class="card-body card-body--no-pad">
+          <table class="session-table">
+            <thead>
+              <tr>
+                <th>Device</th>
+                <th>Location</th>
+                <th>Last Active</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (s of sessions(); track s.device) {
+                <tr>
+                  <td>
+                    <div class="session-device">
+                      @if (s.deviceType === 'desktop') {
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+                        </svg>
+                      } @else {
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/>
+                        </svg>
+                      }
+                      {{ s.device }}
+                    </div>
+                  </td>
+                  <td class="session-location">{{ s.location }}</td>
+                  <td class="session-time">{{ s.lastActive }}</td>
+                  <td>
+                    @if (s.isCurrent) {
+                      <span class="session-current">Current</span>
+                    } @else {
+                      <button class="btn btn-sm" (click)="revokeSession(s)" type="button">Revoke</button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Logout -->
+      <div class="logout-row">
+        <button class="btn btn-danger-lg" (click)="logout()" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
+          </svg>
+          Log Out
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Branded Footer -->
+  <footer class="brand-footer">
+    <div class="bf-left">
+      <div class="bf-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round">
+          <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
+        </svg>
+      </div>
+      <div class="bf-text"><strong>Asiri Laboratories</strong> — Mobile Service Platform<br>Trusted healthcare, delivered to your doorstep</div>
+    </div>
+    <div class="bf-right">
+      <div class="bf-status"><div class="bf-dot"></div>All systems operational</div>
+      <div class="bf-divider"></div>
+      <div class="bf-meta">Last synced: just now</div>
+      <div class="bf-divider"></div>
+      <div class="bf-meta">v2.4.1</div>
+    </div>
+  </footer>
+</div>

@@ -1,7 +1,9 @@
-@if (overlay) {
-  <div class="spinner-overlay">
-    <div class="spinner" [class]="'spinner--' + size"></div>
+<div class="spinner-wrap" [class.spinner-wrap--fullpage]="fullPage()">
+  <div class="spinner">
+    <div class="spinner-ring"></div>
+    <div class="spinner-ring spinner-ring--inner"></div>
   </div>
-} @else {
-  <div class="spinner" [class]="'spinner--' + size"></div>
-}
+  @if (label()) {
+    <p class="spinner-label">{{ label() }}</p>
+  }
+</div>

@@ -1,0 +1,117 @@
+:host { display: flex; flex-direction: column; flex: 1; }
+
+.map-bar {
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(0, 43, 76, 0.05);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.map-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  h3 { font-size: 16px; font-weight: 700; color: var(--t1); }
+}
+
+.live-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px 4px 8px;
+  border-radius: 20px;
+  background: var(--sgb);
+  span { font-size: 10px; font-weight: 700; color: var(--sgt); text-transform: uppercase; letter-spacing: 0.5px; }
+}
+
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--sg);
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 1.5px solid var(--sg);
+    animation: ping 2s ease-out infinite;
+  }
+}
+
+@keyframes ping {
+  0%   { transform: scale(0.5); opacity: 0.8; }
+  100% { transform: scale(2);   opacity: 0; }
+}
+
+.map-legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  color: var(--t3);
+  font-weight: 500;
+
+  i { width: 8px; height: 8px; border-radius: 50%; display: block; flex-shrink: 0; }
+}
+
+.map-container {
+  flex: 1;
+  position: relative;
+  min-height: 320px;
+}
+
+.map-float-search {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: var(--r);
+  border: 1px solid rgba(0, 43, 76, 0.06);
+  box-shadow: var(--s3);
+  width: 240px;
+  transition: all 0.25s var(--ease);
+
+  @media (max-width: 480px) { width: calc(100% - 32px); }
+
+  &:focus-within {
+    border-color: var(--accent);
+    box-shadow: var(--s3), 0 0 0 3px rgba(63, 188, 185, 0.08);
+  }
+
+  svg { width: 16px; height: 16px; color: var(--t4); flex-shrink: 0; }
+
+  input {
+    border: none;
+    background: none;
+    outline: none;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12.5px;
+    color: var(--t1);
+    flex: 1;
+    font-weight: 500;
+    min-width: 0;
+    &::placeholder { color: var(--t5); }
+  }
+}
+
+#fleet-map { width: 100%; height: 100%; min-height: 320px; }

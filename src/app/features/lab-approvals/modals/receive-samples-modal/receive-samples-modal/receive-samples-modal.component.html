@@ -1,0 +1,108 @@
+<div class="backdrop" (click)="close()">
+  <div class="modal md" (click)="$event.stopPropagation()">
+    <div class="m-head">
+      <div class="m-head-l">
+        <div class="m-head-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+        </div>
+        <div class="m-head-text">
+          <h2>Receive Samples</h2>
+          <p>Confirm receipt of samples for processing</p>
+        </div>
+      </div>
+      <button class="m-close" (click)="close()" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="m-body">
+      <!-- Context strip -->
+      @if (approval()) {
+        <div class="ctx-strip">
+          <div class="ctx-item">
+            <div class="ctx-label">Request ID</div>
+            <div class="ctx-val ctx-val--mono">{{ approval().requestId }}</div>
+          </div>
+          <div class="ctx-item">
+            <div class="ctx-label">Patient</div>
+            <div class="ctx-val">{{ approval().patientName }}</div>
+          </div>
+          <div class="ctx-item">
+            <div class="ctx-label">UHID</div>
+            <div class="ctx-val ctx-val--mono">{{ approval().uhid }}</div>
+          </div>
+          <div class="ctx-item">
+            <div class="ctx-label">Center</div>
+            <div class="ctx-val">{{ approval().collectingCenter }}</div>
+          </div>
+        </div>
+
+        <!-- Samples checklist -->
+        <div class="section-label">Samples Received</div>
+        <div class="check-group">
+          @for (test of approval().tests; track test) {
+            <div class="check-item" [class.checked]="isChecked(test)" (click)="toggleTest(test)">
+              <div class="check-box" [class.checked]="isChecked(test)">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </div>
+              <div class="check-text">{{ test }}</div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Sample condition -->
+      <div class="fg" style="margin-top:20px">
+        <label class="fl">Sample Condition *</label>
+        <div class="radio-row">
+          <button class="radio-pill" [class.active]="sampleCondition() === 'good'"
+                  (click)="sampleCondition.set('good')" type="button">Good</button>
+          <button class="radio-pill radio-pill--warn" [class.active]="sampleCondition() === 'compromised'"
+                  (click)="sampleCondition.set('compromised')" type="button">Compromised</button>
+          <button class="radio-pill radio-pill--danger" [class.active]="sampleCondition() === 'rejected'"
+                  (click)="sampleCondition.set('rejected')" type="button">Rejected</button>
+        </div>
+      </div>
+
+      <div class="fg-row">
+        <div class="fg">
+          <label class="fl">Received By</label>
+          <input class="fi" [value]="receivedBy()"
+                 (input)="receivedBy.set($any($event.target).value)"
+                 placeholder="Lab technician name"/>
+        </div>
+        <div class="fg">
+          <label class="fl">Time Received</label>
+          <input class="fi fi-mono" type="time" [value]="receivedAt()"
+                 (change)="receivedAt.set($any($event.target).value)"/>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label class="fl">Condition Notes</label>
+        <textarea class="fi" [value]="conditionNotes()"
+                  (input)="conditionNotes.set($any($event.target).value)"
+                  placeholder="Any notes on sample condition or handling..."
+                  style="min-height:70px"></textarea>
+      </div>
+    </div>
+
+    <div class="m-foot">
+      <button class="btn" (click)="close()" type="button">Cancel</button>
+      <button class="btn btn-primary" (click)="confirm()" [disabled]="!canConfirm" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+        Confirm Receipt
+      </button>
+    </div>
+  </div>
+</div>

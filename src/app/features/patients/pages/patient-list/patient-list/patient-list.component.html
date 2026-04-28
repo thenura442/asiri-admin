@@ -1,0 +1,343 @@
+<div class="pg">
+  <!-- Page Header -->
+  <div class="pg-hdr">
+    <div class="pg-hdr-l">
+      <h1>Patient Management</h1>
+      <p>View patient profiles, booking history, and manage records</p>
+    </div>
+    <div class="pg-hdr-r">
+      <button class="btn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Export
+      </button>
+      <a routerLink="/patients/add" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+          <circle cx="8.5" cy="7" r="4"/>
+          <line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>
+        </svg>
+        Add Patient
+      </a>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="st">
+      <div class="st-ico st-ico--blue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--sbl)" stroke-width="1.8">
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+      <div><div class="st-label">Total Patients</div><div class="st-num">{{ stats().total | number }}</div></div>
+    </div>
+    <div class="st">
+      <div class="st-ico st-ico--green">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--sg)" stroke-width="1.8">
+          <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+      </div>
+      <div><div class="st-label">Active This Month</div><div class="st-num">{{ stats().activeThisMonth }}</div></div>
+    </div>
+    <div class="st">
+      <div class="st-ico st-ico--teal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8">
+          <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+          <rect x="9" y="3" width="6" height="4" rx="1"/>
+        </svg>
+      </div>
+      <div><div class="st-label">New Today</div><div class="st-num">{{ stats().newToday }}</div></div>
+    </div>
+    <div class="st">
+      <div class="st-ico st-ico--amber">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--sa)" stroke-width="1.8">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+      </div>
+      <div><div class="st-label">VIP Patients</div><div class="st-num">{{ stats().vip }}</div></div>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="filter-bar">
+    <div class="search-bar" [class.search-bar--active]="searchQuery().length > 0">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+      </svg>
+      <input [value]="searchQuery()" (input)="onSearch($event)"
+             placeholder="Search by name, UHID, or phone..." autocomplete="off"/>
+    </div>
+    @for (f of [
+      {key:'all', label:'All Patients'},
+      {key:'regular', label:'Regular'},
+      {key:'new', label:'New'},
+      {key:'vip', label:'VIP'},
+      {key:'flagged', label:'Flagged'}
+    ]; track f.key) {
+      <button class="chip" [class.active]="activeFilter() === f.key"
+              (click)="setFilter($any(f.key))" type="button">
+        {{ f.label }}
+      </button>
+    }
+  </div>
+
+  <!-- Main content: table + detail panel -->
+  <div class="content-grid">
+    <!-- Table -->
+    <div class="table-card">
+      <div class="table-top">
+        <div class="table-top-l">
+          <h3>All Patients</h3>
+          <span class="table-count">{{ totalCount() | number }} total</span>
+        </div>
+        <select class="sort-select" [value]="sortOrder()"
+                (change)="sortOrder.set($any($event.target).value)">
+          <option value="newest">Sort: Newest</option>
+          <option value="oldest">Sort: Oldest</option>
+          <option value="name">Sort: Name A–Z</option>
+          <option value="visits">Sort: Most Visits</option>
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Patient</th>
+              <th>UHID</th>
+              <th>Phone</th>
+              <th>Emergency</th>
+              <th>Visits</th>
+              <th>Last Visit</th>
+              <th>Flag</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of filteredPatients(); track p.id) {
+              <tr [class.selected]="selectedId() === p.id" (click)="selectPatient(p.id)">
+
+                <!-- Patient -->
+                <td>
+                  <div class="p-cell">
+                    <div class="p-av" [class.p-av--vip]="p.flag === 'vip'">{{ p.initials }}</div>
+                    <div>
+                      <div class="p-name">{{ p.fullName }}</div>
+                      <div class="p-meta">{{ p.gender }}, {{ p.age }} · {{ p.address }}</div>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- UHID -->
+                <td>
+                  @if (p.uhid) {
+                    <span class="uhid-badge">{{ p.uhid }}</span>
+                  } @else {
+                    <span class="uhid-unregistered">Unregistered</span>
+                  }
+                </td>
+
+                <!-- Phone -->
+                <td><span class="mono-text">{{ p.phone }}</span></td>
+
+                <!-- Emergency -->
+                <td>
+                  @if (p.emergencyPhone) {
+                    <span style="font-size:13px;color:var(--t2)">{{ p.emergencyPhone }}</span>
+                  } @else {
+                    <span class="not-provided">Not provided</span>
+                  }
+                </td>
+
+                <!-- Visits -->
+                <td><span class="visits-num">{{ p.totalVisits }}</span></td>
+
+                <!-- Last visit -->
+                <td><span class="date-text">{{ p.lastVisitDate | date:'MMM d, y' }}</span></td>
+
+                <!-- Flag -->
+                <td>
+                  <span class="flag-badge" [ngClass]="flagClass(p.flag)">
+                    @if (p.flag === 'flagged' && p.pendingCharges > 0) {
+                      Rs. {{ p.pendingCharges }}
+                    } @else {
+                      {{ flagLabel(p.flag) }}
+                    }
+                  </span>
+                </td>
+
+                <!-- Actions -->
+                <td>
+                  <div class="row-actions" (click)="$event.stopPropagation()">
+                    <button class="ra" title="View" (click)="selectPatient(p.id)" type="button">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                      </svg>
+                    </button>
+                    <button class="ra" title="Edit" (click)="openEdit(p)" type="button">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                      </svg>
+                    </button>
+                    <button class="ra ra--danger" title="Delete" (click)="confirmDelete(p)" type="button">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr><td colspan="8" class="empty-row">No patients found</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-ft">
+        <div class="table-ft-info">Showing 1–{{ filteredPatients().length }} of {{ totalCount() | number }} patients</div>
+        <div class="pag">
+          <button class="pag-btn" [disabled]="currentPage() === 1" (click)="setPage(currentPage() - 1)" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          @for (p of pageRange; track p) {
+            <button class="pag-btn" [class.active]="currentPage() === p" (click)="setPage(p)" type="button">{{ p }}</button>
+          }
+          <button class="pag-btn" [disabled]="currentPage() === totalPages" (click)="setPage(currentPage() + 1)" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detail Panel -->
+    @if (selectedPatient) {
+      <div class="detail-panel">
+        <!-- Header -->
+        <div class="dp-header">
+          <div class="dp-avatar" [class.dp-avatar--vip]="selectedPatient.flag === 'vip'">
+            {{ selectedPatient.initials }}
+          </div>
+          <div class="dp-name">{{ selectedPatient.fullName }}</div>
+          <div class="dp-sub">
+            {{ selectedPatient.gender === 'M' ? 'Male' : 'Female' }}, {{ selectedPatient.age }} years
+            · {{ selectedPatient.address }}
+          </div>
+          @if (selectedPatient.uhid) {
+            <div class="dp-uhid">{{ selectedPatient.uhid }}</div>
+          } @else {
+            <div class="dp-uhid dp-uhid--unregistered">No UHID</div>
+          }
+        </div>
+
+        <!-- Contact -->
+        <div class="dp-section">
+          <div class="dp-section-title">Contact Information</div>
+          <div class="dp-row">
+            <span class="dp-row-label">Phone</span>
+            <span class="dp-row-val">{{ selectedPatient.phone }}</span>
+          </div>
+          <div class="dp-row">
+            <span class="dp-row-label">Emergency</span>
+            <span class="dp-row-val">{{ selectedPatient.emergencyPhone ?? 'Not provided' }}</span>
+          </div>
+        </div>
+
+        <!-- Medical -->
+        @if (selectedPatient.allergies || selectedPatient.conditions) {
+          <div class="dp-section">
+            <div class="dp-section-title">Medical Notes</div>
+            @if (selectedPatient.allergies) {
+              <div class="dp-row">
+                <span class="dp-row-label">Allergies</span>
+                <span class="dp-row-val">{{ selectedPatient.allergies }}</span>
+              </div>
+            }
+            @if (selectedPatient.conditions) {
+              <div class="dp-row">
+                <span class="dp-row-label">Conditions</span>
+                <span class="dp-row-val">{{ selectedPatient.conditions }}</span>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Stats -->
+        <div class="dp-section">
+          <div class="dp-section-title">Visit Summary</div>
+          <div class="dp-row">
+            <span class="dp-row-label">Total Visits</span>
+            <span class="dp-row-val">{{ selectedPatient.totalVisits }}</span>
+          </div>
+          <div class="dp-row">
+            <span class="dp-row-label">Last Visit</span>
+            <span class="dp-row-val">{{ selectedPatient.lastVisitDate | date:'dd MMM y' }}</span>
+          </div>
+          <div class="dp-row">
+            <span class="dp-row-label">Pending Charges</span>
+            <span class="dp-row-val"
+                  [style.color]="selectedPatient.pendingCharges > 0 ? 'var(--srt)' : 'var(--sgt)'">
+              {{ selectedPatient.pendingCharges > 0 ? 'Rs. ' + selectedPatient.pendingCharges : 'Rs. 0' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Recent bookings -->
+        <div class="dp-section">
+          <div class="dp-section-title">Recent Bookings</div>
+          @for (b of selectedPatient.recentBookings; track b.date) {
+            <div class="dp-booking">
+              <span class="dp-b-date">{{ b.date }}</span>
+              <span class="dp-b-test">{{ b.testName }}</span>
+              <span class="dp-b-status" [ngClass]="b.status === 'done' ? 'dp-b-done' : 'dp-b-cancel'">
+                {{ b.status === 'done' ? 'Done' : 'Cancelled' }}
+              </span>
+            </div>
+          }
+        </div>
+
+        <!-- Actions -->
+        <div class="dp-actions">
+          <button class="dp-btn primary" (click)="newBooking(selectedPatient)" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/>
+            </svg>
+            New Booking
+          </button>
+          <button class="dp-btn" (click)="openEdit(selectedPatient)" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            Edit
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Branded Footer -->
+  <footer class="brand-footer">
+    <div class="bf-left">
+      <div class="bf-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round">
+          <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
+        </svg>
+      </div>
+      <div class="bf-text"><strong>Asiri Laboratories</strong> — Mobile Service Platform<br>Trusted healthcare, delivered to your doorstep</div>
+    </div>
+    <div class="bf-right">
+      <div class="bf-status"><div class="bf-dot"></div>All systems operational</div>
+      <div class="bf-divider"></div>
+      <div class="bf-meta">Last synced: just now</div>
+      <div class="bf-divider"></div>
+      <div class="bf-meta">v2.4.1</div>
+    </div>
+  </footer>
+</div>

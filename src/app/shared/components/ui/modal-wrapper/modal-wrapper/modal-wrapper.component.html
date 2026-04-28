@@ -1,0 +1,5 @@
+<div class="modal-backdrop" @backdropIn (click)="close()">
+  <div class="modal modal--{{ size() }}" @modalIn (click)="$event.stopPropagation()">
+    <ng-content></ng-content>
+  </div>
+</div>

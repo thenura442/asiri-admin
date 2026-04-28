@@ -1,0 +1,333 @@
+<div class="pg">
+  <div class="pg-hdr">
+    <h1>Create New Job Request</h1>
+    <p>Manually create a booking on behalf of a customer for mobile laboratory services</p>
+  </div>
+
+  <div class="form-layout">
+    <!-- ── Main Form ── -->
+    <div class="form-card">
+
+      <!-- Section 1: Patient -->
+      <div class="form-section">
+        <div class="fs-head">
+          <div class="fs-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <div class="fs-title">Patient Information</div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Patient <span>*</span></label>
+            <app-custom-dropdown
+              [options]="patientOptions"
+              [value]="selectedPatientId()"
+              placeholder="Search or select existing patient..."
+              [searchable]="true"
+              (changed)="onPatientSelect($event)">
+            </app-custom-dropdown>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Or Register New</label>
+            <a routerLink="/patients/add" class="register-link">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/>
+              </svg>
+              Register New Patient
+            </a>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Request Source <span>*</span></label>
+            <app-custom-dropdown
+              [options]="sourceOptions"
+              [value]="selectedSource()"
+              placeholder="Select source..."
+              (changed)="selectedSource.set($event)">
+            </app-custom-dropdown>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Address -->
+      <div class="form-section">
+        <div class="fs-head">
+          <div class="fs-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+          </div>
+          <div class="fs-title">Collection Address</div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label class="form-label">Address <span>*</span></label>
+            <input class="form-input" type="text"
+                   [value]="address()"
+                   (input)="onAddressInput($any($event.target).value)"
+                   placeholder="Street address for sample collection visit"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">City <span>*</span></label>
+            <input class="form-input" type="text" [value]="city()"
+                   (input)="city.set($any($event.target).value)"
+                   placeholder="e.g. Colombo 03"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Landmark / Directions</label>
+            <input class="form-input" type="text" [value]="landmark()"
+                   (input)="landmark.set($any($event.target).value)"
+                   placeholder="Nearest landmark for driver"/>
+          </div>
+        </div>
+        <div class="geocode-hint">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          Address will be geocoded automatically for driver GPS navigation
+        </div>
+      </div>
+
+      <!-- Section 3: Tests -->
+      <div class="form-section">
+        <div class="fs-head">
+          <div class="fs-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
+            </svg>
+          </div>
+          <div class="fs-title">Test Selection</div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label class="form-label">Tests Required <span>*</span></label>
+            <app-custom-dropdown
+              [options]="testOptions"
+              [value]="null"
+              placeholder="Select tests..."
+              [searchable]="true"
+              (changed)="onTestSelect($event)">
+            </app-custom-dropdown>
+          </div>
+        </div>
+
+        @if (selectedTestIds().length > 0) {
+          <div class="selected-tests">
+            @for (id of selectedTestIds(); track id) {
+              <div class="selected-test-chip">
+                {{ getTestLabel(id) }}
+                <button (click)="removeTest(id)" type="button">&times;</button>
+              </div>
+            }
+          </div>
+        }
+
+        <div class="price-estimate">
+          <span>Estimated Total</span>
+          <span class="price-val">Rs. {{ estimatedTotal().toLocaleString('en-LK') }}</span>
+        </div>
+      </div>
+
+      <!-- Section 4: Scheduling -->
+      <div class="form-section">
+        <div class="fs-head">
+          <div class="fs-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+            </svg>
+          </div>
+          <div class="fs-title">Scheduling &amp; Priority</div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Request Type <span>*</span></label>
+            <app-custom-dropdown
+              [options]="typeOptions"
+              [value]="requestType()"
+              (changed)="onTypeSelect($event)">
+            </app-custom-dropdown>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Preferred Date &amp; Time</label>
+            <input class="form-input" type="datetime-local"
+                   [value]="scheduledAt()"
+                   (change)="scheduledAt.set($any($event.target).value)"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Urgency <span>*</span></label>
+            <app-custom-dropdown
+              [options]="urgencyOptions"
+              [value]="urgency()"
+              (changed)="onUrgencySelect($event)">
+            </app-custom-dropdown>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Fasting Required?</label>
+            <app-custom-dropdown
+              [options]="fastingOptions"
+              [value]="fasting()"
+              (changed)="fasting.set($event ?? 'no')">
+            </app-custom-dropdown>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 5: Prescription & Notes -->
+      <div class="form-section">
+        <div class="fs-head">
+          <div class="fs-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
+          </div>
+          <div class="fs-title">Prescription &amp; Notes</div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Prescription Upload</label>
+            <app-file-upload
+              label="Upload Prescription"
+              accept="image/*,application/pdf"
+              [maxSizeMb]="10"
+              hint="PDF, PNG, JPG up to 10MB"
+              (uploaded)="prescriptionUrl.set($event.file.name)">
+            </app-file-upload>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Special Instructions</label>
+            <textarea
+              class="form-input form-textarea"
+              [value]="specialInstructions()"
+              (input)="specialInstructions.set($any($event.target).value)"
+              placeholder="Any special instructions for the driver or technician...">
+            </textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Footer -->
+      <div class="form-footer">
+        <button class="btn" (click)="cancel()" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+          Cancel
+        </button>
+        <button class="btn btn-primary" (click)="submit()" [disabled]="isSubmitting()" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+            <rect x="9" y="3" width="6" height="4" rx="1"/>
+            <path d="M9 14l2 2 4-4"/>
+          </svg>
+          {{ isSubmitting() ? 'Submitting...' : 'Submit Job Request' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Context Sidebar ── -->
+    <div class="ctx-sidebar">
+      <!-- Booking Summary Checklist -->
+      <div class="ctx-card">
+        <div class="ctx-card-head">
+          <div class="ctx-card-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+              <rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 14l2 2 4-4"/>
+            </svg>
+          </div>
+          <h3>Booking Summary</h3>
+        </div>
+        <div class="checklist">
+          @for (item of checklist(); track item.label) {
+            <div class="check-item" [class.done]="item.done">
+              <div class="check-circle">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </div>
+              <span class="check-text">{{ item.label }}</span>
+              @if (item.required && !item.done) {
+                <span class="check-req">Required</span>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Today's Queue -->
+      <div class="ctx-card">
+        <div class="ctx-card-head">
+          <div class="ctx-card-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+          </div>
+          <h3>Today's Queue</h3>
+        </div>
+        <div class="ctx-stats">
+          <div class="ctx-stat">
+            <div class="ctx-stat-val">{{ queueStats().pending }}</div>
+            <div class="ctx-stat-label">Pending</div>
+          </div>
+          <div class="ctx-stat">
+            <div class="ctx-stat-val">{{ queueStats().inProgress }}</div>
+            <div class="ctx-stat-label">In Progress</div>
+          </div>
+          <div class="ctx-stat">
+            <div class="ctx-stat-val">{{ queueStats().completed }}</div>
+            <div class="ctx-stat-label">Completed</div>
+          </div>
+          <div class="ctx-stat">
+            <div class="ctx-stat-val">{{ queueStats().onlineDrivers }}</div>
+            <div class="ctx-stat-label">Drivers Online</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Bookings -->
+      <div class="ctx-card">
+        <div class="ctx-card-head">
+          <div class="ctx-card-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <h3>Recent Bookings</h3>
+        </div>
+        <div class="ctx-recent">
+          @for (booking of recentBookings; track booking.name) {
+            <div class="ctx-r-item">
+              <div class="ctx-r-av">{{ booking.initials }}</div>
+              <div class="ctx-r-info">
+                <div class="ctx-r-name">{{ booking.name }}</div>
+                <div class="ctx-r-date">{{ booking.date }}</div>
+              </div>
+              <span class="ctx-r-badge" [ngClass]="booking.statusClass">{{ booking.status }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Branded Footer -->
+  <footer class="brand-footer">
+    <div class="bf-left">
+      <div class="bf-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round">
+          <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
+        </svg>
+      </div>
+      <div class="bf-text"><strong>Asiri Laboratories</strong> — Mobile Service Platform</div>
+    </div>
+    <div class="bf-right">
+      <div class="bf-status"><div class="bf-dot"></div>All systems operational</div>
+      <div class="bf-divider"></div>
+      <div class="bf-meta">v2.4.1</div>
+    </div>
+  </footer>
+</div>

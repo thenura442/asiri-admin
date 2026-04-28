@@ -60,7 +60,6 @@ export const API = {
     DEACTIVATE:      (id: string) => `/branches/${id}/deactivate`,
   },
 
-  // Job Requests
   JOBS: {
     BASE:            '/job-requests',
     BY_ID:           (id: string) => `/job-requests/${id}`,
@@ -104,16 +103,15 @@ export const API = {
     EXPORT:           '/reports/export',
   },
 
-  // Settings
   SETTINGS: {
-    BASE:               '/settings',
-    OPERATING_HOURS:    '/settings/operating-hours',
-    MAINTENANCE:        '/settings/maintenance',
-    MAINTENANCE_MOBILE: '/settings/maintenance/mobile',
-    MAINTENANCE_ADMIN:  '/settings/maintenance/admin',
-    SESSIONS:           '/settings/sessions',
-    FORCE_LOGOUT:       (userId: string) => `/settings/sessions/${userId}/logout`,
-  },
+  BASE:               '/settings',
+  OPERATING_HOURS:    '/settings/operating-hours',
+  MAINTENANCE:        '/settings/maintenance',
+  MAINTENANCE_MOBILE: '/settings/maintenance/mobile',
+  MAINTENANCE_ADMIN:  '/settings/maintenance/admin',
+  SESSIONS:           '/settings/sessions',
+  FORCE_LOGOUT:       (userId: string) => `/settings/sessions/${userId}/logout`,
+},
 
   // Dashboard
   DASHBOARD: {

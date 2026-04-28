@@ -1,0 +1,23 @@
+// Reuses same modal styles — import shared base
+@use '../notify-sa-modal/notify-sa-modal.component' as *;
+
+// Danger button override
+.btn-danger {
+  border-color: rgba(239, 68, 68, 0.2);
+  color: var(--srt);
+  &:hover { background: var(--sr); color: #fff; border-color: var(--sr); }
+}
+
+.ctx {
+  padding: 14px 18px;
+  border-radius: var(--r);
+  background: var(--page);
+  border: 1px solid var(--b2);
+  margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.ctx-item { display: flex; flex-direction: column; gap: 2px; }
+.ctx-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--t4); font-weight: 600; }
+.ctx-val { font-size: 13.5px; font-weight: 600; color: var(--t1); &.mono { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; } }

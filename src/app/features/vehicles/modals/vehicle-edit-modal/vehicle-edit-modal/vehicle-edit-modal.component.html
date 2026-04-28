@@ -1,0 +1,74 @@
+<div class="backdrop" (click)="close()">
+  <div class="modal sm" (click)="$event.stopPropagation()">
+    <div class="m-head">
+      <div class="m-head-l">
+        <div class="m-head-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+        </div>
+        <div class="m-head-text">
+          <h2>Edit Vehicle</h2>
+          <p>Update vehicle details and status</p>
+        </div>
+      </div>
+      <button class="m-close" (click)="close()" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="m-body">
+      <div class="fg-row">
+        <div class="fg">
+          <label class="fl">Plate Number</label>
+          <input class="fi fi-mono" [value]="plateNumber()" (input)="plateNumber.set($any($event.target).value)"/>
+        </div>
+        <div class="fg">
+          <label class="fl">Chassis Number</label>
+          <input class="fi fi-mono" [value]="chassis()" (input)="chassis.set($any($event.target).value)"/>
+        </div>
+      </div>
+      <div class="fg-row">
+        <div class="fg">
+          <label class="fl">Type</label>
+          <select class="fi" [value]="type()" (change)="type.set($any($event.target).value)">
+            <option value="van">Van</option>
+            <option value="car">Car</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="fl">Base Branch</label>
+          <select class="fi" [value]="branch()" (change)="branch.set($any($event.target).value)">
+            <option>Asiri Central Lab</option>
+            <option>Colombo 03 Center</option>
+            <option>Nugegoda Center</option>
+            <option>Dehiwala Center</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">Status</label>
+        <select class="fi" [value]="status()" (change)="status.set($any($event.target).value)">
+          <option value="available">Available</option>
+          <option value="busy">Busy</option>
+          <option value="offline">Offline</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="fl">Notes</label>
+        <textarea class="fi" [value]="notes()" (input)="notes.set($any($event.target).value)"
+                  style="min-height:70px"></textarea>
+      </div>
+    </div>
+
+    <div class="m-foot">
+      <button class="btn btn-danger" (click)="confirmDelete()" type="button">Delete Vehicle</button>
+      <div style="flex:1"></div>
+      <button class="btn" (click)="close()" type="button">Cancel</button>
+      <button class="btn btn-primary" (click)="save()" type="button">Update Vehicle</button>
+    </div>
+  </div>
+</div>

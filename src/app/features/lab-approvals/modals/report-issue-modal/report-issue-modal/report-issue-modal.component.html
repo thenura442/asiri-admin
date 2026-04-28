@@ -1,0 +1,70 @@
+<div class="backdrop" (click)="close()">
+  <div class="modal sm" (click)="$event.stopPropagation()">
+    <div class="m-head">
+      <div class="m-head-l">
+        <div class="m-head-ico red">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        <div class="m-head-text">
+          <h2>Report Issue</h2>
+          <p>Report a lab processing issue for {{ approval()?.requestId }}</p>
+        </div>
+      </div>
+      <button class="m-close" (click)="close()" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="m-body">
+      <div class="fg">
+        <label class="fl">Issue Category *</label>
+        <select class="fi" [value]="issueCategory()"
+                (change)="issueCategory.set($any($event.target).value)">
+          <option value="">Select category...</option>
+          @for (cat of issueCategories; track cat) {
+            <option [value]="cat">{{ cat }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="fg">
+        <label class="fl">Details *</label>
+        <textarea class="fi" [value]="issueDetails()"
+                  (input)="issueDetails.set($any($event.target).value)"
+                  placeholder="Describe the issue in detail..."></textarea>
+      </div>
+
+      @if (approval()?.tests?.length) {
+        <label class="fl" style="display:block; margin-bottom:10px">Affected Tests</label>
+        <div class="check-group">
+          @for (test of approval().tests; track test) {
+            <div class="check-item" [class.checked]="isAffected(test)"
+                 (click)="toggleTest(test)">
+              <div class="check-box" [class.checked]="isAffected(test)">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </div>
+              <div class="check-text">{{ test }}</div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="m-foot">
+      <button class="btn" (click)="close()" type="button">Cancel</button>
+      <button class="btn btn-danger" (click)="submit()" [disabled]="!canSubmit" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        </svg>
+        Submit Issue
+      </button>
+    </div>
+  </div>
+</div>

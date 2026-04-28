@@ -1,0 +1,265 @@
+<div class="pg">
+  <!-- Page Header -->
+  <div class="pg-hdr">
+    <div class="pg-hdr-l">
+      <h1>Job Requests Management</h1>
+      <p>Review, register, and allocate mobile laboratory units for patient home visits</p>
+    </div>
+    <div class="pg-hdr-r">
+      <button class="btn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+        </svg>
+        Filters
+      </button>
+      <button class="btn btn-primary" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 4 23 10 17 10"/>
+          <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/>
+        </svg>
+        Refresh Queue
+      </button>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="filters">
+    <div class="search-bar" [class.search-bar--active]="searchQuery().length > 0">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+      </svg>
+      <input
+        [value]="searchQuery()"
+        (input)="onSearch($event)"
+        placeholder="Search by request ID, patient, or UHID..."
+        autocomplete="off"
+      />
+    </div>
+
+    @for (chip of chips; track chip.key) {
+      <button
+        class="filter-chip"
+        [class.active]="activeFilter() === chip.key"
+        (click)="setFilter(chip.key)"
+        type="button">
+        {{ chip.label }}
+        <span class="count">{{ chip.count }}</span>
+      </button>
+    }
+  </div>
+
+  <!-- Table Card -->
+  <div class="table-card">
+    <!-- Summary Strip -->
+    <div class="table-summary">
+      <div class="ts-item">
+        <div class="ts-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+        </div>
+        <div class="ts-data">
+          <div class="ts-label">Unallocated</div>
+          <div class="ts-val">{{ summary().unallocated }}</div>
+        </div>
+      </div>
+      <div class="ts-item">
+        <div class="ts-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="7" width="20" height="11" rx="2"/>
+            <circle cx="7" cy="15" r="1.5"/><circle cx="17" cy="15" r="1.5"/>
+          </svg>
+        </div>
+        <div class="ts-data">
+          <div class="ts-label">On Mission</div>
+          <div class="ts-val">{{ summary().onMission }}</div>
+        </div>
+      </div>
+      <div class="ts-item">
+        <div class="ts-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        <div class="ts-data">
+          <div class="ts-label">Urgent Jobs</div>
+          <div class="ts-val">{{ summary().urgent }}</div>
+        </div>
+      </div>
+      <div class="ts-item">
+        <div class="ts-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <div class="ts-data">
+          <div class="ts-label">Completed Today</div>
+          <div class="ts-val">{{ summary().completedToday }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Request ID</th>
+            <th>Patient Details</th>
+            <th>UHID Status</th>
+            <th>Test Required</th>
+            <th>Location & Time</th>
+            <th>Current Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (job of jobs(); track job.id) {
+            <tr [class.row--urgent]="job.urgency === 'urgent'">
+              <!-- Request ID -->
+              <td>
+                <a [routerLink]="['/job-requests', job.id, 'tracking']" class="req-id">
+                  #{{ job.requestNumber }}
+                </a>
+                @if (job.urgency === 'urgent') {
+                  <span class="urgent-tag">Urgent</span>
+                }
+              </td>
+
+              <!-- Patient -->
+              <td>
+                <div class="patient-cell">
+                  <div class="patient-av">{{ job.patient.initials }}</div>
+                  <div>
+                    <div class="patient-name">{{ job.patient.fullName }}</div>
+                    <div class="patient-meta">{{ job.patient.gender }}, {{ job.patient.age }} years</div>
+                    @if (job.patient.pendingCharges > 0) {
+                      <div class="pending-charge">Rs. {{ job.patient.pendingCharges }} pending</div>
+                    }
+                  </div>
+                </div>
+              </td>
+
+              <!-- UHID -->
+              <td>
+                @if (job.patient.uhid) {
+                  <span class="uhid">{{ job.patient.uhid }}</span>
+                } @else {
+                  <span class="uhid-reg">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/>
+                    </svg>
+                    Register UHID
+                  </span>
+                }
+              </td>
+
+              <!-- Tests -->
+              <td>
+                <div class="tests-cell">
+                  @for (test of job.tests.slice(0, 2); track test.name) {
+                    <span class="test-chip">{{ test.name }}</span>
+                  }
+                  @if (job.tests.length > 2) {
+                    <span class="test-more">+{{ job.tests.length - 2 }}</span>
+                  }
+                </div>
+              </td>
+
+              <!-- Location & Time -->
+              <td>
+                <div class="loc-cell">
+                  <div class="loc-addr">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+                      <circle cx="12" cy="10" r="3"/>
+                    </svg>
+                    {{ job.address }}
+                  </div>
+                  <div class="loc-time">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    {{ job.createdAt | timeAgo }}
+                  </div>
+                </div>
+              </td>
+
+              <!-- Status -->
+              <td>
+                <span class="bd" [ngClass]="statusBadgeClass(job.status)">
+                  {{ job.status | statusLabel }}
+                </span>
+              </td>
+
+              <!-- Actions -->
+              <td>
+                @if (job.status === 'pending' || job.status === 'queued') {
+                  <button class="act-btn" (click)="openAllocate(job)" type="button">
+                    {{ actionLabel(job.status) }}
+                  </button>
+                } @else {
+                  <a class="act-btn outline"
+                     [routerLink]="['/job-requests', job.id, 'tracking']">
+                    {{ actionLabel(job.status) }}
+                  </a>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="table-ft">
+      <div class="table-ft-info">
+        Showing 1 to {{ jobs().length }} of {{ totalCount() }} requests
+      </div>
+      <div class="pag">
+        <button class="pag-btn" [disabled]="currentPage() === 1" (click)="setPage(currentPage() - 1)" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+        @for (p of pageRange; track p) {
+          <button class="pag-btn" [class.active]="currentPage() === p"
+                  (click)="setPage(p)" type="button">{{ p }}</button>
+        }
+        @if (totalPages > 5) {
+          <span class="pag-dots">…</span>
+          <button class="pag-btn" (click)="setPage(totalPages)" type="button">{{ totalPages }}</button>
+        }
+        <button class="pag-btn" [disabled]="currentPage() === totalPages" (click)="setPage(currentPage() + 1)" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Branded Footer -->
+  <footer class="brand-footer">
+    <div class="bf-left">
+      <div class="bf-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round">
+          <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
+        </svg>
+      </div>
+      <div class="bf-text">
+        <strong>Asiri Laboratories</strong> — Mobile Service Platform<br>
+        Trusted healthcare, delivered to your doorstep
+      </div>
+    </div>
+    <div class="bf-right">
+      <div class="bf-status"><div class="bf-dot"></div>All systems operational</div>
+      <div class="bf-divider"></div>
+      <div class="bf-meta">Last synced: just now</div>
+      <div class="bf-divider"></div>
+      <div class="bf-meta">v2.4.1</div>
+    </div>
+  </footer>
+</div>

@@ -1,0 +1,344 @@
+<div class="pg">
+  <div class="pg-hdr">
+    <h1>Register New Vehicle</h1>
+    <p>Add a new vehicle to the Asiri mobile laboratory fleet</p>
+  </div>
+
+  <div class="form-layout">
+    <!-- ── Main Form ── -->
+    <div class="form-card">
+
+      <!-- Section 1: Vehicle Details -->
+      <div class="form-section">
+        <div class="fs-head">
+          <div class="fs-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="2" y="7" width="20" height="11" rx="2"/>
+              <circle cx="7" cy="15" r="1.5"/><circle cx="17" cy="15" r="1.5"/>
+            </svg>
+          </div>
+          <div class="fs-title">Vehicle Details</div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Vehicle ID <span>*</span></label>
+            <input class="form-input form-input--mono" type="text"
+                   [value]="vehicleIdCode()" (input)="onVehicleId($any($event.target).value)"
+                   placeholder="e.g. AS-MOB-45"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">License Plate Number <span>*</span></label>
+            <input class="form-input" type="text"
+                   [value]="plateNumber()" (input)="onPlate($any($event.target).value)"
+                   placeholder="e.g. WP ABC-1234"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Vehicle Type <span>*</span></label>
+            <app-custom-dropdown [options]="typeOptions" [value]="vehicleType()"
+                                 placeholder="Select type..." (changed)="onTypeSelect($event)">
+            </app-custom-dropdown>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Make &amp; Model <span>*</span></label>
+            <input class="form-input" type="text"
+                   [value]="makeModel()" (input)="makeModel.set($any($event.target).value)"
+                   placeholder="e.g. Toyota HiAce KDH 201"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Year of Manufacture</label>
+            <input class="form-input" type="number" min="2000" max="2026"
+                   [value]="year()" (input)="year.set($any($event.target).value)"
+                   placeholder="e.g. 2022"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Color</label>
+            <input class="form-input" type="text"
+                   [value]="color()" (input)="color.set($any($event.target).value)"
+                   placeholder="e.g. White"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Base Assignment -->
+      <div class="form-section">
+        <div class="fs-head">
+          <div class="fs-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <div class="fs-title">Base Assignment</div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Base Branch <span>*</span></label>
+            <app-custom-dropdown [options]="branchOptions" [value]="branchId()"
+                                 placeholder="Select branch..." [searchable]="true"
+                                 (changed)="onBranchSelect($event)">
+            </app-custom-dropdown>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Default Driver</label>
+            <app-custom-dropdown [options]="driverOptions" [value]="driverId()"
+                                 placeholder="None (assign later)"
+                                 (changed)="driverId.set($event)">
+            </app-custom-dropdown>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Insurance & Compliance -->
+      <div class="form-section">
+        <div class="fs-head">
+          <div class="fs-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </div>
+          <div class="fs-title">Insurance &amp; Compliance</div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Insurance Provider</label>
+            <input class="form-input" type="text"
+                   [value]="insuranceProvider()" (input)="insuranceProvider.set($any($event.target).value)"
+                   placeholder="e.g. Sri Lanka Insurance Corp."/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Insurance Expiry <span>*</span></label>
+            <input class="form-input" type="date"
+                   [value]="insuranceExpiry()" (change)="onInsuranceExpiry($any($event.target).value)"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Revenue License Expiry <span>*</span></label>
+            <input class="form-input" type="date"
+                   [value]="revenueLicExpiry()" (change)="revenueLicExpiry.set($any($event.target).value)"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Service Date</label>
+            <input class="form-input" type="date"
+                   [value]="lastServiceDate()" (change)="lastServiceDate.set($any($event.target).value)"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Current Mileage (km)</label>
+            <input class="form-input form-input--mono" type="number"
+                   [value]="mileage()" (input)="mileage.set($any($event.target).value)"
+                   placeholder="e.g. 45000"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Next Service Due (km)</label>
+            <input class="form-input form-input--mono" type="number"
+                   [value]="nextServiceKm()" (input)="nextServiceKm.set($any($event.target).value)"
+                   placeholder="e.g. 50000"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 4: Equipment & Photos -->
+      <div class="form-section">
+        <div class="fs-head">
+          <div class="fs-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="3" y="3" width="18" height="18" rx="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+          </div>
+          <div class="fs-title">Equipment &amp; Photos</div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Vehicle Photo <span>*</span></label>
+            <app-file-upload
+              label="Upload Vehicle Photo"
+              accept="image/*"
+              [maxSizeMb]="5"
+              hint="PNG, JPG up to 5MB"
+              (uploaded)="onPhotoUpload()">
+            </app-file-upload>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Insurance Certificate</label>
+            <app-file-upload
+              label="Upload Certificate"
+              accept="image/*,application/pdf"
+              [maxSizeMb]="10"
+              hint="PDF, PNG, JPG up to 10MB"
+              (uploaded)="insuranceCertUrl.set($event.file.name)">
+            </app-file-upload>
+          </div>
+        </div>
+        <div class="equip-notice">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+          Ensure the vehicle is equipped with a GPS tracker, sample cold-chain storage, and emergency kit before registration.
+        </div>
+      </div>
+
+      <!-- Form Footer -->
+      <div class="form-footer">
+        <button class="btn" (click)="cancel()" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+          Cancel
+        </button>
+        <button class="btn btn-primary" (click)="submit()" [disabled]="isSubmitting()" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="7" width="20" height="11" rx="2"/>
+            <circle cx="7" cy="15" r="1.5"/><circle cx="17" cy="15" r="1.5"/>
+            <path d="M12 7V4"/><path d="M10 4h4"/>
+          </svg>
+          {{ isSubmitting() ? 'Registering...' : 'Register Vehicle' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Context Sidebar ── -->
+    <div class="ctx-sidebar">
+      <!-- Vehicle Checklist -->
+      <div class="ctx-card">
+        <div class="ctx-card-head">
+          <div class="ctx-card-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+              <rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 14l2 2 4-4"/>
+            </svg>
+          </div>
+          <h3>Vehicle Checklist</h3>
+        </div>
+        <div class="checklist">
+          @for (item of checklist(); track item.label) {
+            <div class="check-item" [class.done]="item.done">
+              <div class="check-circle">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </div>
+              <span class="check-text">{{ item.label }}</span>
+              @if (item.required && !item.done) {
+                <span class="check-req">Required</span>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Fleet Stats -->
+      <div class="ctx-card">
+        <div class="ctx-card-head">
+          <div class="ctx-card-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+          </div>
+          <h3>Fleet Stats</h3>
+        </div>
+        <div class="ctx-stats">
+          <div class="ctx-stat">
+            <div class="ctx-stat-val">{{ fleetStats.total }}</div>
+            <div class="ctx-stat-label">Total Fleet</div>
+          </div>
+          <div class="ctx-stat">
+            <div class="ctx-stat-val">{{ fleetStats.active }}</div>
+            <div class="ctx-stat-label">Active</div>
+          </div>
+          <div class="ctx-stat">
+            <div class="ctx-stat-val">{{ fleetStats.maintenance }}</div>
+            <div class="ctx-stat-label">Maintenance</div>
+          </div>
+          <div class="ctx-stat">
+            <div class="ctx-stat-val">{{ fleetStats.offline }}</div>
+            <div class="ctx-stat-label">Offline</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Additions -->
+      <div class="ctx-card">
+        <div class="ctx-card-head">
+          <div class="ctx-card-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <h3>Recent Additions</h3>
+        </div>
+        <div class="ctx-recent">
+          @for (item of recentAdditions; track item.id) {
+            <div class="ctx-r-item">
+              <div class="ctx-r-av">{{ item.initials }}</div>
+              <div class="ctx-r-info">
+                <div class="ctx-r-name">{{ item.id }}</div>
+                <div class="ctx-r-date">{{ item.date }}</div>
+              </div>
+              <span class="ctx-r-badge" [ngClass]="item.cls">{{ item.status }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Quick Tips -->
+      <div class="ctx-card">
+        <div class="ctx-card-head">
+          <div class="ctx-card-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+          </div>
+          <h3>Quick Tips</h3>
+        </div>
+        <div class="ctx-tips">
+          <div class="ctx-tip">
+            <div class="ctx-tip-num">1</div>
+            Ensure GPS tracker is activated before first dispatch
+          </div>
+          <div class="ctx-tip">
+            <div class="ctx-tip-num">2</div>
+            Schedule pre-registration vehicle inspection
+          </div>
+          <div class="ctx-tip">
+            <div class="ctx-tip-num">3</div>
+            Cold-chain storage must be calibrated monthly
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notice -->
+  <div class="notice">
+    <div class="notice-ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+      </svg>
+    </div>
+    <div class="notice-text">
+      <strong>Note:</strong> All vehicle and compliance information provided will be used exclusively
+      for fleet management within Asiri Laboratories. This data is stored securely and accessible only
+      to authorized personnel.
+    </div>
+  </div>
+
+  <!-- Branded Footer -->
+  <footer class="brand-footer">
+    <div class="bf-left">
+      <div class="bf-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round">
+          <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
+        </svg>
+      </div>
+      <div class="bf-text"><strong>Asiri Laboratories</strong> — Mobile Service Platform<br>Trusted healthcare, delivered to your doorstep</div>
+    </div>
+    <div class="bf-right">
+      <div class="bf-status"><div class="bf-dot"></div>All systems operational</div>
+      <div class="bf-divider"></div>
+      <div class="bf-meta">v2.4.1</div>
+    </div>
+  </footer>
+</div>

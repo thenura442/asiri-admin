@@ -1,0 +1,25 @@
+<div class="eff-card">
+  <div class="eff-top">
+    <h3>Daily Fulfillment</h3>
+    <span class="eff-pct">{{ pct }}%</span>
+  </div>
+
+  <div class="eff-bar">
+    <div class="eff-fill" [style.width.%]="animWidth()"></div>
+  </div>
+
+  <div class="eff-row">
+    <div class="eff-item">
+      <div class="eff-val">{{ done() }}</div>
+      <div class="eff-lbl">Done</div>
+    </div>
+    <div class="eff-item">
+      <div class="eff-val">{{ target() }}</div>
+      <div class="eff-lbl">Target</div>
+    </div>
+    <div class="eff-item">
+      <div class="eff-val">{{ remaining }}</div>
+      <div class="eff-lbl">Left</div>
+    </div>
+  </div>
+</div>

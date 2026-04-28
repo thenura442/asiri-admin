@@ -1,0 +1,78 @@
+<div class="backdrop" (click)="close()">
+  <div class="modal md" (click)="$event.stopPropagation()">
+    <div class="m-head">
+      <div class="m-head-l">
+        <div class="m-head-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+        </div>
+        <div class="m-head-text">
+          <h2>Edit Patient</h2>
+          <p>Update patient information — UHID: <strong class="mono">{{ uhid() }}</strong></p>
+        </div>
+      </div>
+      <button class="m-close" (click)="close()" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="m-body">
+      <div class="fg-row">
+        <div class="fg">
+          <label class="fl">Full Name</label>
+          <input class="fi" [value]="fullName()" (input)="fullName.set($any($event.target).value)"/>
+        </div>
+        <div class="fg">
+          <label class="fl">NIC</label>
+          <input class="fi fi-mono" [value]="nic()" (input)="nic.set($any($event.target).value)"/>
+        </div>
+      </div>
+      <div class="fg-row">
+        <div class="fg">
+          <label class="fl">Phone</label>
+          <input class="fi" [value]="phone()" (input)="phone.set($any($event.target).value)"/>
+        </div>
+        <div class="fg">
+          <label class="fl">UHID</label>
+          <input class="fi fi-mono" [value]="uhid()" (input)="uhid.set($any($event.target).value)"/>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">Address</label>
+        <input class="fi" [value]="address()" (input)="address.set($any($event.target).value)"/>
+      </div>
+      <div class="fg-row">
+        <div class="fg">
+          <label class="fl">Emergency Contact Name</label>
+          <input class="fi" [value]="emergencyName()" (input)="emergencyName.set($any($event.target).value)"/>
+        </div>
+        <div class="fg">
+          <label class="fl">Emergency Contact Number</label>
+          <input class="fi" [value]="emergencyPhone()" (input)="emergencyPhone.set($any($event.target).value)"/>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">Flag</label>
+        <div class="radio-row">
+          <button class="radio-pill" [class.active]="flag() === 'regular'"
+                  (click)="setFlag('regular')" type="button">Regular</button>
+          <button class="radio-pill radio-pill--vip" [class.active]="flag() === 'vip'"
+                  (click)="setFlag('vip')" type="button">VIP</button>
+          <button class="radio-pill radio-pill--danger" [class.active]="flag() === 'blacklisted'"
+                  (click)="setFlag('blacklisted')" type="button">Blacklisted</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="m-foot">
+      <button class="btn btn-danger" (click)="confirmDelete()" type="button">Delete Patient</button>
+      <div style="flex:1"></div>
+      <button class="btn" (click)="close()" type="button">Cancel</button>
+      <button class="btn btn-primary" (click)="save()" type="button">Update Patient</button>
+    </div>
+  </div>
+</div>

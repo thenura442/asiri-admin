@@ -1,0 +1,367 @@
+<div class="pg">
+  <div class="pg-hdr">
+    <h1>Register New Branch</h1>
+    <p>Add a new lab or collecting center to the branch network</p>
+  </div>
+
+  <div class="form-layout">
+    <div class="form-card">
+
+      <!-- Section 1: Branch Identity -->
+      <div class="form-section">
+        <div class="fs-head">
+          <div class="fs-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <div class="fs-title">Branch Identity</div>
+        </div>
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label class="form-label">Branch Name <span>*</span></label>
+            <input class="form-input" type="text"
+                   [class.form-input--error]="errors()['name']"
+                   [value]="branchName()" (input)="onName($any($event.target).value)"
+                   placeholder="e.g. Asiri Nugegoda Lab"/>
+            @if (errors()['name']) { <span class="field-error">{{ errors()['name'] }}</span> }
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Branch Code</label>
+            <input class="form-input form-input--mono" type="text"
+                   [value]="branchCode()" (input)="onCode($any($event.target).value)"
+                   placeholder="e.g. BR-NUG-01"/>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Branch Type <span>*</span></label>
+            <app-custom-dropdown [options]="branchTypeOptions" [value]="branchType()"
+                                 placeholder="Select type..." (changed)="onType($event)">
+            </app-custom-dropdown>
+            @if (errors()['type']) { <span class="field-error">{{ errors()['type'] }}</span> }
+          </div>
+
+          @if (!isLab) {
+            <div class="form-group">
+              <label class="form-label">Default Lab <span>*</span></label>
+              <app-custom-dropdown [options]="labBranches()" [value]="defaultLabId()"
+                                   placeholder="Select default lab..." (changed)="onDefaultLab($event)">
+              </app-custom-dropdown>
+              @if (errors()['defaultLabId']) { <span class="field-error">{{ errors()['defaultLabId'] }}</span> }
+              @if (labBranches().length === 0) { <span class="field-hint">No lab-type branches found. Create a lab branch first.</span> }
+            </div>
+          } @else {
+            <div class="form-group">
+              <label class="form-label">Default Lab</label>
+              <div class="info-chip">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                  <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                This branch is a lab — it processes its own samples
+              </div>
+            </div>
+          }
+
+        </div>
+      </div>
+
+      <!-- Section 2: Location & Contact -->
+      <div class="form-section">
+        <div class="fs-head">
+          <div class="fs-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+          </div>
+          <div class="fs-title">Location &amp; Contact</div>
+        </div>
+        <div class="form-grid">
+
+          <div class="form-group full">
+            <label class="form-label">Full Address <span>*</span></label>
+            <input class="form-input" type="text"
+                   [class.form-input--error]="errors()['address']"
+                   [value]="address()" (input)="onAddress($any($event.target).value)"
+                   placeholder="Street address, building name"/>
+            @if (errors()['address']) { <span class="field-error">{{ errors()['address'] }}</span> }
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">City</label>
+            <input class="form-input" type="text"
+                   [value]="city()" (input)="city.set($any($event.target).value)"
+                   placeholder="e.g. Nugegoda"/>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">District</label>
+            <app-custom-dropdown [options]="districtOptions" [value]="district()"
+                                 placeholder="Select district..." [searchable]="true"
+                                 (changed)="onDistrict($event)">
+            </app-custom-dropdown>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Latitude <span>*</span></label>
+            <input class="form-input form-input--mono" type="text"
+                   [class.form-input--error]="errors()['latitude']"
+                   [value]="latitude()" (input)="onLat($any($event.target).value)"
+                   placeholder="e.g. 6.8720"/>
+            @if (errors()['latitude']) { <span class="field-error">{{ errors()['latitude'] }}</span> }
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Longitude <span>*</span></label>
+            <input class="form-input form-input--mono" type="text"
+                   [class.form-input--error]="errors()['longitude']"
+                   [value]="longitude()" (input)="onLng($any($event.target).value)"
+                   placeholder="e.g. 79.8890"/>
+            @if (errors()['longitude']) { <span class="field-error">{{ errors()['longitude'] }}</span> }
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Branch Phone</label>
+            <input class="form-input" type="tel"
+                   [value]="phone()" (input)="phone.set($any($event.target).value)"
+                   placeholder="+94 11 XXX XXXX"/>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Branch Email</label>
+            <input class="form-input" type="email"
+                   [class.form-input--error]="errors()['email']"
+                   [value]="email()" (input)="onEmail($any($event.target).value)"
+                   placeholder="branch@asiri.lk"/>
+            @if (errors()['email']) { <span class="field-error">{{ errors()['email'] }}</span> }
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Section 3: Operating Hours & Capacity -->
+      <div class="form-section">
+        <div class="fs-head">
+          <div class="fs-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <div class="fs-title">Operating Hours &amp; Capacity</div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Opening Time <span>*</span></label>
+            <input class="form-input form-input--mono" type="time"
+                   [value]="openingTime()" (change)="openingTime.set($any($event.target).value)"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Closing Time <span>*</span></label>
+            <input class="form-input form-input--mono" type="time"
+                   [value]="closingTime()" (change)="closingTime.set($any($event.target).value)"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Service Radius (km)</label>
+            <input class="form-input form-input--mono" type="number" min="1"
+                   [value]="serviceRadius()" (input)="serviceRadius.set($any($event.target).value)"
+                   placeholder="e.g. 15"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Max Daily Capacity</label>
+            <input class="form-input form-input--mono" type="number" min="1"
+                   [value]="maxCapacity()" (input)="maxCapacity.set($any($event.target).value)"
+                   placeholder="e.g. 50 jobs/day"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 4: Branch Manager -->
+      <div class="form-section">
+        <div class="fs-head">
+          <div class="fs-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <div class="fs-title">Branch Manager</div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label class="form-label">Select Manager</label>
+            <app-custom-dropdown [options]="managerOptions()" [value]="selectedManagerId()"
+                                 placeholder="Select a lab manager..." [searchable]="true"
+                                 (changed)="onManagerSelect($event)">
+            </app-custom-dropdown>
+            @if (managerOptions().length === 0) {
+              <span class="field-hint">No lab managers found. Add users with Lab Manager role first.</span>
+            }
+          </div>
+          <div class="form-group">
+            <label class="form-label">Manager Name</label>
+            <input class="form-input" type="text"
+                   [value]="managerName()" (input)="managerName.set($any($event.target).value)"
+                   placeholder="Auto-filled from selection"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Manager Contact</label>
+            <input class="form-input" type="tel"
+                   [value]="managerPhone()" (input)="managerPhone.set($any($event.target).value)"
+                   placeholder="Auto-filled from selection"/>
+          </div>
+        </div>
+        <div class="info-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+          Selecting a manager auto-fills their contact details. You can override manually if needed.
+        </div>
+      </div>
+
+      <!-- Form Footer -->
+      <div class="form-footer">
+        <button class="btn" (click)="cancel()" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+          Cancel
+        </button>
+        <button class="btn btn-primary" (click)="submit()" [disabled]="isSubmitting()" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+          {{ isSubmitting() ? 'Registering...' : 'Register Branch' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Context Sidebar ── -->
+    <div class="ctx-sidebar">
+
+      <div class="ctx-card">
+        <div class="ctx-card-head">
+          <div class="ctx-card-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+              <rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 14l2 2 4-4"/>
+            </svg>
+          </div>
+          <h3>Branch Setup Checklist</h3>
+        </div>
+        <div class="checklist">
+          @for (item of checklist(); track item.label) {
+            <div class="check-item" [class.done]="item.done">
+              <div class="check-circle">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </div>
+              <span class="check-text">{{ item.label }}</span>
+              @if (item.required && !item.done) { <span class="check-req">Required</span> }
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="ctx-card">
+        <div class="ctx-card-head">
+          <div class="ctx-card-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+          </div>
+          <h3>Branch Network</h3>
+        </div>
+        <div class="ctx-stats">
+          <div class="ctx-stat"><div class="ctx-stat-val">{{ networkStats().total }}</div><div class="ctx-stat-label">Total Branches</div></div>
+          <div class="ctx-stat"><div class="ctx-stat-val">{{ networkStats().labs }}</div><div class="ctx-stat-label">Labs</div></div>
+          <div class="ctx-stat"><div class="ctx-stat-val">{{ networkStats().centers }}</div><div class="ctx-stat-label">Centers</div></div>
+          <div class="ctx-stat"><div class="ctx-stat-val">{{ networkStats().districts }}</div><div class="ctx-stat-label">Districts</div></div>
+        </div>
+      </div>
+
+      <div class="ctx-card">
+        <div class="ctx-card-head">
+          <div class="ctx-card-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <h3>Recent Branches</h3>
+        </div>
+        <div class="ctx-recent">
+          @if (recentBranches().length === 0) {
+            <p class="ctx-empty">No branches yet</p>
+          }
+          @for (b of recentBranches(); track b.name) {
+            <div class="ctx-r-item">
+              <div class="ctx-r-av">{{ b.initials }}</div>
+              <div class="ctx-r-info">
+                <div class="ctx-r-name">{{ b.name }}</div>
+                <div class="ctx-r-date">{{ b.date }}</div>
+              </div>
+              <span class="ctx-r-badge"
+                    [class.status-active]="b.isOnline"
+                    [class.status-setup]="!b.isOnline">
+                {{ b.isOnline ? 'Online' : 'Offline' }}
+              </span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="ctx-card">
+        <div class="ctx-card-head">
+          <div class="ctx-card-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+          </div>
+          <h3>Quick Tips</h3>
+        </div>
+        <div class="ctx-tips">
+          <div class="ctx-tip"><div class="ctx-tip-num">1</div>Set GPS coordinates accurately for auto-dispatch</div>
+          <div class="ctx-tip"><div class="ctx-tip-num">2</div>Collecting centers must have a default lab assigned</div>
+          <div class="ctx-tip"><div class="ctx-tip-num">3</div>Service radius should avoid coverage gaps</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="notice">
+    <div class="notice-ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+      </svg>
+    </div>
+    <div class="notice-text">
+      <strong>Note:</strong> Branch information is used for operational routing and service management.
+      GPS coordinates affect auto-dispatch accuracy.
+    </div>
+  </div>
+
+  <footer class="brand-footer">
+    <div class="bf-left">
+      <div class="bf-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round">
+          <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
+        </svg>
+      </div>
+      <div class="bf-text"><strong>Asiri Laboratories</strong> — Mobile Service Platform<br>Trusted healthcare, delivered to your doorstep</div>
+    </div>
+    <div class="bf-right">
+      <div class="bf-status"><div class="bf-dot"></div>All systems operational</div>
+      <div class="bf-divider"></div>
+      <div class="bf-meta">v2.4.1</div>
+    </div>
+  </footer>
+</div>

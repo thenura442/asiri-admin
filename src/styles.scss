@@ -564,3 +564,17 @@ img {
   gap: 14px;
   max-width: 360px;
 }
+
+
+// Footer
+
+.pg {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  gap: 32px; // this adds space between all direct children including before footer
+}
+
+.brand-footer {
+  margin-top: auto !important;
+}

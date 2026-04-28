@@ -1,0 +1,249 @@
+<div class="pg">
+  <!-- Page Header -->
+  <div class="pg-hdr">
+    <div class="pg-hdr-l">
+      <h1>Driver Management</h1>
+      <p>Register, manage, and monitor all mobile service drivers</p>
+    </div>
+    <div class="pg-hdr-r">
+      <button class="btn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Export
+      </button>
+      <a routerLink="/drivers/register" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+          <circle cx="8.5" cy="7" r="4"/>
+          <line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>
+        </svg>
+        Register New Driver
+      </a>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="st">
+      <div class="st-ico st-ico--blue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--sbl)" stroke-width="1.8">
+          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+        </svg>
+      </div>
+      <div>
+        <div class="st-label">Total Drivers</div>
+        <div class="st-num">{{ stats().total }}</div>
+      </div>
+    </div>
+    <div class="st">
+      <div class="st-ico st-ico--green">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--sg)" stroke-width="1.8">
+          <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+      </div>
+      <div>
+        <div class="st-label">Active</div>
+        <div class="st-num">{{ stats().active }}</div>
+      </div>
+    </div>
+    <div class="st">
+      <div class="st-ico st-ico--teal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+      </div>
+      <div>
+        <div class="st-label">On Job Now</div>
+        <div class="st-num">{{ stats().onJob }}</div>
+      </div>
+    </div>
+    <div class="st">
+      <div class="st-ico st-ico--red">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--sr)" stroke-width="1.8">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M10 15V9M14 15V9"/>
+        </svg>
+      </div>
+      <div>
+        <div class="st-label">Suspended</div>
+        <div class="st-num">{{ stats().suspended }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="filter-bar">
+    <div class="search-bar" [class.search-bar--active]="searchQuery().length > 0">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+      </svg>
+      <input [value]="searchQuery()" (input)="onSearch($event)"
+             placeholder="Search by name, NIC, license, or phone..." autocomplete="off"/>
+    </div>
+    @for (f of [
+      {key:'all', label:'All'},
+      {key:'active', label:'Active'},
+      {key:'inactive', label:'Inactive'},
+      {key:'suspended', label:'Suspended'}
+    ]; track f.key) {
+      <button class="chip" [class.active]="activeFilter() === f.key"
+              (click)="setFilter($any(f.key))" type="button">
+        {{ f.label }}
+      </button>
+    }
+  </div>
+
+  <!-- Table -->
+  <div class="table-card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Driver</th>
+            <th>NIC</th>
+            <th>License No.</th>
+            <th>Base Lab</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (driver of filteredDrivers(); track driver.id) {
+            <tr [class.row--suspended]="driver.status === 'suspended'">
+
+              <!-- Driver -->
+              <td>
+                <div class="d-cell">
+                  <div class="d-av" [class.d-av--active]="driver.status === 'active'">
+                    {{ driver.initials }}
+                  </div>
+                  <div>
+                    <div class="d-name">{{ driver.fullName }}</div>
+                    <div class="d-phone">{{ driver.phone }}</div>
+                  </div>
+                </div>
+              </td>
+
+              <!-- NIC -->
+              <td><span class="mono-text">{{ driver.nic }}</span></td>
+
+              <!-- License -->
+              <td>
+                <div class="license-wrap">
+                  <span class="mono-text">{{ driver.licenseNumber }}</span>
+                  <span class="license-expiry"
+                        [class.license-expiry--warn]="isLicenseExpiringSoon(driver.licenseExpiry)"
+                        [class.license-expiry--danger]="isLicenseExpired(driver.licenseExpiry)">
+                    Exp: {{ formatExpiry(driver.licenseExpiry) }}
+                    @if (isLicenseExpired(driver.licenseExpiry)) {
+                      <span class="exp-badge exp-badge--danger">Expired</span>
+                    } @else if (isLicenseExpiringSoon(driver.licenseExpiry)) {
+                      <span class="exp-badge exp-badge--warn">Expiring Soon</span>
+                    }
+                  </span>
+                </div>
+              </td>
+
+              <!-- Branch -->
+              <td><span class="branch-label">{{ driver.branchName }}</span></td>
+
+              <!-- Status -->
+              <td>
+                <span class="bd" [ngClass]="statusBadgeClass(driver.status)">
+                  {{ statusLabel(driver.status) }}
+                </span>
+              </td>
+
+              <!-- Actions -->
+              <td>
+                <div class="actions">
+                  <button class="act" [title]="'Edit ' + driver.fullName"
+                          (click)="openEdit(driver)" type="button">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                      <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                  </button>
+
+                  @if (driver.status === 'active') {
+                    <button class="act act--warn" title="Suspend"
+                            (click)="toggleStatus(driver)" type="button">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M10 15V9M14 15V9"/>
+                      </svg>
+                    </button>
+                  } @else {
+                    <button class="act act--green" title="Reactivate"
+                            (click)="toggleStatus(driver)" type="button">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        @if (driver.status === 'suspended') {
+                          <polyline points="1 4 1 10 7 10"/>
+                          <path d="M3.51 15a9 9 0 102.13-9.36L1 10"/>
+                        } @else {
+                          <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                          <polyline points="22 4 12 14.01 9 11.01"/>
+                        }
+                      </svg>
+                    </button>
+                  }
+
+                  <button class="act act--danger" title="Delete"
+                          (click)="confirmDelete(driver)" type="button">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="3 6 5 6 21 6"/>
+                      <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="empty-row">No drivers found</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="table-ft">
+      <div class="table-ft-info">Showing 1–{{ filteredDrivers().length }} of {{ totalCount() }} drivers</div>
+      <div class="pag">
+        <button class="pag-btn" [disabled]="currentPage() === 1" (click)="setPage(currentPage() - 1)" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        @for (p of pageRange; track p) {
+          <button class="pag-btn" [class.active]="currentPage() === p" (click)="setPage(p)" type="button">{{ p }}</button>
+        }
+        <button class="pag-btn" [disabled]="currentPage() === totalPages" (click)="setPage(currentPage() + 1)" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Branded Footer -->
+  <footer class="brand-footer">
+    <div class="bf-left">
+      <div class="bf-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round">
+          <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
+        </svg>
+      </div>
+      <div class="bf-text"><strong>Asiri Laboratories</strong> — Mobile Service Platform<br>Trusted healthcare, delivered to your doorstep</div>
+    </div>
+    <div class="bf-right">
+      <div class="bf-status"><div class="bf-dot"></div>All systems operational</div>
+      <div class="bf-divider"></div>
+      <div class="bf-meta">Last synced: just now</div>
+      <div class="bf-divider"></div>
+      <div class="bf-meta">v2.4.1</div>
+    </div>
+  </footer>
+</div>

@@ -1,0 +1,34 @@
+<div class="drv-card">
+  <div class="drv-head">
+    <h3>Driver Status</h3>
+    <a routerLink="/drivers" class="view-link">
+      View All
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+    </a>
+  </div>
+
+  <div class="drv-list">
+    @for (driver of drivers(); track driver.id) {
+      <div class="dv">
+        <div class="dv-av">
+          {{ driver.initials }}
+          <div class="dv-dot" [style.background]="dotColor(driver)"></div>
+        </div>
+        <div class="dv-info">
+          <div class="dv-name">{{ driver.fullName }}</div>
+          <div class="dv-vehicle">{{ driver.vehicleCode }}</div>
+          @if (driver.jobProgress > 0) {
+            <div class="dv-prog">
+              <div class="dv-prog-fill" [style.width.%]="driver.jobProgress * 100"></div>
+            </div>
+          }
+        </div>
+        <span class="bd" [ngClass]="badgeClass(driver)">{{ badgeLabel(driver) }}</span>
+      </div>
+    } @empty {
+      <div class="drv-empty">No drivers assigned</div>
+    }
+  </div>
+</div>

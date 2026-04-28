@@ -1,0 +1,340 @@
+<div class="pg">
+  <!-- Job Header Bar -->
+  <div class="job-header">
+    <div class="jh-left">
+      <span class="jh-id">#{{ job().requestNumber }}</span>
+      <span class="jh-status jh-active">En Route to Patient</span>
+    </div>
+    <div class="jh-info">
+      <div class="jh-item"><strong>{{ job().patient.fullName }}</strong></div>
+      <div class="jh-divider"></div>
+      <div class="jh-item">
+        @for (test of job().tests; track test.id) {
+          <span class="jh-chip">{{ test.code }}</span>
+        }
+      </div>
+      <div class="jh-divider"></div>
+      <div class="jh-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+        {{ job().patient.address }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Two-column layout -->
+  <div class="job-grid">
+    <!-- ── Timeline ── -->
+    <div class="timeline-card">
+      <div class="tc-title">Job Journey Tracker — 21 Steps</div>
+
+      <!-- Collection Phase -->
+      <span class="phase-label phase-collection">Collection Phase</span>
+      <div class="timeline">
+        @for (step of collectionSteps; track step.number) {
+          <div class="step" [ngClass]="'step-' + step.status">
+            <div class="step-dot">{{ step.number }}</div>
+            <div class="step-title">{{ step.title }}</div>
+            <div class="step-desc">{{ step.description }}</div>
+            @if (step.timestamp) {
+              <div class="step-time">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                </svg>
+                {{ step.timestamp }}
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Transport Phase -->
+      <span class="phase-label phase-transport" style="margin-top: 28px">Transport Phase</span>
+      <div class="timeline">
+        @for (step of transportSteps; track step.number) {
+          <div class="step" [ngClass]="'step-' + step.status">
+            <div class="step-dot">{{ step.number }}</div>
+            <div class="step-title">{{ step.title }}</div>
+            <div class="step-desc">{{ step.description }}</div>
+          </div>
+        }
+      </div>
+
+      <!-- Processing Phase -->
+      <span class="phase-label phase-processing" style="margin-top: 28px">Processing Phase</span>
+      <div class="timeline">
+        @for (step of processingSteps; track step.number) {
+          <div class="step" [ngClass]="'step-' + step.status">
+            <div class="step-dot">{{ step.number }}</div>
+            <div class="step-title">{{ step.title }}</div>
+            <div class="step-desc">{{ step.description }}</div>
+          </div>
+        }
+      </div>
+
+      <!-- Delivery Phase -->
+      <span class="phase-label phase-delivery" style="margin-top: 28px">Delivery Phase</span>
+      <div class="timeline">
+        @for (step of deliverySteps; track step.number) {
+          <div class="step" [ngClass]="'step-' + step.status">
+            <div class="step-dot">{{ step.number }}</div>
+            <div class="step-title">{{ step.title }}</div>
+            <div class="step-desc">{{ step.description }}</div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- ── Right Column ── -->
+    <div class="right-col">
+
+      <!-- Patient Info -->
+      <div class="info-card">
+        <div class="ic-head">
+          <div class="ic-head-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <h3>Patient Information</h3>
+        </div>
+        <div class="ic-body">
+          <div class="ic-row"><span class="ic-label">Name</span><span class="ic-val">{{ job().patient.fullName }}</span></div>
+          <div class="ic-row"><span class="ic-label">Age / Gender</span><span class="ic-val">{{ job().patient.gender }}, {{ job().patient.age }} years</span></div>
+          <div class="ic-row"><span class="ic-label">UHID</span><span class="ic-val mono">{{ job().patient.uhid }}</span></div>
+          <div class="ic-row"><span class="ic-label">Phone</span><span class="ic-val">{{ job().patient.phone }}</span></div>
+          <div class="ic-row"><span class="ic-label">Address</span><span class="ic-val ic-val--wrap">{{ job().patient.address }}</span></div>
+          <hr class="ic-divider">
+          <div class="ic-row"><span class="ic-label">Emergency</span><span class="ic-val">{{ job().patient.emergencyName }} · {{ job().patient.emergencyPhone }}</span></div>
+          <div class="ic-row">
+            <span class="ic-label">Flag</span>
+            <span class="ic-val"><span class="flag-badge" [ngClass]="flagBadgeClass(job().patient.flag)">{{ job().patient.flag | titlecase }}</span></span>
+          </div>
+          <div class="ic-row">
+            <span class="ic-label">Pending Charges</span>
+            <span class="ic-val" [style.color]="job().patient.pendingCharges > 0 ? 'var(--srt)' : 'var(--sgt)'">
+              {{ job().patient.pendingCharges | currencyLkr }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tests -->
+      <div class="info-card">
+        <div class="ic-head">
+          <div class="ic-head-ico" style="background:var(--accent-gl); border-color:rgba(63,188,185,.1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8">
+              <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
+            </svg>
+          </div>
+          <h3>Requested Tests ({{ job().tests.length }})</h3>
+        </div>
+        <div class="ic-body">
+          @for (test of job().tests; track test.id) {
+            <div class="test-row">
+              <div class="tr-left">
+                @if (test.prescriptionRequired) {
+                  <div class="tr-rx" title="Prescription required">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                      <polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                  </div>
+                }
+                <div>
+                  <div class="tr-name">{{ test.name }}</div>
+                  <div class="tr-sample">{{ test.sampleType | titlecase }} · {{ test.code }}</div>
+                </div>
+              </div>
+              <span class="tr-status" [ngClass]="testStatusClass(test.status)">
+                {{ test.status | statusLabel }}
+              </span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Driver & Vehicle -->
+      <div class="info-card">
+        <div class="ic-head">
+          <div class="ic-head-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="2" y="7" width="20" height="11" rx="2"/>
+              <circle cx="7" cy="15" r="1.5"/><circle cx="17" cy="15" r="1.5"/>
+            </svg>
+          </div>
+          <h3>Driver &amp; Vehicle</h3>
+        </div>
+        <div class="ic-body">
+          <div class="driver-card">
+            <div class="dc-av">{{ job().driver.initials }}</div>
+            <div>
+              <div class="dc-name">{{ job().driver.fullName }}</div>
+              <div class="dc-meta">{{ job().driver.phone }} · {{ job().branch.name }}</div>
+            </div>
+          </div>
+          <hr class="ic-divider">
+          <div class="ic-row"><span class="ic-label">Vehicle</span><span class="ic-val mono">{{ job().vehicle.plateNumber }} · {{ job().vehicle.vehicleType }}</span></div>
+          <div class="ic-row"><span class="ic-label">Status</span><span class="ic-val" style="color:var(--sbl)">En Route</span></div>
+          <div class="ic-row"><span class="ic-label">Distance</span><span class="ic-val mono">{{ job().vehicle.distanceKm }} km</span></div>
+          <div class="ic-row"><span class="ic-label">ETA</span><span class="ic-val mono" style="color:var(--accent)">{{ job().vehicle.etaMinutes }} min</span></div>
+        </div>
+        <div class="qa-grid">
+          <button class="qa-btn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3"/>
+            </svg>
+            Call
+          </button>
+          <button class="qa-btn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+            Track Live
+          </button>
+          <button class="qa-btn primary" (click)="openReassign()" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="23 4 23 10 17 10"/>
+              <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/>
+            </svg>
+            Reassign
+          </button>
+          <button class="qa-btn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            Update Address
+          </button>
+        </div>
+      </div>
+
+      <!-- Escalation & Override -->
+      <div class="info-card">
+        <div class="ic-head">
+          <div class="ic-head-ico" style="background:var(--srb); border-color:rgba(239,68,68,.08)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--sr)" stroke-width="1.8">
+              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+          <h3>Escalation &amp; Override</h3>
+        </div>
+        <div class="qa-grid" style="border-top: none; padding-top: 8px">
+          <button class="qa-btn danger" style="grid-column: 1 / -1" (click)="openNotifySA()" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            </svg>
+            Notify Super Admin
+          </button>
+          <button class="qa-btn danger" (click)="forceComplete()" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            Force Complete
+          </button>
+          <button class="qa-btn" (click)="cancelJob()" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M15 9l-6 6M9 9l6 6"/>
+            </svg>
+            Cancel Job
+          </button>
+        </div>
+      </div>
+
+      <!-- Price Breakdown -->
+      <div class="info-card">
+        <div class="ic-head">
+          <div class="ic-head-ico" style="background:var(--sab); border-color:rgba(234,179,8,.08)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--sa)" stroke-width="1.8">
+              <path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+            </svg>
+          </div>
+          <h3>Price Breakdown</h3>
+        </div>
+        <div class="ic-body">
+          @for (test of job().tests; track test.id) {
+            <div class="pr-row">
+              <span class="pr-label">{{ test.name }} (base)</span>
+              <span class="pr-val">—</span>
+            </div>
+          }
+          <div class="pr-row">
+            <span class="pr-label">Distance ({{ job().pricing.distanceKm }} km × Rs. {{ job().pricing.perKmRate }})</span>
+            <span class="pr-val">{{ job().pricing.distanceKm * job().pricing.perKmRate | currencyLkr }}</span>
+          </div>
+          <div class="pr-row">
+            <span class="pr-label">Transport fee override</span>
+            <span class="pr-val" style="color:var(--t4)">—</span>
+          </div>
+          <div class="pr-row">
+            <span class="pr-label">Pending charges</span>
+            <span class="pr-val" style="color:var(--sgt)">Rs. 0</span>
+          </div>
+          <div class="pr-row pr-total">
+            <span class="pr-label">Total</span>
+            <span class="pr-val">{{ job().pricing.totalPrice | currencyLkr }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes & Issues -->
+      <div class="info-card">
+        <div class="ic-head">
+          <div class="ic-head-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <h3>Notes &amp; Issues</h3>
+        </div>
+        <div class="ic-body">
+          @for (note of job().notes; track note.time) {
+            <div class="note-item">
+              <div class="ni-head">
+                <span class="ni-author">{{ note.author }}</span>
+                <span class="ni-time">{{ note.time }}</span>
+              </div>
+              <div class="ni-text">{{ note.text }}</div>
+            </div>
+          }
+          <textarea
+            class="add-note"
+            [value]="noteText()"
+            (input)="noteText.set($any($event.target).value)"
+            placeholder="Add a note..."
+            rows="1">
+          </textarea>
+          @if (noteText().trim().length > 0) {
+            <button class="add-note-btn" (click)="addNote()" type="button">Add Note</button>
+          }
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Branded Footer -->
+  <footer class="brand-footer">
+    <div class="bf-left">
+      <div class="bf-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round">
+          <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
+        </svg>
+      </div>
+      <div class="bf-text"><strong>Asiri Laboratories</strong> — Mobile Service Platform</div>
+    </div>
+    <div class="bf-right">
+      <div class="bf-status"><div class="bf-dot"></div>All systems operational</div>
+      <div class="bf-divider"></div>
+      <div class="bf-meta">v2.4.1</div>
+    </div>
+  </footer>
+</div>

@@ -1,0 +1,6 @@
+<div class="av" [class]="'av--' + size">
+  {{ initials }}
+  @if (online !== undefined) {
+    <span class="av-dot" [class.av-dot--online]="online" [class.av-dot--offline]="!online"></span>
+  }
+</div>

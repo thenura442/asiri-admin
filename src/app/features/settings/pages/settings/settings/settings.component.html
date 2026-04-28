@@ -1,0 +1,297 @@
+<div class="pg">
+  <div class="pg-hdr">
+    <div>
+      <h1>System Settings</h1>
+      <p>Configure global platform parameters, manage administrative access, and security protocols</p>
+    </div>
+  </div>
+
+  <!-- User Management Link Card -->
+  <div class="settings-grid settings-grid--full">
+    <div class="card card--clickable" routerLink="/users">
+      <div class="card-head">
+        <div class="card-head-l">
+          <div class="card-head-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+            </svg>
+          </div>
+          <div class="card-head-text">
+            <h3>User Management</h3>
+            <p>Manage all admin portal users, roles, and account security — on a dedicated page</p>
+          </div>
+        </div>
+        <a routerLink="/users" class="btn btn-primary" (click)="$event.stopPropagation()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+          Open User Management
+        </a>
+      </div>
+      <div class="user-stats-strip">
+        <div class="user-stat">
+          <span class="user-stat-num">{{ userStats.total }}</span>
+          <span class="user-stat-label">Total Users</span>
+        </div>
+        <div class="user-stat">
+          <span class="user-stat-num user-stat-num--green">{{ userStats.active }}</span>
+          <span class="user-stat-label">Active</span>
+        </div>
+        <div class="user-stat">
+          <span class="user-stat-num user-stat-num--red">{{ userStats.locked }}</span>
+          <span class="user-stat-label">Locked</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Permissions + Security -->
+  <div class="settings-grid">
+    <!-- Role Permissions -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-l">
+          <div class="card-head-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </div>
+          <div class="card-head-text">
+            <h3>Role Permissions</h3>
+            <p>Define access levels for each department</p>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        @for (perm of rolePermissions(); track perm.label; let i = $index) {
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-label">{{ perm.label }}</div>
+              <div class="toggle-desc">{{ perm.desc }}</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" [checked]="perm.value"
+                     (change)="togglePermission(i)"/>
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+        }
+        <div style="margin-top:20px">
+          <span class="card-link">Customize Advanced Rules →</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security Settings -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-l">
+          <div class="card-head-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="3" y="11" width="18" height="11" rx="2"/>
+              <path d="M7 11V7a5 5 0 0110 0v4"/>
+            </svg>
+          </div>
+          <div class="card-head-text">
+            <h3>Security Settings</h3>
+            <p>System-wide protection and auth policies</p>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="sec-label">Two-Factor Authentication</div>
+        <div class="toggle-row toggle-row--first">
+          <div class="toggle-info">
+            <div class="toggle-label">Enforce MFA for all Admin accounts</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" [checked]="enforceMfa()"
+                   (change)="enforceMfa.set($any($event.target).checked)"/>
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+
+        <div style="margin-top:20px">
+          <div class="sec-label">Session Timeout</div>
+          <select class="form-select" [value]="sessionTimeout()"
+                  (change)="sessionTimeout.set($any($event.target).value)">
+            @for (opt of timeoutOptions; track opt) {
+              <option [value]="opt" [selected]="opt === sessionTimeout()">{{ opt }}</option>
+            }
+          </select>
+        </div>
+
+        <div style="margin-top:20px">
+          <button class="btn-danger w-full" (click)="rotateKeys()" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="1 4 1 10 7 10"/>
+              <path d="M3.51 15a9 9 0 102.13-9.36L1 10"/>
+            </svg>
+            Rotate Security Keys
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Platform Configuration -->
+  <div class="settings-grid settings-grid--full" style="margin-top:0">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-l">
+          <div class="card-head-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9"/>
+            </svg>
+          </div>
+          <div class="card-head-text">
+            <h3>Platform Configuration</h3>
+            <p>Operational parameters for mobile services</p>
+          </div>
+        </div>
+        <button class="btn" (click)="restoreDefaults()" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="1 4 1 10 7 10"/>
+            <path d="M3.51 15a9 9 0 102.13-9.36L1 10"/>
+          </svg>
+          Restore Defaults
+        </button>
+      </div>
+      <div class="card-body">
+        <div class="config-grid">
+          <div class="config-item">
+            <label class="config-label">Service Radius (km)</label>
+            <input class="form-input" type="number"
+                   [value]="serviceRadius()"
+                   (input)="serviceRadius.set(+$any($event.target).value)"/>
+          </div>
+          <div class="config-item">
+            <label class="config-label">Auto-Dispatch Threshold</label>
+            <input class="form-input"
+                   [value]="autoDispatchThresh()"
+                   (input)="autoDispatchThresh.set($any($event.target).value)"/>
+          </div>
+          <div class="config-item">
+            <label class="config-label">Buffer Time (mins)</label>
+            <input class="form-input" type="number"
+                   [value]="bufferTime()"
+                   (input)="bufferTime.set(+$any($event.target).value)"/>
+          </div>
+        </div>
+
+        <!-- AI Feature toggle -->
+        <div class="ai-feature">
+          <div class="ai-feature-l">
+            <div class="ai-ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <rect x="2" y="7" width="20" height="11" rx="2"/>
+                <circle cx="7" cy="15" r="1.5"/><circle cx="17" cy="15" r="1.5"/>
+                <path d="M5 7V5.5A1.5 1.5 0 016.5 4h3L12 7"/>
+              </svg>
+            </div>
+            <div>
+              <div class="ai-title">AI Route Optimization</div>
+              <div class="ai-desc">Automatically optimize driver routes based on traffic and priority</div>
+            </div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" [checked]="aiOptimization()"
+                   (change)="aiOptimization.set($any($event.target).checked)"/>
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+      </div>
+      <div class="action-bar">
+        <button class="btn" type="button">Discard</button>
+        <button class="btn btn-primary" (click)="saveSettings()" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+            <polyline points="17 21 17 13 7 13 7 21"/>
+            <polyline points="7 3 7 8 15 8"/>
+          </svg>
+          Save Global Settings
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- System Maintenance — danger zone -->
+  <div class="settings-grid settings-grid--full" style="margin-top:16px">
+    <div class="card card--danger">
+      <div class="card-head">
+        <div class="card-head-l">
+          <div class="card-head-ico card-head-ico--red">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--sr)" stroke-width="1.8">
+              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+          <div class="card-head-text">
+            <h3>System Maintenance</h3>
+            <p>Block access for all users except Super Admin. Use during deployments or critical updates.</p>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="toggle-row toggle-row--first">
+          <div class="toggle-info">
+            <div class="toggle-label">Admin Portal Maintenance</div>
+            <div class="toggle-desc">Blocks all admin portal users except Super Admins. Other roles see a maintenance screen.</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" [checked]="adminMaintenance()"
+                   (change)="toggleMaintenance('admin', $any($event.target).checked)"/>
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-label">Mobile App Maintenance</div>
+            <div class="toggle-desc">Blocks all customer mobile app access. Customers see a maintenance notification.</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" [checked]="mobileMaintenance()"
+                   (change)="toggleMaintenance('mobile', $any($event.target).checked)"/>
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+        <div class="danger-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--sr)" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+          </svg>
+          Enabling maintenance mode will immediately block access. Only Super Admin accounts can access the system during maintenance.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Last modified notice -->
+  <div class="last-mod">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    </svg>
+    Last modified by <strong class="last-mod-who">Admin #1042</strong> on {{ lastModified }}
+  </div>
+
+  <!-- Branded Footer -->
+  <footer class="brand-footer">
+    <div class="bf-left">
+      <div class="bf-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round">
+          <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
+        </svg>
+      </div>
+      <div class="bf-text"><strong>Asiri Laboratories</strong> — Mobile Service Platform<br>Trusted healthcare, delivered to your doorstep</div>
+    </div>
+    <div class="bf-right">
+      <div class="bf-status"><div class="bf-dot"></div>All systems operational</div>
+      <div class="bf-divider"></div>
+      <div class="bf-meta">Last synced: just now</div>
+      <div class="bf-divider"></div>
+      <div class="bf-meta">v2.4.1</div>
+    </div>
+  </footer>
+</div>

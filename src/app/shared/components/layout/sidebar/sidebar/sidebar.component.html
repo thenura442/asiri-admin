@@ -1,0 +1,153 @@
+<aside class="sb">
+
+  <!-- Logo -->
+  <div class="sb-logo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round">
+      <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
+    </svg>
+  </div>
+
+  <!-- Brand (visible on hover) -->
+  <div class="sb-brand">
+    <h1>Asiri Labs</h1>
+    <p>Mobile Service</p>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="sb-nav">
+
+    <div class="sb-sec">Operations</div>
+
+    <a class="sn" routerLink="/dashboard" routerLinkActive="on" [routerLinkActiveOptions]="{exact: true}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+        <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+        <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+        <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+      </svg>
+      <span class="sn-text">Dashboard</span>
+    </a>
+
+    <a class="sn" routerLink="/job-requests" routerLinkActive="on">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+        <rect x="9" y="3" width="6" height="4" rx="1"/>
+      </svg>
+      <span class="sn-text">Job Requests</span>
+    </a>
+
+    <div class="sb-sec">Fleet</div>
+
+    <a class="sn" routerLink="/vehicles" routerLinkActive="on">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <rect x="2" y="7" width="20" height="11" rx="2"/>
+        <circle cx="7" cy="15" r="1.5"/>
+        <circle cx="17" cy="15" r="1.5"/>
+      </svg>
+      <span class="sn-text">Vehicles</span>
+    </a>
+
+    <a class="sn" routerLink="/drivers" routerLinkActive="on">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+      </svg>
+      <span class="sn-text">Drivers</span>
+    </a>
+
+    <div class="sb-sec">Management</div>
+
+    <a class="sn" routerLink="/patients" routerLinkActive="on">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      <span class="sn-text">Patients</span>
+    </a>
+
+    <a class="sn" routerLink="/tests" routerLinkActive="on">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
+      </svg>
+      <span class="sn-text">Tests &amp; Services</span>
+    </a>
+
+    <a class="sn" routerLink="/branches" routerLinkActive="on">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      <span class="sn-text">Branches</span>
+    </a>
+
+    <div class="sb-sec">Lab</div>
+
+    <a class="sn" routerLink="/lab-approvals" routerLinkActive="on">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <path d="M9 15l2 2 4-4"/>
+      </svg>
+      <span class="sn-text">Lab Approvals</span>
+    </a>
+
+    <div class="sb-sec">Analytics</div>
+
+    <a class="sn" routerLink="/reports" routerLinkActive="on">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      </svg>
+      <span class="sn-text">Reports</span>
+    </a>
+
+    <div class="sb-sec">System</div>
+
+    <a class="sn" routerLink="/notifications" routerLinkActive="on">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.73 21a2 2 0 01-3.46 0"/>
+      </svg>
+      <span class="sn-text">Notifications</span>
+    </a>
+
+    <a class="sn" routerLink="/settings" routerLinkActive="on">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+      </svg>
+      <span class="sn-text">Settings</span>
+    </a>
+
+    <a class="sn" routerLink="/users" routerLinkActive="on">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+      </svg>
+      <span class="sn-text">User Management</span>
+    </a>
+
+  </nav>
+
+  <!-- New Request CTA -->
+  <a class="sb-cta" routerLink="/job-requests/new">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/>
+      <path d="M12 8v8M8 12h8"/>
+    </svg>
+    <span class="sb-cta-text">New Request</span>
+  </a>
+
+  <!-- User footer -->
+  <div class="sb-ft">
+    <a class="sb-u" routerLink="/profile">
+      <div class="sb-av">{{ user.initials }}</div>
+      <div class="sb-u-info">
+        <div class="sb-u-n">{{ user.name }}</div>
+        <div class="sb-u-r">{{ user.role }}</div>
+      </div>
+    </a>
+  </div>
+
+</aside>

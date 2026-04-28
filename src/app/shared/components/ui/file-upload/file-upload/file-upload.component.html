@@ -1,0 +1,51 @@
+<div class="upload-zone"
+     [class.upload-zone--dragging]="isDragging()"
+     [class.upload-zone--filled]="file() !== null"
+     (dragover)="onDragOver($event)"
+     (dragleave)="onDragLeave()"
+     (drop)="onDrop($event)">
+
+  @if (file()) {
+    <div class="upload-preview">
+      @if (file()!.previewUrl) {
+        <img [src]="file()!.previewUrl" class="preview-img" alt="Preview" />
+      } @else {
+        <div class="preview-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+        </div>
+      }
+      <div class="preview-info">
+        <span class="preview-name">{{ file()!.file.name }}</span>
+        <span class="preview-size">{{ (file()!.file.size / 1024).toFixed(0) }} KB</span>
+      </div>
+      <button class="preview-remove" (click)="remove()" type="button" aria-label="Remove file">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  } @else {
+    <label class="upload-label">
+      <input type="file" [accept]="accept()" class="upload-input" (change)="onFileInput($event)" />
+      <div class="upload-ico">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+      </div>
+      <span class="upload-text">{{ label() }}</span>
+      <span class="upload-sub">Click to upload or drag and drop</span>
+      @if (hint()) {
+        <span class="upload-hint">{{ hint() }}</span>
+      }
+    </label>
+  }
+
+  @if (error()) {
+    <p class="upload-error">{{ error() }}</p>
+  }
+</div>

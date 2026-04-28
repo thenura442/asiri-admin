@@ -1,0 +1,19 @@
+<div class="toggle-wrap" [class.toggle-wrap--disabled]="disabled()">
+  @if (label()) {
+    <div class="toggle-text">
+      <span class="toggle-label">{{ label() }}</span>
+      @if (sublabel()) {
+        <span class="toggle-sublabel">{{ sublabel() }}</span>
+      }
+    </div>
+  }
+  <button
+    class="toggle-track"
+    [class.toggle-track--on]="checked()"
+    [attr.aria-checked]="checked()"
+    role="switch"
+    (click)="toggle()"
+    type="button">
+    <span class="toggle-thumb"></span>
+  </button>
+</div>

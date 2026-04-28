@@ -1,0 +1,91 @@
+<div class="backdrop" (click)="close()">
+  <div class="modal md" (click)="$event.stopPropagation()">
+    <div class="m-head">
+      <div class="m-head-l">
+        <div class="m-head-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+        </div>
+        <div class="m-head-text">
+          <h2>Edit Driver</h2>
+          <p>Update driver details and status</p>
+        </div>
+      </div>
+      <button class="m-close" (click)="close()" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="m-body">
+      <div class="fg-row">
+        <div class="fg">
+          <label class="fl">Full Name</label>
+          <input class="fi" [value]="fullName()" (input)="fullName.set($any($event.target).value)"/>
+        </div>
+        <div class="fg">
+          <label class="fl">NIC</label>
+          <input class="fi fi-mono" [value]="nic()" (input)="nic.set($any($event.target).value)"/>
+        </div>
+      </div>
+      <div class="fg-row">
+        <div class="fg">
+          <label class="fl">Date of Birth</label>
+          <input class="fi" type="date" [value]="dob()" (change)="dob.set($any($event.target).value)"/>
+        </div>
+        <div class="fg">
+          <label class="fl">Contact Number</label>
+          <input class="fi" [value]="phone()" (input)="phone.set($any($event.target).value)"/>
+        </div>
+      </div>
+      <div class="fg-row">
+        <div class="fg">
+          <label class="fl">License Number</label>
+          <input class="fi fi-mono" [value]="licenseNumber()" (input)="licenseNumber.set($any($event.target).value)"/>
+        </div>
+        <div class="fg">
+          <label class="fl">License Expiry</label>
+          <input class="fi" type="date" [value]="licenseExpiry()" (change)="licenseExpiry.set($any($event.target).value)"/>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">Base Lab</label>
+        <select class="fi" [value]="branchName()" (change)="branchName.set($any($event.target).value)">
+          @for (b of branches; track b) {
+            <option [value]="b" [selected]="b === branchName()">{{ b }}</option>
+          }
+        </select>
+      </div>
+      <div class="fg">
+        <label class="fl">Status</label>
+        <div class="radio-row">
+          <button class="radio-pill" [class.active]="status() === 'active'"
+                  (click)="setStatus('active')" type="button">Active</button>
+          <button class="radio-pill" [class.active]="status() === 'inactive'"
+                  (click)="setStatus('inactive')" type="button">Inactive</button>
+          <button class="radio-pill radio-pill--danger" [class.active]="status() === 'suspended'"
+                  (click)="setStatus('suspended')" type="button">Suspended</button>
+        </div>
+      </div>
+      @if (status() !== 'active') {
+        <div class="fg">
+          <label class="fl">Reason for Status Change</label>
+          <textarea class="fi" [value]="statusReason()"
+                    (input)="statusReason.set($any($event.target).value)"
+                    placeholder="Required when changing status..."
+                    style="min-height:60px"></textarea>
+        </div>
+      }
+    </div>
+
+    <div class="m-foot">
+      <button class="btn btn-danger" (click)="confirmDelete()" type="button">Delete Driver</button>
+      <div style="flex:1"></div>
+      <button class="btn" (click)="close()" type="button">Cancel</button>
+      <button class="btn btn-primary" (click)="save()" type="button">Update Driver</button>
+    </div>
+  </div>
+</div>

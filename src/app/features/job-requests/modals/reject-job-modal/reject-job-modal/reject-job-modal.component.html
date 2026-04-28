@@ -1,0 +1,52 @@
+<div class="backdrop" (click)="close()">
+  <div class="modal sm" (click)="$event.stopPropagation()">
+    <div class="m-head">
+      <div class="m-head-l">
+        <div class="m-head-ico red">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M15 9l-6 6M9 9l6 6"/>
+          </svg>
+        </div>
+        <div class="m-head-text">
+          <h2>Reject Request</h2>
+          <p>Provide a reason for rejecting this job request</p>
+        </div>
+      </div>
+      <button class="m-close" (click)="close()" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="m-body">
+      <div class="ctx">
+        <div class="ctx-item">
+          <div class="ctx-label">Request ID</div>
+          <div class="ctx-val mono">{{ jobNumber() }}</div>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label class="fl">Rejection Reason *</label>
+        <select class="fi" [value]="reason()" (change)="reason.set($any($event.target).value)">
+          <option value="">Select reason...</option>
+          @for (r of reasons; track r) {
+            <option [value]="r">{{ r }}</option>
+          }
+        </select>
+      </div>
+      <div class="fg">
+        <label class="fl">Notes (mandatory)</label>
+        <textarea class="fi" [value]="notes()" (input)="notes.set($any($event.target).value)"
+                  placeholder="Provide additional details about the rejection..."></textarea>
+      </div>
+    </div>
+
+    <div class="m-foot">
+      <button class="btn" (click)="close()" type="button">Cancel</button>
+      <button class="btn btn-danger" (click)="submit()" type="button">Submit Rejection</button>
+    </div>
+  </div>
+</div>

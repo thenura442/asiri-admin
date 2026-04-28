@@ -1,50 +1,60 @@
 import { BranchType } from '../enums/branch-type.enum';
 
 export interface Branch {
-  id:                 string;
-  name:               string;
-  type:               BranchType;
-  address:            string;
-  latitude:           number;
-  longitude:          number;
-  branch_code:        string | null;
-  phone:              string | null;
-  email:              string | null;
-  service_radius_km:  number | null;
-  max_daily_capacity: number | null;
-  manager_name:       string | null;
-  manager_phone:      string | null;
-  default_lab_id:     string;
-  operating_start:    string;
-  operating_end:      string;
-  is_online:          boolean;
-  province:           string | null;
-  district:           string | null;
-  created_at:         string;
-  updated_at:         string;
-  deleted_at:         string | null;
+  id:               string;
+  name:             string;
+  type:             BranchType;
+  address:          string;
+  latitude:         number;
+  longitude:        number;
+  branchCode:       string | null;
+  phone:            string | null;
+  email:            string | null;
+  serviceRadiusKm:  number | null;
+  maxDailyCapacity: number | null;
+  managerName:      string | null;
+  managerPhone:     string | null;
+  defaultLabId:     string | null;
+  operatingStart:   string;
+  operatingEnd:     string;
+  isOnline:         boolean;
+  province:         string | null;
+  district:         string | null;
+  createdAt:        string;
+}
+
+export interface BranchListResponse {
+  data: Branch[];
+  meta: {
+    page:       number;
+    limit:      number;
+    total:      number;
+    totalPages: number;
+    hasNext:    boolean;
+    hasPrev:    boolean;
+  };
 }
 
 export interface CreateBranchDto {
-  name:               string;
-  type:               BranchType;
-  address:            string;
-  latitude:           number;
-  longitude:          number;
-  default_lab_id:     string;
-  branch_code?:       string;
-  phone?:             string;
-  email?:             string;
-  service_radius_km?: number;
-  max_daily_capacity?: number;
-  manager_name?:      string;
-  manager_phone?:     string;
-  operating_start?:   string;
-  operating_end?:     string;
-  province?:          string;
-  district?:          string;
+  name:              string;
+  type:              BranchType;
+  address:           string;
+  latitude:          number;
+  longitude:         number;
+  operatingStart:    string;
+  operatingEnd:      string;
+  branchCode?:       string | null;
+  phone?:            string | null;
+  email?:            string | null;
+  serviceRadiusKm?:  number | null;
+  maxDailyCapacity?: number | null;
+  managerName?:      string | null;
+  managerPhone?:     string | null;
+  defaultLabId?:     string | null;
+  province?:         string | null;
+  district?:         string | null;
 }
 
 export interface UpdateBranchDto extends Partial<CreateBranchDto> {
-  is_online?: boolean;
+  isOnline?: boolean;
 }

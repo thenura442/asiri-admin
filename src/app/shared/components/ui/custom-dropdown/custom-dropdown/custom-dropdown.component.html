@@ -1,0 +1,89 @@
+<div class="cd-wrap" appClickOutside (appClickOutside)="close()">
+  <!-- Trigger -->
+  <button
+    class="cd-trigger"
+    [class.cd-trigger--open]="isOpen()"
+    [class.cd-trigger--disabled]="disabled()"
+    (click)="toggle()"
+    type="button">
+
+    @if (selectedOption()) {
+      <span class="cd-selected">
+        @if (selectedOption()!.dot) {
+          <span class="cd-dot" [style.background]="selectedOption()!.dot"></span>
+        }
+        {{ selectedOption()!.label }}
+      </span>
+    } @else {
+      <span class="cd-placeholder">{{ placeholder() }}</span>
+    }
+
+    <svg class="cd-chev" [class.cd-chev--open]="isOpen()"
+         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M6 9l6 6 6-6"/>
+    </svg>
+  </button>
+
+  <!-- Panel -->
+  @if (isOpen()) {
+    <div class="cd-panel">
+      @if (searchable()) {
+        <div class="cd-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+          </svg>
+          <input
+            [value]="searchQuery()"
+            (input)="searchQuery.set($any($event.target).value)"
+            placeholder="Search..."
+            autocomplete="off"
+            class="cd-search-input"
+          />
+        </div>
+      }
+
+      <div class="cd-list">
+        @if (filteredOptions().length === 0) {
+          <div class="cd-empty">No results found</div>
+        } @else if (hasGroups()) {
+          @for (key of groupKeys(); track key) {
+            @if (key !== '__none__') {
+              <div class="cd-group-label">{{ key }}</div>
+            }
+            @for (opt of groups()[key]; track opt.value) {
+              <button
+                class="cd-option"
+                [class.cd-option--selected]="opt.value === value()"
+                (click)="select(opt)"
+                type="button">
+                @if (opt.dot) {
+                  <span class="cd-dot" [style.background]="opt.dot"></span>
+                }
+                {{ opt.label }}
+                @if (opt.meta) {
+                  <span class="cd-meta">{{ opt.meta }}</span>
+                }
+              </button>
+            }
+          }
+        } @else {
+          @for (opt of filteredOptions(); track opt.value) {
+            <button
+              class="cd-option"
+              [class.cd-option--selected]="opt.value === value()"
+              (click)="select(opt)"
+              type="button">
+              @if (opt.dot) {
+                <span class="cd-dot" [style.background]="opt.dot"></span>
+              }
+              {{ opt.label }}
+              @if (opt.meta) {
+                <span class="cd-meta">{{ opt.meta }}</span>
+              }
+            </button>
+          }
+        }
+      </div>
+    </div>
+  }
+</div>

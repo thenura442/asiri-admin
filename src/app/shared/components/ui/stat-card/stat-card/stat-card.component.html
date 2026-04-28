@@ -1,0 +1,24 @@
+<div class="hs">
+  <div class="hs-ico" [class]="'hs-ico--' + color">
+    <ng-content select="[slot=icon]" />
+  </div>
+  <div class="hs-data">
+    <div class="hs-label">{{ label }}</div>
+    <div class="hs-num">{{ value }}</div>
+    @if (change) {
+      <div class="hs-change" [class.up]="changeType === 'up'" [class.down]="changeType === 'down'">
+        @if (changeType === 'up') {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M18 15l-6-6-6 6"/>
+          </svg>
+        }
+        @if (changeType === 'down') {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M6 9l6 6 6-6"/>
+          </svg>
+        }
+        {{ change }}
+      </div>
+    }
+  </div>
+</div>

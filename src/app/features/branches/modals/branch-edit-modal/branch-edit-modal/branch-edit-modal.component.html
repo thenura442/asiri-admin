@@ -1,0 +1,98 @@
+<div class="backdrop" (click)="close()">
+  <div class="modal md" (click)="$event.stopPropagation()">
+    <div class="m-head">
+      <div class="m-head-l">
+        <div class="m-head-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+        </div>
+        <div class="m-head-text">
+          <h2>Edit Branch</h2>
+          <p>Update branch details — {{ name() }}</p>
+        </div>
+      </div>
+      <button class="m-close" (click)="close()" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="m-body">
+      <div class="fg">
+        <label class="fl">Branch Name</label>
+        <input class="fi" [value]="name()" (input)="name.set($any($event.target).value)"/>
+      </div>
+      <div class="fg">
+        <label class="fl">Address</label>
+        <input class="fi" [value]="address()" (input)="address.set($any($event.target).value)"/>
+      </div>
+      <div class="fg-row">
+        <div class="fg">
+          <label class="fl">GPS Latitude</label>
+          <input class="fi fi-mono" [value]="latitude()" (input)="latitude.set($any($event.target).value)"/>
+        </div>
+        <div class="fg">
+          <label class="fl">GPS Longitude</label>
+          <input class="fi fi-mono" [value]="longitude()" (input)="longitude.set($any($event.target).value)"/>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">Phone</label>
+        <input class="fi" [value]="phone()" (input)="phone.set($any($event.target).value)"/>
+      </div>
+      <div class="fg-row">
+        <div class="fg">
+          <label class="fl">Branch Type</label>
+          <select class="fi" [value]="branchType()" (change)="branchType.set($any($event.target).value)">
+            @for (t of branchTypes; track t.value) {
+              <option [value]="t.value" [selected]="t.value === branchType()">{{ t.label }}</option>
+            }
+          </select>
+        </div>
+        <div class="fg">
+          <label class="fl">Default Lab</label>
+          <select class="fi" [value]="defaultLab()" (change)="defaultLab.set($any($event.target).value)">
+            @for (lab of defaultLabs; track lab) {
+              <option [value]="lab" [selected]="lab === defaultLab()">{{ lab }}</option>
+            }
+          </select>
+        </div>
+      </div>
+      <div class="fg-row">
+        <div class="fg">
+          <label class="fl">Operating Hours Start</label>
+          <input class="fi fi-mono" type="time"
+                 [value]="hoursStart()" (change)="hoursStart.set($any($event.target).value)"/>
+        </div>
+        <div class="fg">
+          <label class="fl">Operating Hours End</label>
+          <input class="fi fi-mono" type="time"
+                 [value]="hoursEnd()" (change)="hoursEnd.set($any($event.target).value)"/>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">Notes</label>
+        <textarea class="fi" [value]="notes()"
+                  (input)="notes.set($any($event.target).value)"
+                  style="min-height:60px"></textarea>
+      </div>
+
+      <div class="info-box warn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        </svg>
+        Branches with active jobs cannot be deleted. Complete all dispatches first.
+      </div>
+    </div>
+
+    <div class="m-foot">
+      <button class="btn btn-danger" (click)="confirmDelete()" type="button">Delete Branch</button>
+      <div style="flex:1"></div>
+      <button class="btn" (click)="close()" type="button">Cancel</button>
+      <button class="btn btn-primary" (click)="save()" type="button">Update Branch</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,39 @@
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--r);
+  border: 1.5px solid rgba(0, 43, 76, 0.08);
+  background: var(--surface);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--t3);
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+  box-shadow: var(--s1);
+  white-space: nowrap;
+
+  &:hover {
+    border-color: var(--accent);
+    color: var(--accent-d);
+  }
+
+  &--active {
+    background: var(--brand);
+    color: #fff;
+    border-color: var(--brand);
+
+    .chip-count { background: rgba(255, 255, 255, 0.2); }
+  }
+}
+
+.chip-count {
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--page);
+  color: var(--t4);
+}

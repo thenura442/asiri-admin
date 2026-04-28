@@ -1,0 +1,34 @@
+<div class="pag-wrap">
+  <div class="pag-info">
+    Showing {{ startItem }}–{{ endItem }} of {{ total }}
+  </div>
+  <div class="pag">
+    <!-- Prev -->
+    <button class="pag-btn" [disabled]="currentPage === 1" (click)="prev()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+
+    <!-- Pages -->
+    @for (page of pages; track $index) {
+      @if (page === '...') {
+        <span class="pag-dots">…</span>
+      } @else {
+        <button
+          class="pag-btn"
+          [class.active]="page === currentPage"
+          (click)="goTo(page)">
+          {{ page }}
+        </button>
+      }
+    }
+
+    <!-- Next -->
+    <button class="pag-btn" [disabled]="currentPage === totalPages" (click)="next()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </button>
+  </div>
+</div>

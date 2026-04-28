@@ -1,0 +1,246 @@
+<div class="pg">
+  <!-- Page Header -->
+  <div class="pg-hdr">
+    <div class="pg-hdr-l">
+      <h1>Lab Approvals</h1>
+      <p>Track incoming samples, manage receipt and processing across all labs</p>
+    </div>
+    <button class="btn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Export List
+    </button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="st">
+      <div class="st-ico st-ico--blue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--sbl)" stroke-width="1.8">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/><path d="M12 18v-6M9 15l3 3 3-3"/>
+        </svg>
+      </div>
+      <div><div class="st-label">Pending Review</div><div class="st-num">{{ stats().pendingReview }}</div></div>
+    </div>
+    <div class="st">
+      <div class="st-ico st-ico--amber">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--sa)" stroke-width="1.8">
+          <rect x="2" y="7" width="20" height="11" rx="2"/>
+          <circle cx="7" cy="15" r="1.5"/><circle cx="17" cy="15" r="1.5"/>
+          <path d="M5 7V5.5A1.5 1.5 0 016.5 4h3L12 7"/>
+        </svg>
+      </div>
+      <div><div class="st-label">Samples Arriving</div><div class="st-num">{{ stats().samplesArriving }}</div></div>
+    </div>
+    <div class="st">
+      <div class="st-ico st-ico--teal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+      </div>
+      <div><div class="st-label">Processing</div><div class="st-num">{{ stats().processing }}</div></div>
+    </div>
+    <div class="st">
+      <div class="st-ico st-ico--green">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--sg)" stroke-width="1.8">
+          <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+      </div>
+      <div><div class="st-label">Completed Today</div><div class="st-num">{{ stats().completedToday }}</div></div>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="filter-bar">
+    <div class="search-bar" [class.search-bar--active]="searchQuery().length > 0">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+      </svg>
+      <input [value]="searchQuery()" (input)="onSearch($event)"
+             placeholder="Search by Request ID, patient name, or UHID..." autocomplete="off"/>
+    </div>
+    @for (f of filters; track f.key) {
+      <button class="chip"
+              [class.active]="activeFilter() === f.key"
+              [class.chip--issue]="f.key === 'issue'"
+              (click)="setFilter(f.key)" type="button">
+        {{ f.label }}
+      </button>
+    }
+  </div>
+
+  <!-- Table -->
+  <div class="table-card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Request ID</th>
+            <th>Patient</th>
+            <th>Samples</th>
+            <th>Collecting Center</th>
+            <th>Notes</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (a of filteredApprovals(); track a.id) {
+            <tr>
+              <!-- Request ID -->
+              <td><span class="req-id">{{ a.requestId }}</span></td>
+
+              <!-- Patient -->
+              <td>
+                <div class="patient-cell">
+                  <div>
+                    <div class="patient-name">{{ a.patientName }}</div>
+                    <div class="patient-uhid">UHID: {{ a.uhid }}</div>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Tests / Samples -->
+              <td>
+                <div class="test-chips">
+                  @for (test of a.tests; track test) {
+                    <span class="test-chip">{{ test }}</span>
+                  }
+                </div>
+              </td>
+
+              <!-- Center -->
+              <td><span class="center-label">{{ a.collectingCenter }}</span></td>
+
+              <!-- Notes -->
+              <td>
+                <span class="notes-text" [class.notes-text--issue]="a.status === 'issue'">
+                  {{ a.notes ?? '—' }}
+                </span>
+              </td>
+
+              <!-- Status -->
+              <td>
+                <span class="bd" [ngClass]="statusBadgeClass(a.status)">
+                  {{ statusLabel(a.status) }}
+                </span>
+              </td>
+
+              <!-- Actions — context-aware per status -->
+              <td>
+                <div class="act-group">
+                  @switch (a.status) {
+                    @case ('arriving') {
+                      <button class="act-btn act-btn--teal" (click)="openReceive(a)" type="button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                          <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                        Receive Samples
+                      </button>
+                    }
+                    @case ('received') {
+                      <button class="act-btn act-btn--primary" (click)="startProcessing(a)" type="button">
+                        Start Processing
+                      </button>
+                    }
+                    @case ('processing') {
+                      <button class="act-btn act-btn--outline" (click)="uploadReport(a)" type="button">
+                        Upload Report
+                      </button>
+                      <button class="act-btn act-btn--danger" (click)="cannotProcess(a)" type="button">
+                        Cannot Process
+                      </button>
+                    }
+                    @case ('complete') {
+                      <button class="act-btn act-btn--outline" type="button">
+                        View Details
+                      </button>
+                    }
+                    @case ('issue') {
+                      <button class="act-btn act-btn--danger" (click)="openReport(a)" type="button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                        </svg>
+                        Report Issue
+                      </button>
+                    }
+                  }
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="7" class="empty-row">No approvals found</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="table-ft">
+      <div class="table-ft-info">Showing 1–{{ filteredApprovals().length }} of {{ totalCount() }} requests</div>
+      <div class="pag">
+        <button class="pag-btn" [disabled]="currentPage() === 1"
+                (click)="setPage(currentPage() - 1)" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+        @for (p of pageRange; track p) {
+          <button class="pag-btn" [class.active]="currentPage() === p"
+                  (click)="setPage(p)" type="button">{{ p }}</button>
+        }
+        <button class="pag-btn" [disabled]="currentPage() === totalPages"
+                (click)="setPage(currentPage() + 1)" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Branded Footer -->
+  <footer class="brand-footer">
+    <div class="bf-left">
+      <div class="bf-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round">
+          <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
+        </svg>
+      </div>
+      <div class="bf-text">
+        <strong>Asiri Laboratories</strong> — Mobile Service Platform<br>
+        Trusted healthcare, delivered to your doorstep
+      </div>
+    </div>
+    <div class="bf-right">
+      <div class="bf-status"><div class="bf-dot"></div>All systems operational</div>
+      <div class="bf-divider"></div>
+      <div class="bf-meta">Last synced: just now</div>
+      <div class="bf-divider"></div>
+      <div class="bf-meta">v2.4.1</div>
+    </div>
+  </footer>
+</div>
+
+<!-- Receive Samples Modal -->
+@if (receivingApproval()) {
+  <app-receive-samples-modal
+    [approval]="receivingApproval()"
+    (closed)="closeReceive()"
+    (confirmed)="onSamplesReceived($event)">
+  </app-receive-samples-modal>
+}
+
+<!-- Report Issue Modal -->
+@if (reportingApproval()) {
+  <app-report-issue-modal
+    [approval]="reportingApproval()"
+    (closed)="closeReport()"
+    (submitted)="onIssueReported($event)">
+  </app-report-issue-modal>
+}

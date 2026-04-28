@@ -1,0 +1,86 @@
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position: 600px 0; }
+}
+
+.sk-shimmer {
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--b1) 25%, var(--b2) 50%, var(--b1) 75%);
+  background-size: 1200px 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+
+// Table skeleton
+.sk-table { display: flex; flex-direction: column; gap: 0; }
+
+.sk-table-head {
+  display: flex;
+  gap: 16px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--b2);
+  background: var(--page);
+
+  .sk-cell {
+    height: 12px;
+    flex: 1;
+  }
+}
+
+.sk-table-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--b1);
+
+  .sk-cell {
+    height: 14px;
+    flex: 1;
+
+    &--avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      flex: none;
+    }
+  }
+}
+
+// Cards skeleton
+.sk-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  padding: 4px;
+}
+
+.sk-card {
+  background: var(--surface);
+  border-radius: var(--rl);
+  border: 1px solid var(--b2);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sk-card-head { height: 40px; border-radius: var(--r); }
+.sk-card-line { height: 12px; }
+
+// Form skeleton
+.sk-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  padding: 4px;
+}
+
+.sk-field { display: flex; flex-direction: column; gap: 8px; }
+.sk-label { height: 10px; width: 40%; }
+.sk-input { height: 44px; border-radius: var(--r); }
+
+// List skeleton
+.sk-list { display: flex; flex-direction: column; gap: 12px; }
+.sk-list-item { display: flex; align-items: center; gap: 12px; }
+.sk-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.sk-line { height: 12px; flex: 1; }

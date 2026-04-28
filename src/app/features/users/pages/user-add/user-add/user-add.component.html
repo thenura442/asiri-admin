@@ -1,0 +1,370 @@
+<div class="pg">
+  <div class="pg-hdr">
+    <h1>Add New User</h1>
+    <p>Create a new admin portal user account with role-based access</p>
+  </div>
+
+  <div class="form-layout">
+    <div class="form-card">
+
+      <!-- Section 1: Personal Details -->
+      <div class="form-section">
+        <div class="fs-head">
+          <div class="fs-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <div class="fs-title">Personal Details</div>
+        </div>
+        <div class="form-grid">
+
+          <!-- Full Name -->
+          <div class="form-group">
+            <label class="form-label">Full Name <span>*</span></label>
+            <input class="form-input" type="text"
+                   [class.form-input--error]="errors()['fullName']"
+                   [value]="fullName()" (input)="onFullName($any($event.target).value)"
+                   placeholder="Enter full name"/>
+            @if (errors()['fullName']) {
+              <span class="field-error">{{ errors()['fullName'] }}</span>
+            }
+          </div>
+
+          <!-- Staff ID -->
+          <div class="form-group">
+            <label class="form-label">Staff ID</label>
+            <input class="form-input form-input--mono" type="text"
+                   [value]="staffId()" (input)="staffId.set($any($event.target).value)"
+                   placeholder="e.g. ASR-2026-058"/>
+          </div>
+
+          <!-- NIC -->
+          <div class="form-group">
+            <label class="form-label">NIC Number</label>
+            <input class="form-input form-input--mono" type="text"
+                   [value]="nic()" (input)="nic.set($any($event.target).value)"
+                   placeholder="e.g. 199012345678"/>
+          </div>
+
+          <!-- Phone -->
+          <div class="form-group">
+            <label class="form-label">Contact Number</label>
+            <input class="form-input" type="tel"
+                   [value]="phone()" (input)="phone.set($any($event.target).value)"
+                   placeholder="+94 7X XXX XXXX"/>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Section 2: Account Credentials -->
+      <div class="form-section">
+        <div class="fs-head">
+          <div class="fs-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="3" y="11" width="18" height="11" rx="2"/>
+              <path d="M7 11V7a5 5 0 0110 0v4"/>
+            </svg>
+          </div>
+          <div class="fs-title">Account Credentials</div>
+        </div>
+        <div class="form-grid">
+
+          <!-- Email -->
+          <div class="form-group">
+            <label class="form-label">Email Address <span>*</span></label>
+            <input class="form-input" type="email"
+                   [class.form-input--error]="errors()['email']"
+                   [value]="email()" (input)="onEmail($any($event.target).value)"
+                   placeholder="user@asiri.lk"/>
+            @if (errors()['email']) {
+              <span class="field-error">{{ errors()['email'] }}</span>
+            }
+          </div>
+
+          <!-- Password -->
+          <div class="form-group">
+            <label class="form-label">Temporary Password <span>*</span></label>
+            <input class="form-input form-input--mono" type="text"
+                   [class.form-input--error]="errors()['password']"
+                   [value]="tempPassword()" (input)="onTempPw($any($event.target).value)"
+                   placeholder="Min 8 characters"/>
+            @if (errors()['password']) {
+              <span class="field-error">{{ errors()['password'] }}</span>
+            }
+            @if (!errors()['password'] && tempPassword().length > 0 && tempPassword().length < 8) {
+              <span class="field-hint">{{ tempPassword().length }}/8 characters minimum</span>
+            }
+          </div>
+
+        </div>
+        <div class="info-note info-note--amber">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+          </svg>
+          User will be required to change this password on first login.
+        </div>
+      </div>
+
+      <!-- Section 3: Role & Access Control -->
+      <div class="form-section">
+        <div class="fs-head">
+          <div class="fs-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </div>
+          <div class="fs-title">Role &amp; Access Control</div>
+        </div>
+        <div class="form-grid">
+
+          <!-- Role -->
+          <div class="form-group">
+            <label class="form-label">Role <span>*</span></label>
+            <app-custom-dropdown
+              [options]="roleOptions" [value]="role()"
+              placeholder="Select role..."
+              [class.dropdown--error]="errors()['role']"
+              (changed)="onRole($event)">
+            </app-custom-dropdown>
+            @if (errors()['role']) {
+              <span class="field-error">{{ errors()['role'] }}</span>
+            }
+          </div>
+
+          <!-- Branch -->
+          <div class="form-group">
+            <label class="form-label">Assigned Branch <span>*</span></label>
+            <app-custom-dropdown
+              [options]="branchOptions()" [value]="branchId()"
+              placeholder="Select branch..." [searchable]="true"
+              [class.dropdown--error]="errors()['branchId']"
+              (changed)="onBranch($event)">
+            </app-custom-dropdown>
+            @if (errors()['branchId']) {
+              <span class="field-error">{{ errors()['branchId'] }}</span>
+            }
+            @if (branchOptions().length === 0) {
+              <span class="field-hint">No branches found. Create a branch first.</span>
+            }
+          </div>
+
+        </div>
+
+        <!-- Toggles -->
+        <div class="toggle-list">
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-title">Two-Factor Authentication</div>
+              <div class="toggle-sub">Require 2FA on every login for this user</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" [checked]="require2fa()"
+                     (change)="require2fa.set($any($event.target).checked)"/>
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 4: Additional Information -->
+      <div class="form-section">
+        <div class="fs-head">
+          <div class="fs-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <div class="fs-title">Additional Information</div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Role Title</label>
+            <input class="form-input" type="text"
+                   [value]="roleTitle()" (input)="roleTitle.set($any($event.target).value)"
+                   placeholder="e.g. Senior Lab Technician"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Department</label>
+            <input class="form-input" type="text"
+                   [value]="department()" (input)="department.set($any($event.target).value)"
+                   placeholder="e.g. Biochemistry, Front Desk"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Qualification</label>
+            <input class="form-input" type="text"
+                   [value]="qualification()" (input)="qualification.set($any($event.target).value)"
+                   placeholder="e.g. BSc Medical Lab Technology"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Notes</label>
+            <textarea class="form-input form-textarea"
+                      [value]="notes()" (input)="notes.set($any($event.target).value)"
+                      placeholder="Any additional notes..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Footer -->
+      <div class="form-footer">
+        <button class="btn" (click)="cancel()" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+          Cancel
+        </button>
+        <button class="btn btn-primary" (click)="submit()" [disabled]="isSubmitting()" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+            <circle cx="8.5" cy="7" r="4"/>
+            <line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>
+          </svg>
+          {{ isSubmitting() ? 'Creating...' : 'Create User Account' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Context Sidebar ── -->
+    <div class="ctx-sidebar">
+
+      <!-- Checklist -->
+      <div class="ctx-card">
+        <div class="ctx-card-head">
+          <div class="ctx-card-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+              <rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 14l2 2 4-4"/>
+            </svg>
+          </div>
+          <h3>Account Checklist</h3>
+        </div>
+        <div class="checklist">
+          @for (item of checklist(); track item.label) {
+            <div class="check-item" [class.done]="item.done">
+              <div class="check-circle">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </div>
+              <span class="check-text">{{ item.label }}</span>
+              @if (item.required && !item.done) {
+                <span class="check-req">Required</span>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Portal Stats -->
+      <div class="ctx-card">
+        <div class="ctx-card-head">
+          <div class="ctx-card-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+          </div>
+          <h3>Portal Users</h3>
+        </div>
+        <div class="ctx-stats">
+          <div class="ctx-stat">
+            <div class="ctx-stat-val">{{ portalStats().total }}</div>
+            <div class="ctx-stat-label">Total Users</div>
+          </div>
+          <div class="ctx-stat">
+            <div class="ctx-stat-val">{{ portalStats().active }}</div>
+            <div class="ctx-stat-label">Active</div>
+          </div>
+          <div class="ctx-stat">
+            <div class="ctx-stat-val">{{ portalStats().suspended }}</div>
+            <div class="ctx-stat-label">Suspended</div>
+          </div>
+          <div class="ctx-stat">
+            <div class="ctx-stat-val">{{ portalStats().locked }}</div>
+            <div class="ctx-stat-label">Locked</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Accounts -->
+      <div class="ctx-card">
+        <div class="ctx-card-head">
+          <div class="ctx-card-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <h3>Recent Accounts</h3>
+        </div>
+        <div class="ctx-recent">
+          @if (recentAccounts().length === 0) {
+            <p class="ctx-empty">No users yet</p>
+          }
+          @for (a of recentAccounts(); track a.name) {
+            <div class="ctx-r-item">
+              <div class="ctx-r-av">{{ a.initials }}</div>
+              <div class="ctx-r-info">
+                <div class="ctx-r-name">{{ a.name }}</div>
+                <div class="ctx-r-date">{{ a.date }}</div>
+              </div>
+              <span class="ctx-r-badge status-active">Active</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Quick Tips -->
+      <div class="ctx-card">
+        <div class="ctx-card-head">
+          <div class="ctx-card-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+          </div>
+          <h3>Quick Tips</h3>
+        </div>
+        <div class="ctx-tips">
+          <div class="ctx-tip"><div class="ctx-tip-num">1</div>Users must change temporary password on first login</div>
+          <div class="ctx-tip"><div class="ctx-tip-num">2</div>Enable 2FA for accounts handling patient data</div>
+          <div class="ctx-tip"><div class="ctx-tip-num">3</div>Role permissions can be customized in Settings</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Notice -->
+  <div class="notice">
+    <div class="notice-ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+      </svg>
+    </div>
+    <div class="notice-text">
+      <strong>Note:</strong> User accounts are governed by Asiri Laboratories data protection policies.
+      Credentials are encrypted via Supabase Auth.
+    </div>
+  </div>
+
+  <!-- Branded Footer -->
+  <footer class="brand-footer">
+    <div class="bf-left">
+      <div class="bf-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round">
+          <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
+        </svg>
+      </div>
+      <div class="bf-text"><strong>Asiri Laboratories</strong> — Mobile Service Platform<br>Trusted healthcare, delivered to your doorstep</div>
+    </div>
+    <div class="bf-right">
+      <div class="bf-status"><div class="bf-dot"></div>All systems operational</div>
+      <div class="bf-divider"></div>
+      <div class="bf-meta">v2.4.1</div>
+    </div>
+  </footer>
+</div>

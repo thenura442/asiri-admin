@@ -1,0 +1,78 @@
+<div class="dp-wrap" appClickOutside (appClickOutside)="close()">
+  <!-- Trigger -->
+  <button class="dp-trigger" [class.dp-trigger--open]="isOpen()" (click)="toggle()" type="button">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+      <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+    </svg>
+    <span class="dp-text" [class.dp-text--empty]="!displayText()">
+      {{ displayText() || placeholder() }}
+    </span>
+  </button>
+
+  <!-- Panel -->
+  @if (isOpen()) {
+    <div class="dp-panel">
+      <!-- Header -->
+      <div class="dp-header">
+        <button class="dp-nav" (click)="prevMonth()" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+        <span class="dp-month-label">{{ monthLabel() }}</span>
+        <button class="dp-nav" (click)="nextMonth()" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Day labels -->
+      <div class="dp-days">
+        @for (d of dayLabels; track d) {
+          <div class="dp-day-label">{{ d }}</div>
+        }
+        @for (day of calendarDays(); track day.date.toISOString()) {
+          <button
+            class="dp-day"
+            [class.dp-day--current]="day.isCurrentMonth"
+            [class.dp-day--today]="day.isToday"
+            [class.dp-day--selected]="day.isSelected"
+            [class.dp-day--disabled]="day.isDisabled"
+            (click)="selectDay(day)"
+            type="button">
+            {{ day.day }}
+          </button>
+        }
+      </div>
+
+      <!-- Time picker -->
+      @if (showTime()) {
+        <div class="dp-time">
+          <span class="dp-time-label">Time</span>
+          <div class="dp-time-inputs">
+            <input class="dp-time-input" type="text" [value]="hour()"
+                   (change)="hour.set($any($event.target).value)" maxlength="2"/>
+            <span class="dp-time-sep">:</span>
+            <input class="dp-time-input" type="text" [value]="minute()"
+                   (change)="minute.set($any($event.target).value)" maxlength="2"/>
+            <div class="dp-ampm">
+              <button class="dp-ampm-btn" [class.dp-ampm-btn--active]="ampm() === 'AM'"
+                      (click)="setAmpm('AM')" type="button">AM</button>
+              <button class="dp-ampm-btn" [class.dp-ampm-btn--active]="ampm() === 'PM'"
+                      (click)="setAmpm('PM')" type="button">PM</button>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Footer -->
+      <div class="dp-footer">
+        <button class="dp-today-btn" (click)="goToToday()" type="button">Today</button>
+        @if (showTime()) {
+          <button class="dp-apply-btn" (click)="apply()" type="button">Apply</button>
+        }
+      </div>
+    </div>
+  }
+</div>

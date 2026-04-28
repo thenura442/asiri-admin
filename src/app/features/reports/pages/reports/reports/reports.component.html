@@ -1,0 +1,241 @@
+<div class="pg">
+  <!-- Page Header -->
+  <div class="pg-hdr">
+    <div class="pg-hdr-l">
+      <h1>Reports &amp; Analytics</h1>
+      <p>Monitor operational performance and generate exportable reports</p>
+    </div>
+    <div class="pg-hdr-r">
+      <div class="date-range">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
+          <path d="M16 2v4M8 2v4M3 10h18"/>
+        </svg>
+        <span class="date-range-text">{{ dateLabel() }}</span>
+      </div>
+      <button class="btn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Export
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="stats-grid">
+    <!-- Total Bookings -->
+    <div class="st">
+      <div class="st-ico" style="background:var(--sblb);border:1px solid rgba(59,130,246,.1)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--sbl)" stroke-width="1.8">
+          <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+          <rect x="9" y="3" width="6" height="4" rx="1"/>
+        </svg>
+      </div>
+      <div>
+        <div class="st-label">Total Bookings</div>
+        <div class="st-row">
+          <div class="st-num">2,847</div>
+          <span class="st-chg st-chg--up">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 15l-6-6-6 6"/></svg>
+            +12%
+          </span>
+        </div>
+      </div>
+    </div>
+    <!-- Completed -->
+    <div class="st">
+      <div class="st-ico" style="background:var(--sgb);border:1px solid rgba(16,185,129,.1)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--sg)" stroke-width="1.8">
+          <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+      </div>
+      <div>
+        <div class="st-label">Completed Jobs</div>
+        <div class="st-row">
+          <div class="st-num">2,614</div>
+          <span class="st-chg st-chg--up">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 15l-6-6-6 6"/></svg>
+            +8%
+          </span>
+        </div>
+      </div>
+    </div>
+    <!-- Cancelled -->
+    <div class="st">
+      <div class="st-ico" style="background:var(--srb);border:1px solid rgba(239,68,68,.1)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--sr)" stroke-width="1.8">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M15 9l-6 6M9 9l6 6"/>
+        </svg>
+      </div>
+      <div>
+        <div class="st-label">Cancelled</div>
+        <div class="st-row">
+          <div class="st-num">233</div>
+          <span class="st-chg st-chg--dn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>
+            -3%
+          </span>
+        </div>
+      </div>
+    </div>
+    <!-- Revenue -->
+    <div class="st st--teal">
+      <div class="st-ico" style="background:var(--sab);border:1px solid rgba(234,179,8,.1)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--sa)" stroke-width="1.8">
+          <path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+        </svg>
+      </div>
+      <div>
+        <div class="st-label">Revenue Generated</div>
+        <div class="st-row">
+          <div class="st-num st-num--sm">Rs. 4.2M</div>
+          <span class="st-chg st-chg--up">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 15l-6-6-6 6"/></svg>
+            +18%
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row 1 -->
+  <div class="charts">
+    <!-- Booking Trends — wide -->
+    <div class="chart-card chart-card--wide">
+      <div class="cc-head">
+        <h3>Booking Trends</h3>
+        <div class="cc-tabs">
+          @for (p of [['daily','Daily'],['weekly','Weekly'],['monthly','Monthly']]; track p[0]) {
+            <button class="cc-tab" [class.active]="bookingPeriod() === p[0]"
+                    (click)="switchBookingPeriod($any(p[0]))" type="button">{{ p[1] }}</button>
+          }
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="chart-wrap"><canvas id="bookingChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Completion Rate — doughnut -->
+    <div class="chart-card">
+      <div class="cc-head"><h3>Job Completion Rate</h3></div>
+      <div class="cc-body">
+        <div class="chart-wrap chart-wrap--sm"><canvas id="completionChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Top Tests — horizontal bar -->
+    <div class="chart-card">
+      <div class="cc-head"><h3>Most Requested Tests</h3></div>
+      <div class="cc-body">
+        <div class="chart-wrap chart-wrap--sm"><canvas id="testsChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export Cards -->
+  <div class="export-row">
+    @for (card of exportCards; track card.title) {
+      <div class="export-card" (click)="exportData(card.title)">
+        <div class="exp-ico" [style.background]="card.bgColor"
+             [style.border]="'1px solid ' + card.borderColor">
+          @if (card.title.includes('CSV')) {
+            <svg viewBox="0 0 24 24" fill="none" [attr.stroke]="card.color" stroke-width="1.8">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          } @else if (card.title.includes('PDF')) {
+            <svg viewBox="0 0 24 24" fill="none" [attr.stroke]="card.color" stroke-width="1.8">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
+          } @else {
+            <svg viewBox="0 0 24 24" fill="none" [attr.stroke]="card.color" stroke-width="1.8">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+              <line x1="10" y1="9" x2="8" y2="9"/>
+            </svg>
+          }
+        </div>
+        <div>
+          <div class="exp-title">{{ card.title }}</div>
+          <div class="exp-desc">{{ card.desc }}</div>
+        </div>
+        <div class="exp-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Charts Row 2 -->
+  <div class="charts charts--mt">
+    <!-- Revenue by Branch — wide -->
+    <div class="chart-card chart-card--wide">
+      <div class="cc-head">
+        <h3>Revenue by Branch</h3>
+        <div class="cc-tabs">
+          @for (p of [['month','This Month'],['quarter','Quarter'],['year','Year']]; track p[0]) {
+            <button class="cc-tab" [class.active]="revPeriod() === p[0]"
+                    (click)="revPeriod.set($any(p[0]))" type="button">{{ p[1] }}</button>
+          }
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="chart-wrap"><canvas id="revenueChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Branch Performance — radar -->
+    <div class="chart-card">
+      <div class="cc-head"><h3>Branch Performance</h3></div>
+      <div class="cc-body">
+        <div class="chart-wrap chart-wrap--sm"><canvas id="branchChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Avg Turnaround Time — static -->
+    <div class="chart-card">
+      <div class="cc-head"><h3>Avg Turnaround Time</h3></div>
+      <div class="cc-body">
+        <div class="turnaround">
+          @for (row of turnaround; track row.label) {
+            <div class="tat-row" [class.tat-row--total]="row.total">
+              <span class="tat-label">{{ row.label }}</span>
+              <span class="tat-val">
+                {{ row.value }}
+                <span class="tat-unit">{{ row.unit }}</span>
+              </span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Branded Footer -->
+  <footer class="brand-footer">
+    <div class="bf-left">
+      <div class="bf-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round">
+          <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
+        </svg>
+      </div>
+      <div class="bf-text"><strong>Asiri Laboratories</strong> — Mobile Service Platform<br>Trusted healthcare, delivered to your doorstep</div>
+    </div>
+    <div class="bf-right">
+      <div class="bf-status"><div class="bf-dot"></div>All systems operational</div>
+      <div class="bf-divider"></div>
+      <div class="bf-meta">Last synced: just now</div>
+      <div class="bf-divider"></div>
+      <div class="bf-meta">v2.4.1</div>
+    </div>
+  </footer>
+</div>

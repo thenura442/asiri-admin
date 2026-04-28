@@ -1,0 +1,64 @@
+<div class="backdrop" (click)="close()">
+  <div class="modal sm" (click)="$event.stopPropagation()">
+    <div class="m-head">
+      <div class="m-head-l">
+        <div class="m-head-ico amber">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        <div class="m-head-text">
+          <h2>Notify Super Admin</h2>
+          <p>Escalate an issue to the super admin team</p>
+        </div>
+      </div>
+      <button class="m-close" (click)="close()" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="m-body">
+      <div class="fg">
+        <label class="fl">Related Job ID (optional)</label>
+        <input class="fi fi-mono" [value]="jobId()" (input)="jobId.set($any($event.target).value)"
+               placeholder="e.g. REQ-2026-0847"/>
+      </div>
+      <div class="fg">
+        <label class="fl">Category *</label>
+        <select class="fi" [value]="category()" (change)="category.set($any($event.target).value)">
+          <option value="">Select category...</option>
+          @for (cat of categories; track cat) {
+            <option [value]="cat">{{ cat }}</option>
+          }
+        </select>
+      </div>
+      <div class="fg">
+        <label class="fl">Details *</label>
+        <textarea class="fi" [value]="details()" (input)="details.set($any($event.target).value)"
+                  placeholder="Describe the issue in detail..."></textarea>
+      </div>
+      <div class="fg">
+        <label class="fl">Urgency</label>
+        <div class="radio-row">
+          <button class="radio-pill" [class.active]="urgency() === 'normal'"   (click)="setUrgency('normal')"   type="button">Normal</button>
+          <button class="radio-pill warn" [class.active]="urgency() === 'urgent'"   (click)="setUrgency('urgent')"   type="button">Urgent</button>
+          <button class="radio-pill danger" [class.active]="urgency() === 'critical'" (click)="setUrgency('critical')" type="button">Critical</button>
+        </div>
+        <div class="fi-hint">Critical urgency sends SMS to all super admins immediately</div>
+      </div>
+    </div>
+
+    <div class="m-foot">
+      <button class="btn" (click)="close()" type="button">Cancel</button>
+      <button class="btn btn-amber" (click)="submit()" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        </svg>
+        Submit Escalation
+      </button>
+    </div>
+  </div>
+</div>

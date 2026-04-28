@@ -1,0 +1,110 @@
+<div class="backdrop" (click)="close()">
+  <div class="modal md" (click)="$event.stopPropagation()">
+    <div class="m-head">
+      <div class="m-head-l">
+        <div class="m-head-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+        </div>
+        <div class="m-head-text">
+          <h2>Edit Test</h2>
+          <p>Update test details, pricing, and availability</p>
+        </div>
+      </div>
+      <button class="m-close" (click)="close()" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="m-body">
+      <!-- Test Identity -->
+      <div class="m-section-label">Test Identity</div>
+      <div class="fg-row">
+        <div class="fg">
+          <label class="fl">Test Name *</label>
+          <input class="fi" [value]="name()" (input)="name.set($any($event.target).value)"/>
+        </div>
+        <div class="fg">
+          <label class="fl">Test Code *</label>
+          <input class="fi fi-mono" [value]="code()" (input)="code.set($any($event.target).value)"/>
+        </div>
+      </div>
+      <div class="fg-row">
+        <div class="fg">
+          <label class="fl">Category</label>
+          <select class="fi" [value]="category()" (change)="category.set($any($event.target).value)">
+            @for (cat of categories; track cat.value) {
+              <option [value]="cat.value" [selected]="cat.value === category()">{{ cat.label }}</option>
+            }
+          </select>
+        </div>
+        <div class="fg">
+          <label class="fl">Sample Type</label>
+          <select class="fi" [value]="sampleType()" (change)="sampleType.set($any($event.target).value)">
+            @for (s of sampleTypes; track s) {
+              <option [value]="s" [selected]="s === sampleType()">{{ s }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <!-- Pricing & Timing -->
+      <div class="m-section-label" style="margin-top:8px">Pricing &amp; Timing</div>
+      <div class="fg-row">
+        <div class="fg">
+          <label class="fl">Base Price (Rs.)</label>
+          <input class="fi fi-mono" type="number" [value]="basePrice()"
+                 (input)="basePrice.set($any($event.target).value)"/>
+        </div>
+        <div class="fg">
+          <label class="fl">Turnaround Time</label>
+          <input class="fi" [value]="turnaround()" (input)="turnaround.set($any($event.target).value)"
+                 placeholder="e.g. 4–6 hrs"/>
+        </div>
+      </div>
+      <div class="fg-row">
+        <div class="fg">
+          <label class="fl">Prescription Required?</label>
+          <div class="toggle-row">
+            <label class="toggle">
+              <input type="checkbox" [checked]="prescriptionRequired()"
+                     (change)="prescriptionRequired.set($any($event.target).checked)"/>
+              <span class="toggle-track"></span>
+            </label>
+            <span class="toggle-label-text">{{ prescriptionRequired() ? 'Yes' : 'No' }}</span>
+          </div>
+        </div>
+        <div class="fg">
+          <label class="fl">Active / Inactive</label>
+          <div class="toggle-row">
+            <label class="toggle">
+              <input type="checkbox" [checked]="isActive()"
+                     (change)="isActive.set($any($event.target).checked)"/>
+              <span class="toggle-track"></span>
+            </label>
+            <span class="toggle-label-text">{{ isActive() ? 'Active — visible in booking' : 'Inactive' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="fg">
+        <label class="fl">Description</label>
+        <textarea class="fi" [value]="description()"
+                  (input)="description.set($any($event.target).value)"
+                  style="min-height:80px"></textarea>
+      </div>
+    </div>
+
+    <div class="m-foot">
+      <button class="btn btn-danger" (click)="confirmDelete()" type="button">Delete Test</button>
+      <div style="flex:1"></div>
+      <button class="btn" (click)="close()" type="button">Cancel</button>
+      <button class="btn btn-primary" (click)="save()" type="button">Save Changes</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,360 @@
+<div class="pg">
+  <div class="pg-hdr">
+    <h1>Register New Patient</h1>
+    <p>Manually register a new patient for mobile laboratory services</p>
+  </div>
+
+  <div class="form-layout">
+    <!-- ── Main Form ── -->
+    <div class="form-card">
+
+      <!-- Section 1: Personal Information -->
+      <div class="form-section">
+        <div class="fs-head">
+          <div class="fs-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <div class="fs-title">Personal Information</div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Full Name <span>*</span></label>
+            <input class="form-input" type="text"
+                   [value]="fullName()" (input)="onFullName($any($event.target).value)"
+                   placeholder="Enter patient's full name"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">NIC / Passport <span>*</span></label>
+            <input class="form-input form-input--mono" type="text"
+                   [value]="nic()" (input)="onNic($any($event.target).value)"
+                   placeholder="e.g. 199012345678 or M1234567"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Date of Birth <span>*</span></label>
+            <input class="form-input" type="date"
+                   [value]="dob()" (change)="dob.set($any($event.target).value)"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Gender <span>*</span></label>
+            <app-custom-dropdown [options]="genderOptions" [value]="gender()"
+                                 placeholder="Select..." (changed)="gender.set($event)">
+            </app-custom-dropdown>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Blood Group</label>
+            <app-custom-dropdown [options]="bloodOptions" [value]="bloodGroup()"
+                                 placeholder="Select..." (changed)="onBloodGroup($event)">
+            </app-custom-dropdown>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nationality</label>
+            <input class="form-input" type="text"
+                   [value]="nationality()" (input)="nationality.set($any($event.target).value)"
+                   placeholder="e.g. Sri Lankan"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Contact Details -->
+      <div class="form-section">
+        <div class="fs-head">
+          <div class="fs-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.11 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+            </svg>
+          </div>
+          <div class="fs-title">Contact Details</div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Phone Number <span>*</span></label>
+            <input class="form-input" type="tel"
+                   [value]="phone()" (input)="onPhone($any($event.target).value)"
+                   placeholder="+94 7X XXX XXXX"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input class="form-input" type="email"
+                   [value]="email()" (input)="email.set($any($event.target).value)"
+                   placeholder="patient@email.com"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Emergency Contact Name <span>*</span></label>
+            <input class="form-input" type="text"
+                   [value]="emergencyName()" (input)="onEmergencyName($any($event.target).value)"
+                   placeholder="Full name of emergency contact"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Emergency Contact Phone <span>*</span></label>
+            <input class="form-input" type="tel"
+                   [value]="emergencyPhone()" (input)="onEmergencyPhone($any($event.target).value)"
+                   placeholder="+94 7X XXX XXXX"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Address Information -->
+      <div class="form-section">
+        <div class="fs-head">
+          <div class="fs-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+          </div>
+          <div class="fs-title">Address Information</div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label class="form-label">Address Line 1 <span>*</span></label>
+            <input class="form-input" type="text"
+                   [value]="address1()" (input)="onAddress($any($event.target).value)"
+                   placeholder="Street address, house number"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">City <span>*</span></label>
+            <input class="form-input" type="text"
+                   [value]="city()" (input)="city.set($any($event.target).value)"
+                   placeholder="e.g. Colombo"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">District</label>
+            <app-custom-dropdown [options]="districtOptions" [value]="district()"
+                                 placeholder="Select..." [searchable]="true"
+                                 (changed)="district.set($event)">
+            </app-custom-dropdown>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Postal Code</label>
+            <input class="form-input form-input--mono" type="text"
+                   [value]="postalCode()" (input)="postalCode.set($any($event.target).value)"
+                   placeholder="e.g. 00300"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Landmark / Directions</label>
+            <input class="form-input" type="text"
+                   [value]="landmark()" (input)="landmark.set($any($event.target).value)"
+                   placeholder="Nearest landmark for driver navigation"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 4: Medical Notes -->
+      <div class="form-section">
+        <div class="fs-head">
+          <div class="fs-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>
+            </svg>
+          </div>
+          <div class="fs-title">Medical Notes <span class="optional-label">(Optional)</span></div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label class="form-label">Known Allergies</label>
+            <input class="form-input" type="text"
+                   [value]="allergies()" (input)="allergies.set($any($event.target).value)"
+                   placeholder="e.g. Penicillin, Latex (separate with commas)"/>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Existing Conditions</label>
+            <input class="form-input" type="text"
+                   [value]="conditions()" (input)="conditions.set($any($event.target).value)"
+                   placeholder="e.g. Diabetes, Hypertension (separate with commas)"/>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Special Instructions for Collection</label>
+            <textarea class="form-input form-textarea"
+                      [value]="specialNotes()"
+                      (input)="specialNotes.set($any($event.target).value)"
+                      placeholder="Any special instructions the technician should know..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 5: Patient Flag -->
+      <div class="form-section">
+        <div class="fs-head">
+          <div class="fs-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+              <line x1="4" y1="22" x2="4" y2="15"/>
+            </svg>
+          </div>
+          <div class="fs-title">Patient Flag</div>
+        </div>
+        <div class="radio-row">
+          <button class="radio-pill" [class.active]="patientFlag() === 'regular'"
+                  (click)="patientFlag.set('regular')" type="button">Regular</button>
+          <button class="radio-pill radio-pill--vip" [class.active]="patientFlag() === 'vip'"
+                  (click)="patientFlag.set('vip')" type="button">VIP</button>
+        </div>
+      </div>
+
+      <!-- Form Footer -->
+      <div class="form-footer">
+        <button class="btn" (click)="cancel()" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+          Cancel
+        </button>
+        <button class="btn btn-primary" (click)="submit()" [disabled]="isSubmitting()" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+            <circle cx="8.5" cy="7" r="4"/>
+            <line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>
+          </svg>
+          {{ isSubmitting() ? 'Registering...' : 'Register Patient' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Context Sidebar ── -->
+    <div class="ctx-sidebar">
+      <!-- Checklist -->
+      <div class="ctx-card">
+        <div class="ctx-card-head">
+          <div class="ctx-card-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+              <rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 14l2 2 4-4"/>
+            </svg>
+          </div>
+          <h3>Patient Checklist</h3>
+        </div>
+        <div class="checklist">
+          @for (item of checklist(); track item.label) {
+            <div class="check-item" [class.done]="item.done">
+              <div class="check-circle">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </div>
+              <span class="check-text">{{ item.label }}</span>
+              @if (item.required && !item.done) {
+                <span class="check-req">Required</span>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Patient Stats -->
+      <div class="ctx-card">
+        <div class="ctx-card-head">
+          <div class="ctx-card-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+          </div>
+          <h3>Patient Stats</h3>
+        </div>
+        <div class="ctx-stats">
+          <div class="ctx-stat">
+            <div class="ctx-stat-val">{{ patientStats.total | number }}</div>
+            <div class="ctx-stat-label">Total Patients</div>
+          </div>
+          <div class="ctx-stat">
+            <div class="ctx-stat-val">{{ patientStats.thisMonth }}</div>
+            <div class="ctx-stat-label">This Month</div>
+          </div>
+          <div class="ctx-stat">
+            <div class="ctx-stat-val">{{ patientStats.today }}</div>
+            <div class="ctx-stat-label">Today</div>
+          </div>
+          <div class="ctx-stat">
+            <div class="ctx-stat-val">{{ patientStats.rating }}</div>
+            <div class="ctx-stat-label">Avg Rating</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Patients -->
+      <div class="ctx-card">
+        <div class="ctx-card-head">
+          <div class="ctx-card-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <h3>Recent Patients</h3>
+        </div>
+        <div class="ctx-recent">
+          @for (p of recentPatients; track p.name) {
+            <div class="ctx-r-item">
+              <div class="ctx-r-av">{{ p.initials }}</div>
+              <div class="ctx-r-info">
+                <div class="ctx-r-name">{{ p.name }}</div>
+                <div class="ctx-r-date">{{ p.date }}</div>
+              </div>
+              <span class="ctx-r-badge status-reg">Registered</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Quick Tips -->
+      <div class="ctx-card">
+        <div class="ctx-card-head">
+          <div class="ctx-card-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+          </div>
+          <h3>Quick Tips</h3>
+        </div>
+        <div class="ctx-tips">
+          <div class="ctx-tip">
+            <div class="ctx-tip-num">1</div>
+            UHID is auto-generated upon registration
+          </div>
+          <div class="ctx-tip">
+            <div class="ctx-tip-num">2</div>
+            Emergency contact is mandatory for home visits
+          </div>
+          <div class="ctx-tip">
+            <div class="ctx-tip-num">3</div>
+            Medical notes help technicians prepare for collection
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Privacy Notice -->
+  <div class="notice">
+    <div class="notice-ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+      </svg>
+    </div>
+    <div class="notice-text">
+      <strong>Note:</strong> Patient data is protected under healthcare privacy regulations.
+      All information is encrypted and stored securely within Asiri Laboratories' systems.
+    </div>
+  </div>
+
+  <!-- Branded Footer -->
+  <footer class="brand-footer">
+    <div class="bf-left">
+      <div class="bf-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round">
+          <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
+        </svg>
+      </div>
+      <div class="bf-text"><strong>Asiri Laboratories</strong> — Mobile Service Platform<br>Trusted healthcare, delivered to your doorstep</div>
+    </div>
+    <div class="bf-right">
+      <div class="bf-status"><div class="bf-dot"></div>All systems operational</div>
+      <div class="bf-divider"></div>
+      <div class="bf-meta">v2.4.1</div>
+    </div>
+  </footer>
+</div>

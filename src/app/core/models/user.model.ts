@@ -1,46 +1,58 @@
 import { Role } from '../enums/role.enum';
 
-export interface User {
-  id:                  string;
-  staff_id:            string | null;
-  email:               string;
-  full_name:           string;
-  nic:                 string | null;
-  phone:               string | null;
-  avatar_url:          string | null;
-  role:                Role;
-  role_title:          string | null;
-  department:          string | null;
-  qualification:       string | null;
-  notes:               string | null;
-  branch_id:           string;
-  branch_name:         string | null;
-  status:              UserStatus;
-  two_factor_enabled:  boolean;
-  failed_login_count:  number;
-  locked_until:        string | null;
-  last_login_at:       string | null;
-  created_at:          string;
-  updated_at:          string;
-  deleted_at:          string | null;
-}
-
 export type UserStatus = 'active' | 'inactive' | 'suspended';
 
-export interface CreateUserDto {
-  full_name:     string;
-  email:         string;
-  role:          Role;
-  branch_id:     string;
-  phone?:        string;
-  staff_id?:     string;
-  nic?:          string;
-  role_title?:   string;
-  department?:   string;
-  qualification?: string;
-  notes?:        string;
+export interface User {
+  id:               string;
+  staffId:          string | null;
+  email:            string;
+  fullName:         string;
+  nic:              string | null;
+  phone:            string | null;
+  avatarUrl:        string | null;
+  role:             Role;
+  roleTitle:        string | null;
+  department:       string | null;
+  qualification:    string | null;
+  notes:            string | null;
+  branchId:         string;
+  branch:           { id: string; name: string; type: string };
+  status:           UserStatus;
+  twoFactorEnabled: boolean;
+  failedLoginCount: number;
+  lockedUntil:      string | null;
+  lastLoginAt:      string | null;
+  createdAt:        string;
 }
 
-export interface UpdateUserDto extends Partial<CreateUserDto> {
+export interface UserListResponse {
+  data: User[];
+  meta: {
+    page:       number;
+    limit:      number;
+    total:      number;
+    totalPages: number;
+    hasNext:    boolean;
+    hasPrev:    boolean;
+  };
+}
+
+export interface CreateUserDto {
+  fullName:        string;
+  email:           string;
+  password:        string;
+  role:            Role;
+  branchId:        string;
+  staffId?:        string | null;
+  nic?:            string | null;
+  phone?:          string | null;
+  roleTitle?:      string | null;
+  department?:     string | null;
+  qualification?:  string | null;
+  notes?:          string | null;
+  twoFactorEnabled?: boolean;
+}
+
+export interface UpdateUserDto extends Partial<Omit<CreateUserDto, 'email' | 'password'>> {
   status?: UserStatus;
 }

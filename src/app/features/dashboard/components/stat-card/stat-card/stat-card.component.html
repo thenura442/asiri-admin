@@ -1,0 +1,33 @@
+<div class="hs" [class.hs--featured]="isFeatured()">
+  <div class="hs-label">{{ label() }}</div>
+
+  <div class="hs-row">
+    <div class="hs-num">{{ value() }}</div>
+    <div class="hs-ring">
+      <canvas #ringCanvas></canvas>
+      <div class="hs-ring-val">{{ (ringPercent() * 100).toFixed(0) }}%</div>
+    </div>
+  </div>
+
+  <div class="hs-meta">
+    @if (goalLabel()) {
+      <span class="hs-goal">{{ goalLabel() }}</span>
+    } @else if (trend()) {
+      <span class="hs-chg" [class.hs-chg--up]="trend() === 'up'" [class.hs-chg--dn]="trend() === 'down'">
+        @if (trend() === 'up') {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <path d="M18 15l-6-6-6 6"/>
+          </svg>
+        } @else {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <path d="M6 9l6 6 6-6"/>
+          </svg>
+        }
+        {{ change() }}
+      </span>
+      <span class="hs-per">{{ changeLabel() }}</span>
+    }
+  </div>
+
+  <canvas #sparkCanvas class="hs-spark"></canvas>
+</div>

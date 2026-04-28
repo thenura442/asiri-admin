@@ -1,0 +1,172 @@
+<div class="pg">
+  <!-- Page Header -->
+  <div class="pg-hdr">
+    <div class="pg-hdr-l">
+      <h1>Test &amp; Service Management</h1>
+      <p>Manage laboratory tests, pricing, and service availability</p>
+    </div>
+    <button class="btn btn-primary" (click)="showAddModal.set(true)" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/>
+      </svg>
+      Add New Test
+    </button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="st">
+      <div class="st-label">Total Tests</div>
+      <div class="st-num">{{ stats().total }}</div>
+    </div>
+    <div class="st">
+      <div class="st-label">Active Services</div>
+      <div class="st-num">{{ stats().active }}</div>
+    </div>
+    <div class="st">
+      <div class="st-label">Categories</div>
+      <div class="st-num">{{ stats().categories }}</div>
+    </div>
+    <div class="st">
+      <div class="st-label">Avg. Price</div>
+      <div class="st-num st-num--price">Rs. {{ stats().avgPrice | number }}</div>
+    </div>
+  </div>
+
+  <!-- Filter Row -->
+  <div class="filter-row">
+    <div class="search-bar" [class.search-bar--active]="searchQuery().length > 0">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+      </svg>
+      <input [value]="searchQuery()" (input)="onSearch($event)"
+             placeholder="Search tests by name or code..." autocomplete="off"/>
+    </div>
+    @for (f of filters; track f.key) {
+      <button class="chip" [class.active]="activeFilter() === f.key"
+              (click)="setFilter(f.key)" type="button">
+        {{ f.label }}
+      </button>
+    }
+  </div>
+
+  <!-- Test Cards Grid -->
+  <div class="test-grid">
+    @for (test of filteredTests(); track test.id) {
+      <div class="test-card" [class.test-card--inactive]="!test.isActive">
+
+        <!-- Card Header -->
+        <div class="tc-head">
+          <div class="tc-info">
+            <div class="tc-name">{{ test.name }}</div>
+            <div class="tc-code">{{ test.code }}</div>
+            <div class="tc-tags">
+              <span class="tc-cat" [ngClass]="categoryClass(test.category)">
+                {{ categoryLabel(test.category) }}
+              </span>
+              @if (test.prescriptionRequired) {
+                <span class="tc-rx">Rx Required</span>
+              }
+            </div>
+          </div>
+
+          <!-- Active toggle -->
+          <label class="toggle" [title]="test.isActive ? 'Click to deactivate' : 'Click to activate'">
+            <input type="checkbox" [checked]="test.isActive"
+                   (change)="toggleActive(test)"/>
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+
+        <!-- Card Body -->
+        <div class="tc-body">
+          @if (test.description) {
+            <p class="tc-desc">{{ test.description }}</p>
+          }
+          <div class="tc-row">
+            <span class="tc-row-label">Price</span>
+            <span class="tc-price">{{ formatPrice(test.basePrice) }}</span>
+          </div>
+          <div class="tc-row">
+            <span class="tc-row-label">Turnaround</span>
+            <span class="tc-row-val">{{ test.turnaround }}</span>
+          </div>
+          <div class="tc-row">
+            <span class="tc-row-label">Sample Type</span>
+            <span class="tc-row-val">{{ test.sampleType }}</span>
+          </div>
+          <div class="tc-row">
+            <span class="tc-row-label">This Month</span>
+            <span class="tc-row-val">
+              {{ test.ordersThisMonth | number }} orders
+            </span>
+          </div>
+        </div>
+
+        <!-- Card Footer -->
+        <div class="tc-footer">
+          <button class="tc-btn" (click)="openEdit(test)" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            Edit
+          </button>
+          <button class="tc-btn tc-btn--danger" (click)="confirmDelete(test)" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+            </svg>
+            Delete
+          </button>
+        </div>
+      </div>
+    } @empty {
+      <div class="empty-state">
+        <div class="empty-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
+          </svg>
+        </div>
+        <div class="empty-title">No tests found</div>
+        <div class="empty-sub">Try adjusting your search or filter</div>
+      </div>
+    }
+  </div>
+
+  <!-- Branded Footer -->
+  <footer class="brand-footer">
+    <div class="bf-left">
+      <div class="bf-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round">
+          <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
+        </svg>
+      </div>
+      <div class="bf-text"><strong>Asiri Laboratories</strong> — Mobile Service Platform<br>Trusted healthcare, delivered to your doorstep</div>
+    </div>
+    <div class="bf-right">
+      <div class="bf-status"><div class="bf-dot"></div>All systems operational</div>
+      <div class="bf-divider"></div>
+      <div class="bf-meta">Last synced: just now</div>
+      <div class="bf-divider"></div>
+      <div class="bf-meta">v2.4.1</div>
+    </div>
+  </footer>
+</div>
+
+<!-- Add Modal -->
+@if (showAddModal()) {
+  <app-test-add-modal
+    (closed)="closeAdd()"
+    (saved)="onTestSaved($event)">
+  </app-test-add-modal>
+}
+
+<!-- Edit Modal -->
+@if (editingTest()) {
+  <app-test-edit-modal
+    [test]="editingTest()"
+    (closed)="closeEdit()"
+    (saved)="onTestSaved($event)">
+  </app-test-edit-modal>
+}

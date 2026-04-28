@@ -1,0 +1,114 @@
+<div class="backdrop" (click)="close()">
+  <div class="modal md" (click)="$event.stopPropagation()">
+    <div class="m-head">
+      <div class="m-head-l">
+        <div class="m-head-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
+          </svg>
+        </div>
+        <div class="m-head-text">
+          <h2>Add New Test</h2>
+          <p>Register a new laboratory test or service</p>
+        </div>
+      </div>
+      <button class="m-close" (click)="close()" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="m-body">
+      <!-- Test Identity -->
+      <div class="m-section-label">Test Identity</div>
+      <div class="fg-row">
+        <div class="fg">
+          <label class="fl">Test Name *</label>
+          <input class="fi" [value]="name()" (input)="name.set($any($event.target).value)"
+                 placeholder="e.g. Full Blood Count"/>
+        </div>
+        <div class="fg">
+          <label class="fl">Test Code *</label>
+          <input class="fi fi-mono" [value]="code()" (input)="code.set($any($event.target).value)"
+                 placeholder="e.g. FBC-001"/>
+        </div>
+      </div>
+      <div class="fg-row">
+        <div class="fg">
+          <label class="fl">Category *</label>
+          <select class="fi" [value]="category()" (change)="category.set($any($event.target).value)">
+            @for (cat of categories; track cat.value) {
+              <option [value]="cat.value">{{ cat.label }}</option>
+            }
+          </select>
+        </div>
+        <div class="fg">
+          <label class="fl">Sample Type *</label>
+          <select class="fi" [value]="sampleType()" (change)="sampleType.set($any($event.target).value)">
+            @for (s of sampleTypes; track s) {
+              <option [value]="s">{{ s }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <!-- Pricing & Timing -->
+      <div class="m-section-label" style="margin-top:8px">Pricing &amp; Timing</div>
+      <div class="fg-row">
+        <div class="fg">
+          <label class="fl">Base Price (Rs.) *</label>
+          <input class="fi fi-mono" type="number" min="0"
+                 [value]="basePrice()" (input)="basePrice.set($any($event.target).value)"
+                 placeholder="e.g. 1500"/>
+        </div>
+        <div class="fg">
+          <label class="fl">Turnaround Time</label>
+          <input class="fi" [value]="turnaround()" (input)="turnaround.set($any($event.target).value)"
+                 placeholder="e.g. 4–6 hrs"/>
+        </div>
+      </div>
+      <div class="fg-row">
+        <div class="fg">
+          <label class="fl">Distance Rate (Rs./km)</label>
+          <input class="fi fi-mono" type="number" min="0"
+                 [value]="distanceRate()" (input)="distanceRate.set($any($event.target).value)"
+                 placeholder="e.g. 150 (leave blank for default)"/>
+          <span class="fi-hint">Overrides global per-km rate for this test</span>
+        </div>
+        <div class="fg">
+          <label class="fl">Prescription Required?</label>
+          <div class="toggle-row">
+            <label class="toggle">
+              <input type="checkbox" [checked]="prescriptionRequired()"
+                     (change)="prescriptionRequired.set($any($event.target).checked)"/>
+              <span class="toggle-track"></span>
+            </label>
+            <span class="toggle-label-text">
+              {{ prescriptionRequired() ? 'Yes — prescription needed' : 'No — no prescription needed' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="fg" style="margin-top:4px">
+        <label class="fl">Description</label>
+        <textarea class="fi" [value]="description()"
+                  (input)="description.set($any($event.target).value)"
+                  placeholder="Brief description for patients and staff..."
+                  style="min-height:80px"></textarea>
+      </div>
+    </div>
+
+    <div class="m-foot">
+      <button class="btn" (click)="close()" type="button">Cancel</button>
+      <button class="btn btn-primary" (click)="submit()" [disabled]="!canSubmit" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
+        </svg>
+        Add Test
+      </button>
+    </div>
+  </div>
+</div>

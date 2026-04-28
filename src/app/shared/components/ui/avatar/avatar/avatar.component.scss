@@ -1,0 +1,42 @@
+:host { display: inline-block; }
+
+.av {
+  border-radius: 50%;
+  background: var(--page);
+  border: 1.5px solid var(--b2);
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--t1);
+  position: relative;
+  -webkit-flex-shrink: 0;
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
+
+  &--sm { width: 32px; height: 32px; font-size: 11px; }
+  &--md { width: 38px; height: 38px; font-size: 13px; }
+  &--lg { width: 48px; height: 48px; font-size: 16px; }
+}
+
+.av-dot {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--surface);
+
+  &--online  { background: var(--sg); }
+  &--offline { background: var(--t5); }
+}

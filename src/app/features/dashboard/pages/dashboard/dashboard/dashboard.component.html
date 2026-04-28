@@ -1,0 +1,110 @@
+<div class="pg">
+  <!-- Top Bar (Dashboard-specific with greeting + clock) -->
+  
+
+  <!-- Bento Grid -->
+  <div class="bento">
+
+    <!-- ── Hero Stats Row ── -->
+    <div class="hero-stats anim-row">
+      <app-stat-card
+        label="Unallocated"
+        [value]="stats()?.unallocated ?? 0"
+        [ringPercent]="0.15"
+        trend="up"
+        change="+2%"
+        changeLabel="vs yesterday">
+      </app-stat-card>
+
+      <app-stat-card
+        label="Allocated"
+        [value]="stats()?.allocated ?? 0"
+        [ringPercent]="0.30"
+        trend="up"
+        change="+5%"
+        changeLabel="vs yesterday">
+      </app-stat-card>
+
+      <app-stat-card
+        label="In Progress"
+        [value]="stats()?.inProgress ?? 0"
+        [ringPercent]="0.23"
+        trend="down"
+        change="-3%"
+        changeLabel="vs yesterday">
+      </app-stat-card>
+
+      <app-stat-card
+        label="Completed Today"
+        [value]="stats()?.completedToday ?? 0"
+        [ringPercent]="stats()?.completionRate ?? 0"
+        [isFeatured]="true"
+        [goalLabel]="'Goal: ' + (stats()?.completionGoal ?? 200)">
+      </app-stat-card>
+    </div>
+
+    <!-- ── Map + Right Panel Row ── -->
+    <div class="map-section anim-delay-1">
+      <app-fleet-map></app-fleet-map>
+    </div>
+
+    <div class="right-panel anim-delay-2">
+      <app-driver-status-panel [drivers]="drivers()"></app-driver-status-panel>
+      <app-fulfillment-bar
+        [done]="stats()?.completedToday ?? 0"
+        [target]="stats()?.completionGoal ?? 200">
+      </app-fulfillment-bar>
+      <app-notification-widget></app-notification-widget>
+    </div>
+
+    <!-- ── KPIs + Recent Row ── -->
+    <div class="kpi-row anim-delay-3">
+      <div class="kp">
+        <div class="kp-i">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <div class="kp-v">{{ stats()?.avgDispatchMinutes ?? 0 }}<span>min</span></div>
+        <div class="kp-l">Avg Dispatch</div>
+      </div>
+      <div class="kp">
+        <div class="kp-i">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+          </svg>
+        </div>
+        <div class="kp-v">{{ stats()?.onlineDrivers ?? 0 }}</div>
+        <div class="kp-l">Online Drivers</div>
+      </div>
+    </div>
+
+    <div class="recent-row anim-delay-3">
+      <app-recent-jobs [jobs]="recentJobs()"></app-recent-jobs>
+    </div>
+
+  </div>
+
+  <!-- Branded Footer -->
+  <footer class="brand-footer">
+    <div class="bf-left">
+      <div class="bf-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round">
+          <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
+        </svg>
+      </div>
+      <div class="bf-text">
+        <strong>Asiri Laboratories</strong> — Mobile Service Platform<br>
+        Trusted healthcare, delivered to your doorstep
+      </div>
+    </div>
+    <div class="bf-right">
+      <div class="bf-status"><div class="bf-dot"></div>All systems operational</div>
+      <div class="bf-divider"></div>
+      <div class="bf-meta">Last synced: just now</div>
+      <div class="bf-divider"></div>
+      <div class="bf-meta">v2.4.1</div>
+    </div>
+  </footer>
+</div>

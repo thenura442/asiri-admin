@@ -1,0 +1,103 @@
+<div class="backdrop" (click)="close()">
+  <div class="modal md" (click)="$event.stopPropagation()">
+    <div class="m-head">
+      <div class="m-head-l">
+        <div class="m-head-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+        </div>
+        <div class="m-head-text">
+          <h2>Edit User</h2>
+          <p>Update account details for {{ fullName() }}</p>
+        </div>
+      </div>
+      <button class="m-close" (click)="close()" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="m-body">
+      <div class="fg-row">
+        <div class="fg">
+          <label class="fl">Full Name</label>
+          <input class="fi" [value]="fullName()" (input)="fullName.set($any($event.target).value)"/>
+        </div>
+        <div class="fg">
+          <label class="fl">NIC</label>
+          <input class="fi fi-mono" [value]="nic()" (input)="nic.set($any($event.target).value)"/>
+        </div>
+      </div>
+      <div class="fg-row">
+        <div class="fg">
+          <label class="fl">Email Address</label>
+          <input class="fi" type="email" [value]="email()" (input)="email.set($any($event.target).value)"/>
+        </div>
+        <div class="fg">
+          <label class="fl">Phone</label>
+          <input class="fi" type="tel" [value]="phone()" (input)="phone.set($any($event.target).value)"/>
+        </div>
+      </div>
+      <div class="fg-row">
+        <div class="fg">
+          <label class="fl">Role</label>
+          <select class="fi" [value]="role()" (change)="role.set($any($event.target).value)">
+            @for (r of roles; track r.value) {
+              <option [value]="r.value" [selected]="r.value === role()">{{ r.label }}</option>
+            }
+          </select>
+        </div>
+        <div class="fg">
+          <label class="fl">Branch / Lab</label>
+          <select class="fi" [value]="branch()" (change)="branch.set($any($event.target).value)">
+            @for (b of branches; track b) {
+              <option [value]="b" [selected]="b === branch()">{{ b }}</option>
+            }
+          </select>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">Account Status</label>
+        <div class="radio-row">
+          <button class="radio-pill" [class.active]="status() === 'active'"
+                  (click)="status.set('active')" type="button">Active</button>
+          <button class="radio-pill" [class.active]="status() === 'inactive'"
+                  (click)="status.set('inactive')" type="button">Inactive</button>
+          <button class="radio-pill radio-pill--danger" [class.active]="status() === 'suspended'"
+                  (click)="status.set('suspended')" type="button">Suspended</button>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">Two-Factor Authentication</label>
+        <div class="toggle-row-inline">
+          <label class="toggle">
+            <input type="checkbox" [checked]="require2fa()"
+                   (change)="require2fa.set($any($event.target).checked)"/>
+            <span class="toggle-track"></span>
+          </label>
+          <span class="toggle-label-text">{{ require2fa() ? 'Enabled — required on login' : 'Disabled' }}</span>
+        </div>
+      </div>
+
+      <div class="reset-pw-row">
+        <button class="btn btn-outline-blue" (click)="resetPassword()" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2"/>
+            <path d="M7 11V7a5 5 0 0110 0v4"/>
+          </svg>
+          Send Password Reset Email
+        </button>
+      </div>
+    </div>
+
+    <div class="m-foot">
+      <button class="btn btn-danger" (click)="confirmDelete()" type="button">Delete User</button>
+      <div style="flex:1"></div>
+      <button class="btn" (click)="close()" type="button">Cancel</button>
+      <button class="btn btn-primary" (click)="save()" type="button">Update User</button>
+    </div>
+  </div>
+</div>

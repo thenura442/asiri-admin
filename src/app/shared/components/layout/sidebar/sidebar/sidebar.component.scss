@@ -1,0 +1,163 @@
+:host {
+  display: block;
+}
+
+.sb {
+  position: fixed;
+  left: 0; top: 0; bottom: 0;
+  width: var(--sw);
+  background: var(--brand);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 100;
+  padding: 20px 0;
+  transition: width 0.35s var(--smooth);
+  overflow: hidden;
+
+  &:hover { width: var(--sw-exp); }
+}
+
+.sb-logo {
+  width: 40px; height: 40px;
+  background: var(--accent);
+  border-radius: var(--r);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 12px rgba(63,188,185,.3);
+  transition: transform 0.3s var(--spring);
+  svg { width: 20px; height: 20px; }
+  .sb:hover & { transform: scale(1.05); }
+}
+
+.sb-brand {
+  overflow: hidden; white-space: nowrap;
+  opacity: 0; transition: opacity 0.3s var(--ease);
+  margin-bottom: 28px; text-align: center; width: 100%;
+  h1 { color: #fff; font-size: 15px; font-weight: 700; margin-top: 12px; }
+  p  { color: rgba(255,255,255,.3); font-size: 9.5px; letter-spacing: 3px; text-transform: uppercase; margin-top: 3px; font-weight: 500; }
+  .sb:hover & { opacity: 1; }
+}
+
+.sb-nav {
+  flex: 1; width: 100%;
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 0 12px;
+  overflow-y: auto; overflow-x: hidden;
+  scrollbar-width: none; -ms-overflow-style: none;
+  &::-webkit-scrollbar { width: 0; display: none; }
+}
+
+.sb-sec {
+  padding: 16px 14px 6px;
+  font-size: 9px; text-transform: uppercase; letter-spacing: 2px;
+  color: rgba(255,255,255,.15); font-weight: 700; white-space: nowrap;
+  opacity: 0; transition: opacity 0.25s;
+  .sb:hover & { opacity: 1; }
+}
+
+.sn {
+  display: flex; align-items: center; gap: 14px;
+  width: 100%; padding: 11px 14px;
+  border-radius: var(--r);
+  color: rgba(255,255,255,.38);
+  cursor: pointer; transition: all 0.2s var(--ease);
+  white-space: nowrap; position: relative; text-decoration: none;
+
+  svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+  &:hover {
+    background: rgba(255,255,255,.05);
+    color: rgba(255,255,255,.7);
+  }
+
+  &.on {
+    color: var(--accent);
+    background: rgba(63,188,185,.12);
+
+    svg { stroke: var(--accent); }
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: -12px; top: 8px; bottom: 8px;
+      width: 3px;
+      background: var(--accent);
+      border-radius: 0 3px 3px 0;
+    }
+  }
+}
+
+.sn-text {
+  font-size: 13px; font-weight: 500;
+  opacity: 0; transition: opacity 0.25s var(--ease);
+  .sb:hover & { opacity: 1; }
+}
+
+// New Request CTA
+.sb-cta {
+  margin: 12px 12px 0;
+  padding: 12px;
+  background: var(--accent);
+  color: var(--brand-d);
+  border-radius: var(--r);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px; font-weight: 700;
+  transition: all 0.25s var(--spring);
+  width: calc(100% - 24px);
+  text-decoration: none;
+  flex-shrink: 0;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(63,188,185,.3);
+  }
+
+  svg { width: 18px; height: 18px; flex-shrink: 0; }
+}
+
+.sb-cta-text {
+  display: none; white-space: nowrap;
+  .sb:hover & { display: inline; }
+}
+
+// User footer
+.sb-ft {
+  margin-top: 12px; width: 100%;
+  padding: 12px;
+  border-top: 1px solid rgba(255,255,255,.06);
+}
+
+.sb-u {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 6px; border-radius: var(--r);
+  cursor: pointer; transition: background 0.2s; text-decoration: none;
+  &:hover { background: rgba(255,255,255,.04); }
+}
+
+.sb-av {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: rgba(63,188,185,.12);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent-l); font-weight: 700; font-size: 12px;
+  flex-shrink: 0; position: relative;
+
+  &::after {
+    content: '';
+    position: absolute; bottom: 0; right: 0;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--sg); border: 2px solid var(--brand);
+  }
+}
+
+.sb-u-info {
+  flex: 1; min-width: 0; overflow: hidden;
+  opacity: 0; transition: opacity 0.25s var(--ease);
+  .sb:hover & { opacity: 1; }
+}
+
+.sb-u-n { color: rgba(255,255,255,.82); font-size: 13px; font-weight: 600; white-space: nowrap; }
+.sb-u-r { color: rgba(255,255,255,.3); font-size: 11px; white-space: nowrap; }
