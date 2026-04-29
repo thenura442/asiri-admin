@@ -2,7 +2,7 @@ export const environment = {
   production: false,
   supabaseUrl: 'https://your-project.supabase.co',
   supabaseAnonKey: 'your-anon-key',
-  apiUrl: 'http://localhost:3000/api',
+  apiUrl: 'https://asiri-api-w6a6.onrender.com/api',
   osrmUrl: 'https://router.project-osrm.org',
   sessionTimeout: 24 * 60 * 60 * 1000,
   maxLoginAttempts: 5,
