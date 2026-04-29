@@ -1,39 +1,61 @@
-import { VehicleStatus } from '../enums/vehicle-status.enum';
+export type VehicleType   = 'van' | 'car';
+export type VehicleStatus = 'available' | 'busy' | 'offline';
 
 export interface Vehicle {
-  id:                   string;
-  plate_number:         string;
-  chassis_number:       string;
-  vehicle_id_code:      string | null;
-  make_model:           string | null;
-  year_of_manufacture:  number | null;
-  color:                string | null;
-  vehicle_type:         VehicleType;
-  branch_id:            string;
-  branch_name:          string;
-  status:               VehicleStatus;
-  current_driver_id:    string | null;
-  current_driver_name:  string | null;
-  notes:                string | null;
-  created_at:           string;
-  updated_at:           string;
-  deleted_at:           string | null;
+  id:                string;
+  plateNumber:       string;
+  chassisNumber:     string;
+  vehicleIdCode:     string | null;
+  makeModel:         string | null;
+  yearOfManufacture: number | null;
+  color:             string | null;
+  vehicleType:       VehicleType;
+  branchId:          string;
+  branch:            { id: string; name: string };
+  status:            VehicleStatus;
+  currentDriverId:   string | null;
+  currentDriver:     { id: string; fullName: string; phone: string } | null;
+  notes:             string | null;
+  insuranceProvider: string | null;
+  insuranceExpiry:   string | null;
+  revenueLicExpiry:  string | null;
+  lastServiceDate:   string | null;
+  mileageKm:         number | null;
+  nextServiceKm:     number | null;
+  insuranceCertUrl:  string | null;
+  createdAt:         string;
+  updatedAt:         string;
+  deletedAt:         string | null;
 }
 
-export type VehicleType = 'van' | 'car';
+export interface VehicleListResponse {
+  data: Vehicle[];
+  meta: {
+    page:       number;
+    limit:      number;
+    total:      number;
+    totalPages: number;
+    hasNext:    boolean;
+    hasPrev:    boolean;
+    stats:      { available: number; busy: number; offline: number };
+  };
+}
 
 export interface CreateVehicleDto {
-  plate_number:         string;
-  chassis_number:       string;
-  vehicle_type:         VehicleType;
-  branch_id:            string;
-  vehicle_id_code?:     string;
-  make_model?:          string;
-  year_of_manufacture?: number;
-  color?:               string;
-  notes?:               string;
-}
-
-export interface UpdateVehicleDto extends Partial<CreateVehicleDto> {
-  status?: VehicleStatus;
+  plateNumber:        string;
+  chassisNumber:      string;
+  vehicleType:        VehicleType;
+  branchId:           string;
+  vehicleIdCode?:     string | null;
+  makeModel?:         string | null;
+  yearOfManufacture?: number | null;
+  color?:             string | null;
+  notes?:             string | null;
+  insuranceProvider?: string | null;
+  insuranceExpiry?:   string | null;
+  revenueLicExpiry?:  string | null;
+  lastServiceDate?:   string | null;
+  mileageKm?:         number | null;
+  nextServiceKm?:     number | null;
+  insuranceCertUrl?:  string | null;
 }

@@ -1,49 +1,60 @@
-import { DriverStatus } from '../enums/driver-status.enum';
+export type DriverStatus = 'active' | 'inactive' | 'suspended';
+export type LicenseExpiryWarning = 'none' | 'expiring_soon' | 'expired';
 
 export interface Driver {
   id:                   string;
-  staff_id:             string | null;
-  full_name:            string;
+  staffId:              string | null;
+  fullName:             string;
   nic:                  string;
-  date_of_birth:        string;
+  dateOfBirth:          string;
   phone:                string;
-  license_number:       string;
-  license_expiry:       string;
-  branch_id:            string;
-  branch_name:          string;
-  license_photo_url:    string | null;
-  id_front_url:         string | null;
-  id_back_url:          string | null;
+  licenseNumber:        string;
+  licenseExpiry:        string;
+  licenseExpiryWarning: LicenseExpiryWarning;
+  branchId:             string;
+  branch:               { id: string; name: string };
+  licensePhotoUrl:      string | null;
+  idFrontUrl:           string | null;
+  idBackUrl:            string | null;
   status:               DriverStatus;
-  is_online:            boolean;
-  current_vehicle_id:   string | null;
-  current_vehicle_plate: string | null;
-  created_at:           string;
-  updated_at:           string;
+  isAvailable:          boolean;
+  createdAt:            string;
+}
+
+export interface DriverListResponse {
+  data: Driver[];
+  meta: {
+    page:       number;
+    limit:      number;
+    total:      number;
+    totalPages: number;
+    hasNext:    boolean;
+    hasPrev:    boolean;
+  };
 }
 
 export interface CreateDriverDto {
-  full_name:      string;
-  nic:            string;
-  date_of_birth:  string;
-  phone:          string;
-  license_number: string;
-  license_expiry: string;
-  branch_id:      string;
-  staff_id?:      string;
+  fullName:        string;
+  nic:             string;
+  dateOfBirth:     string;
+  phone:           string;
+  licenseNumber:   string;
+  licenseExpiry:   string;
+  branchId:        string;
+  staffId?:        string | null;
+  licensePhotoUrl?: string | null;
+  idFrontUrl?:     string | null;
+  idBackUrl?:      string | null;
 }
 
-export interface UpdateDriverDto extends Partial<CreateDriverDto> {
-  status?: DriverStatus;
+export interface UpdateDriverDto {
+  fullName?:      string;
+  nic?:           string;
+  dateOfBirth?:   string;
+  phone?:         string;
+  licenseNumber?: string;
+  licenseExpiry?: string;
+  branchId?:      string;
+  staffId?:       string | null;
+  status?:        DriverStatus;
 }
-
-export interface DriverDocument {
-  id:          string;
-  driver_id:   string;
-  type:        DocumentType;
-  url:         string;
-  expiry_date: string | null;
-  uploaded_at: string;
-}
-
-export type DocumentType = 'nic' | 'license' | 'medical' | 'other';

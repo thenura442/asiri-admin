@@ -1,5 +1,6 @@
 <div class="backdrop" (click)="close()">
   <div class="modal md" (click)="$event.stopPropagation()">
+
     <div class="m-head">
       <div class="m-head-l">
         <div class="m-head-ico">
@@ -10,7 +11,7 @@
         </div>
         <div class="m-head-text">
           <h2>Edit Branch</h2>
-          <p>Update branch details — {{ name() }}</p>
+          <p>Update details for {{ branch()?.name }}</p>
         </div>
       </div>
       <button class="m-close" (click)="close()" type="button">
@@ -21,78 +22,177 @@
     </div>
 
     <div class="m-body">
+
       <div class="fg">
-        <label class="fl">Branch Name</label>
-        <input class="fi" [value]="name()" (input)="name.set($any($event.target).value)"/>
-      </div>
-      <div class="fg">
-        <label class="fl">Address</label>
-        <input class="fi" [value]="address()" (input)="address.set($any($event.target).value)"/>
-      </div>
-      <div class="fg-row">
-        <div class="fg">
-          <label class="fl">GPS Latitude</label>
-          <input class="fi fi-mono" [value]="latitude()" (input)="latitude.set($any($event.target).value)"/>
-        </div>
-        <div class="fg">
-          <label class="fl">GPS Longitude</label>
-          <input class="fi fi-mono" [value]="longitude()" (input)="longitude.set($any($event.target).value)"/>
-        </div>
-      </div>
-      <div class="fg">
-        <label class="fl">Phone</label>
-        <input class="fi" [value]="phone()" (input)="phone.set($any($event.target).value)"/>
-      </div>
-      <div class="fg-row">
-        <div class="fg">
-          <label class="fl">Branch Type</label>
-          <select class="fi" [value]="branchType()" (change)="branchType.set($any($event.target).value)">
-            @for (t of branchTypes; track t.value) {
-              <option [value]="t.value" [selected]="t.value === branchType()">{{ t.label }}</option>
-            }
-          </select>
-        </div>
-        <div class="fg">
-          <label class="fl">Default Lab</label>
-          <select class="fi" [value]="defaultLab()" (change)="defaultLab.set($any($event.target).value)">
-            @for (lab of defaultLabs; track lab) {
-              <option [value]="lab" [selected]="lab === defaultLab()">{{ lab }}</option>
-            }
-          </select>
-        </div>
-      </div>
-      <div class="fg-row">
-        <div class="fg">
-          <label class="fl">Operating Hours Start</label>
-          <input class="fi fi-mono" type="time"
-                 [value]="hoursStart()" (change)="hoursStart.set($any($event.target).value)"/>
-        </div>
-        <div class="fg">
-          <label class="fl">Operating Hours End</label>
-          <input class="fi fi-mono" type="time"
-                 [value]="hoursEnd()" (change)="hoursEnd.set($any($event.target).value)"/>
-        </div>
-      </div>
-      <div class="fg">
-        <label class="fl">Notes</label>
-        <textarea class="fi" [value]="notes()"
-                  (input)="notes.set($any($event.target).value)"
-                  style="min-height:60px"></textarea>
+        <label class="fl">Branch Name <span class="req">*</span></label>
+        <input class="fi"
+               [class.fi--error]="errors()['name']"
+               [value]="name()"
+               (input)="onName($any($event.target).value)"/>
+        @if (errors()['name']) {
+          <span class="field-error">{{ errors()['name'] }}</span>
+        }
       </div>
 
-      <div class="info-box warn">
+      <div class="fg">
+        <label class="fl">Address <span class="req">*</span></label>
+        <input class="fi"
+               [class.fi--error]="errors()['address']"
+               [value]="address()"
+               (input)="onAddress($any($event.target).value)"/>
+        @if (errors()['address']) {
+          <span class="field-error">{{ errors()['address'] }}</span>
+        }
+      </div>
+
+      <div class="fg-row">
+        <div class="fg">
+          <label class="fl">Latitude <span class="req">*</span></label>
+          <input class="fi fi-mono"
+                 [class.fi--error]="errors()['latitude']"
+                 [value]="latitude()"
+                 (input)="onLat($any($event.target).value)"
+                 placeholder="e.g. 6.9147"/>
+          @if (errors()['latitude']) {
+            <span class="field-error">{{ errors()['latitude'] }}</span>
+          }
+        </div>
+        <div class="fg">
+          <label class="fl">Longitude <span class="req">*</span></label>
+          <input class="fi fi-mono"
+                 [class.fi--error]="errors()['longitude']"
+                 [value]="longitude()"
+                 (input)="onLng($any($event.target).value)"
+                 placeholder="e.g. 79.8571"/>
+          @if (errors()['longitude']) {
+            <span class="field-error">{{ errors()['longitude'] }}</span>
+          }
+        </div>
+      </div>
+
+      <div class="fg-row">
+        <div class="fg">
+          <label class="fl">Phone</label>
+          <input class="fi"
+                 [value]="phone()"
+                 (input)="phone.set($any($event.target).value)"
+                 placeholder="+94 11 XXX XXXX"/>
+        </div>
+        <div class="fg">
+          <label class="fl">Email</label>
+          <input class="fi" type="email"
+                 [value]="email()"
+                 (input)="email.set($any($event.target).value)"
+                 placeholder="branch@asiri.lk"/>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label class="fl">Branch Type</label>
+        <select class="fi"
+                [value]="branchType()"
+                (change)="branchType.set($any($event.target).value)">
+          @for (t of branchTypeOptions; track t.value) {
+            <option [value]="t.value" [selected]="t.value === branchType()">
+              {{ t.label }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <div class="fg-row">
+        <div class="fg">
+          <label class="fl">Opening Time</label>
+          <input class="fi fi-mono" type="time"
+                 [value]="operatingStart()"
+                 (change)="operatingStart.set($any($event.target).value)"/>
+        </div>
+        <div class="fg">
+          <label class="fl">Closing Time</label>
+          <input class="fi fi-mono" type="time"
+                 [value]="operatingEnd()"
+                 (change)="operatingEnd.set($any($event.target).value)"/>
+        </div>
+      </div>
+
+      <div class="fg-row">
+        <div class="fg">
+          <label class="fl">Service Radius (km)</label>
+          <input class="fi fi-mono" type="number" min="1"
+                 [value]="serviceRadiusKm()"
+                 (input)="serviceRadiusKm.set($any($event.target).value)"
+                 placeholder="e.g. 15"/>
+        </div>
+        <div class="fg">
+          <label class="fl">Max Daily Capacity</label>
+          <input class="fi fi-mono" type="number" min="1"
+                 [value]="maxDailyCapacity()"
+                 (input)="maxDailyCapacity.set($any($event.target).value)"
+                 placeholder="e.g. 50"/>
+        </div>
+      </div>
+
+      <div class="fg-row">
+        <div class="fg">
+          <label class="fl">Manager Name</label>
+          <input class="fi"
+                 [value]="managerName()"
+                 (input)="managerName.set($any($event.target).value)"
+                 placeholder="Branch manager full name"/>
+        </div>
+        <div class="fg">
+          <label class="fl">Manager Phone</label>
+          <input class="fi"
+                 [value]="managerPhone()"
+                 (input)="managerPhone.set($any($event.target).value)"
+                 placeholder="+94 7X XXX XXXX"/>
+        </div>
+      </div>
+
+      <div class="fg-row">
+        <div class="fg">
+          <label class="fl">Province</label>
+          <input class="fi"
+                 [value]="province()"
+                 (input)="province.set($any($event.target).value)"
+                 placeholder="e.g. Western"/>
+        </div>
+        <div class="fg">
+          <label class="fl">District</label>
+          <input class="fi"
+                 [value]="district()"
+                 (input)="district.set($any($event.target).value)"
+                 placeholder="e.g. Colombo"/>
+        </div>
+      </div>
+
+      <div class="info-box warn" style="margin-top:8px">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
         </svg>
         Branches with active jobs cannot be deleted. Complete all dispatches first.
       </div>
+
     </div>
 
     <div class="m-foot">
-      <button class="btn btn-danger" (click)="confirmDelete()" type="button">Delete Branch</button>
+      <button class="btn btn-danger"
+              (click)="confirmDelete()"
+              [disabled]="isSaving() || isDeleting()"
+              type="button">
+        @if (isDeleting()) { Deleting... } @else { Delete Branch }
+      </button>
       <div style="flex:1"></div>
-      <button class="btn" (click)="close()" type="button">Cancel</button>
-      <button class="btn btn-primary" (click)="save()" type="button">Update Branch</button>
+      <button class="btn" (click)="close()"
+              [disabled]="isSaving() || isDeleting()"
+              type="button">Cancel</button>
+      <button class="btn btn-primary" (click)="save()"
+              [disabled]="isSaving() || isDeleting()"
+              type="button">
+        @if (isSaving()) { Saving... } @else { Update Branch }
+      </button>
     </div>
+
   </div>
 </div>

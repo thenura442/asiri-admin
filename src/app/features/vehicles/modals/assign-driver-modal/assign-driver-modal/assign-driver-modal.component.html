@@ -1,15 +1,17 @@
 <div class="backdrop" (click)="close()">
   <div class="modal md" (click)="$event.stopPropagation()">
+
     <div class="m-head">
       <div class="m-head-l">
         <div class="m-head-ico">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
             <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
           </svg>
         </div>
         <div class="m-head-text">
-          <h2>Assign Driver to Vehicle</h2>
+          <h2>Assign Driver</h2>
           <p>Select an available driver for this vehicle</p>
         </div>
       </div>
@@ -21,70 +23,101 @@
     </div>
 
     <div class="m-body">
-      <!-- Vehicle context -->
+
       @if (vehicle()) {
         <div class="ctx">
           <div class="ctx-item">
             <div class="ctx-label">Vehicle</div>
-            <div class="ctx-val mono">{{ vehicle().plateNumber }}</div>
+            <div class="ctx-val mono">{{ vehicle()!.plateNumber }}</div>
           </div>
           <div class="ctx-item">
             <div class="ctx-label">Type</div>
-            <div class="ctx-val">{{ vehicle().vehicleType | titlecase }}</div>
+            <div class="ctx-val">{{ vehicle()!.vehicleType | titlecase }}</div>
           </div>
           <div class="ctx-item">
             <div class="ctx-label">Branch</div>
-            <div class="ctx-val">{{ vehicle().branch?.name }}</div>
+            <div class="ctx-val">{{ vehicle()!.branch.name }}</div>
           </div>
+          @if (vehicle()!.currentDriver) {
+            <div class="ctx-item">
+              <div class="ctx-label">Current Driver</div>
+              <div class="ctx-val">{{ vehicle()!.currentDriver!.fullName }}</div>
+            </div>
+          }
         </div>
       }
 
-      <!-- Driver list -->
       <div class="driver-list">
+
         <!-- Unassign option -->
-        <div class="driver-row" [class.driver-row--selected]="selectedDriverId() === null"
+        <div class="driver-row"
+             [class.driver-row--selected]="selectedDriverId() === null"
              (click)="unassign()">
           <div class="dr-av dr-av--none">—</div>
           <div class="dr-info">
             <div class="dr-name">Unassigned</div>
             <div class="dr-meta">Remove current driver assignment</div>
           </div>
-          <button class="dr-btn" [class.dr-btn--selected]="selectedDriverId() === null"
-                  (click)="unassign(); $event.stopPropagation()" type="button">
+          <button class="dr-btn"
+                  [class.dr-btn--selected]="selectedDriverId() === null"
+                  (click)="unassign(); $event.stopPropagation()"
+                  type="button">
             {{ selectedDriverId() === null ? '✓ Selected' : 'Select' }}
           </button>
         </div>
 
-        @for (driver of drivers(); track driver.id) {
-          <div class="driver-row"
-               [class.driver-row--selected]="selectedDriverId() === driver.id"
-               [class.driver-row--offline]="!driver.isOnline"
-               (click)="driver.isOnline && select(driver.id)">
-            <div class="dr-av">
-              {{ driver.initials }}
-              <div class="dr-dot" [style.background]="dotColor(driver)"></div>
-            </div>
-            <div class="dr-info">
-              <div class="dr-name">{{ driver.fullName }}</div>
-              <div class="dr-meta" [style.color]="driver.isOnline ? 'var(--sgt)' : 'var(--t5)'">
-                {{ driver.status }}
-              </div>
-            </div>
-            <button class="dr-btn"
-                    [class.dr-btn--selected]="selectedDriverId() === driver.id"
-                    [disabled]="!driver.isOnline"
-                    (click)="select(driver.id); $event.stopPropagation()"
-                    type="button">
-              {{ selectedDriverId() === driver.id ? '✓ Selected' : 'Assign' }}
-            </button>
+        @if (isLoading()) {
+          <div style="padding:24px;text-align:center;color:var(--t4);font-size:13px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 class="spin" style="width:18px;height:18px;display:inline-block;margin-right:8px;vertical-align:middle">
+              <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".25"/>
+              <path d="M21 12a9 9 0 00-9-9"/>
+            </svg>
+            Loading drivers...
           </div>
+        } @else if (drivers().length === 0) {
+          <div style="padding:24px;text-align:center;color:var(--t4);font-size:13px">
+            No active drivers found for this branch.
+          </div>
+        } @else {
+          @for (driver of drivers(); track driver.id) {
+            <div class="driver-row"
+                 [class.driver-row--selected]="selectedDriverId() === driver.id"
+                 [class.driver-row--offline]="!driver.isAvailable"
+                 (click)="select(driver.id)">
+              <div class="dr-av">
+                {{ driver.initials }}
+                <div class="dr-dot" [style.background]="dotColor(driver)"></div>
+              </div>
+              <div class="dr-info">
+                <div class="dr-name">{{ driver.fullName }}</div>
+                <div class="dr-meta">
+                  {{ driver.branchName }}
+                  <span [style.color]="driver.isAvailable ? 'var(--sgt)' : 'var(--t4)'">
+                    · {{ driver.isAvailable ? 'Available' : 'On Job' }}
+                  </span>
+                </div>
+              </div>
+              <button class="dr-btn"
+                      [class.dr-btn--selected]="selectedDriverId() === driver.id"
+                      (click)="select(driver.id); $event.stopPropagation()"
+                      type="button">
+                {{ selectedDriverId() === driver.id ? '✓ Selected' : 'Assign' }}
+              </button>
+            </div>
+          }
         }
+
       </div>
     </div>
 
     <div class="m-foot">
       <button class="btn" (click)="close()" type="button">Cancel</button>
-      <button class="btn btn-primary" (click)="confirm()" type="button">Confirm Assignment</button>
+      <button class="btn btn-primary" (click)="confirm()"
+              [disabled]="isLoading()" type="button">
+        Confirm Assignment
+      </button>
     </div>
+
   </div>
 </div>

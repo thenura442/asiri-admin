@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ModalService, ToastItem } from '@shared/services/modal/modal.service';
+import { NotificationService } from '@core/services/notification/notification.service';
 import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
@@ -22,11 +22,11 @@ import { trigger, transition, style, animate } from '@angular/animations';
   ]
 })
 export class ToastComponent {
-  modal = inject(ModalService);
+  notification = inject(NotificationService);
 
-  dismiss(id: number): void {
-    this.modal.dismissToast(id);
+  dismiss(id: string): void {
+    this.notification.dismiss(id);
   }
 
-  trackById(_: number, t: ToastItem): number { return t.id; }
+  trackById(_: number, t: any): string { return t.id; }
 }

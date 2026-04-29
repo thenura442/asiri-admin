@@ -34,12 +34,6 @@
       <div class="hs-data">
         <div class="hs-label">Total Fleet</div>
         <div class="hs-num">{{ stats().total }}</div>
-        <div class="hs-change up">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <path d="M18 15l-6-6-6 6"/>
-          </svg>
-          +5% from last month
-        </div>
       </div>
     </div>
 
@@ -51,14 +45,8 @@
         </svg>
       </div>
       <div class="hs-data">
-        <div class="hs-label">Available Vehicles</div>
+        <div class="hs-label">Available</div>
         <div class="hs-num">{{ stats().available }}</div>
-        <div class="hs-change down">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <path d="M6 9l6 6 6-6"/>
-          </svg>
-          -2% currently
-        </div>
       </div>
     </div>
 
@@ -69,14 +57,8 @@
         </svg>
       </div>
       <div class="hs-data">
-        <div class="hs-label">Active Lab Jobs</div>
-        <div class="hs-num">{{ stats().active }}</div>
-        <div class="hs-change up">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <path d="M18 15l-6-6-6 6"/>
-          </svg>
-          +12% productivity
-        </div>
+        <div class="hs-label">Active / Busy</div>
+        <div class="hs-num">{{ stats().busy }}</div>
       </div>
     </div>
 
@@ -87,14 +69,8 @@
         </svg>
       </div>
       <div class="hs-data">
-        <div class="hs-label">In Maintenance</div>
-        <div class="hs-num">{{ stats().maintenance }}</div>
-        <div class="hs-change up">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <path d="M18 15l-6-6-6 6"/>
-          </svg>
-          2 due this week
-        </div>
+        <div class="hs-label">Offline / Maintenance</div>
+        <div class="hs-num">{{ stats().offline }}</div>
       </div>
     </div>
   </div>
@@ -105,10 +81,10 @@
     <div class="table-top">
       <div class="tabs">
         @for (tab of [
-          {key:'all', label:'All Vehicles'},
+          {key:'all',       label:'All Vehicles'},
           {key:'available', label:'Available'},
-          {key:'busy', label:'Busy'},
-          {key:'offline', label:'Offline'}
+          {key:'busy',      label:'Busy'},
+          {key:'offline',   label:'Offline'}
         ]; track tab.key) {
           <button class="tab" [class.active]="activeTab() === tab.key"
                   (click)="setTab($any(tab.key))" type="button">
@@ -127,140 +103,161 @@
       </div>
     </div>
 
-    <!-- Table -->
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Vehicle ID</th>
-            <th>Base Branch</th>
-            <th>Status</th>
-            <th>Current Driver</th>
-            <th>Live Location</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (v of filteredVehicles(); track v.id) {
-            <tr>
-              <!-- Vehicle ID -->
-              <td>
-                <div class="v-cell">
-                  <div class="v-cell-ico">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                      <rect x="2" y="7" width="20" height="11" rx="2"/>
-                      <circle cx="7" cy="15" r="1.5"/><circle cx="17" cy="15" r="1.5"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <div class="v-cell-id">{{ v.vehicleIdCode }}</div>
-                    <div class="v-cell-plate">{{ v.plateNumber }}</div>
-                    <div class="v-cell-type">{{ v.vehicleType | titlecase }}</div>
-                  </div>
-                </div>
-              </td>
-
-              <!-- Branch -->
-              <td>
-                <span class="branch-name">{{ v.branch.name }}</span>
-              </td>
-
-              <!-- Status -->
-              <td>
-                <span class="bd" [ngClass]="statusBadgeClass(v.status)">
-                  {{ statusLabel(v.status) }}
-                </span>
-              </td>
-
-              <!-- Driver -->
-              <td>
-                @if (v.currentDriver) {
-                  <div class="d-cell">
-                    <div class="d-cell-av">{{ v.currentDriver.initials }}</div>
-                    <span class="d-cell-name">{{ v.currentDriver.fullName }}</span>
-                  </div>
-                } @else {
-                  <span class="unassigned">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                    </svg>
-                    Unassigned
-                  </span>
-                }
-              </td>
-
-              <!-- Location -->
-              <td>
-                @if (v.location) {
-                  <div class="loc">
-                    <div class="loc-main">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
-                        <circle cx="12" cy="10" r="3"/>
-                      </svg>
-                      {{ v.location }}
-                    </div>
-                    <div class="loc-link">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
-                        <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
-                      </svg>
-                      View on map
-                    </div>
-                  </div>
-                } @else {
-                  <span style="color:var(--t5); font-size:13px">—</span>
-                }
-              </td>
-
-              <!-- Actions -->
-              <td>
-                <div class="row-actions">
-                  <button class="ra" title="Assign Driver" (click)="openAssignDriver(v)" type="button">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
-                      <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
-                    </svg>
-                  </button>
-                  <button class="ra" title="Edit" (click)="openEdit(v)" type="button">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                      <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                    </svg>
-                  </button>
-                  <button class="ra ra--danger" title="Delete" (click)="confirmDelete(v)" type="button">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <polyline points="3 6 5 6 21 6"/>
-                      <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
-                    </svg>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          } @empty {
-            <tr>
-              <td colspan="6" class="empty-row">No vehicles found</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Pagination -->
-    <div class="table-ft">
-      <div class="table-ft-info">Showing 1–{{ filteredVehicles().length }} of {{ totalCount() }} vehicles</div>
-      <div class="pag">
-        <button class="pag-btn" [disabled]="currentPage() === 1" (click)="setPage(currentPage() - 1)" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-        @for (p of pageRange; track p) {
-          <button class="pag-btn" [class.active]="currentPage() === p" (click)="setPage(p)" type="button">{{ p }}</button>
-        }
-        <button class="pag-btn" [disabled]="currentPage() === totalPages" (click)="setPage(currentPage() + 1)" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
+    <!-- Loading state -->
+    @if (isLoading()) {
+      <div class="table-loading">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin">
+          <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".25"/>
+          <path d="M21 12a9 9 0 00-9-9"/>
+        </svg>
+        Loading vehicles...
       </div>
-    </div>
+    } @else {
+
+      <!-- Table -->
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Vehicle</th>
+              <th>Base Branch</th>
+              <th>Status</th>
+              <th>Current Driver</th>
+              <th>Make / Type</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (v of filteredVehicles(); track v.id) {
+              <tr>
+                <!-- Vehicle ID -->
+                <td>
+                  <div class="v-cell">
+                    <div class="v-cell-ico">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <rect x="2" y="7" width="20" height="11" rx="2"/>
+                        <circle cx="7" cy="15" r="1.5"/><circle cx="17" cy="15" r="1.5"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <div class="v-cell-id">{{ v.vehicleIdCode ?? '—' }}</div>
+                      <div class="v-cell-plate">{{ v.plateNumber }}</div>
+                      <div class="v-cell-chassis" style="font-size:11px;color:var(--t4);font-family:var(--font-mono)">
+                        {{ v.chassisNumber }}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Branch -->
+                <td>
+                  <span class="branch-name">{{ v.branch.name }}</span>
+                </td>
+
+                <!-- Status -->
+                <td>
+                  <span class="bd" [ngClass]="statusBadgeClass(v.status)">
+                    {{ statusLabel(v.status) }}
+                  </span>
+                </td>
+
+                <!-- Driver -->
+                <td>
+                  @if (v.currentDriver) {
+                    <div class="d-cell">
+                      <div class="d-cell-av">{{ getInitials(v.currentDriver.fullName) }}</div>
+                      <div>
+                        <span class="d-cell-name">{{ v.currentDriver.fullName }}</span>
+                        <div style="font-size:11px;color:var(--t4)">{{ v.currentDriver.phone }}</div>
+                      </div>
+                    </div>
+                  } @else {
+                    <span class="unassigned">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                      </svg>
+                      Unassigned
+                    </span>
+                  }
+                </td>
+
+                <!-- Make / Type -->
+                <td>
+                  <div style="font-size:13px;color:var(--t2)">{{ v.makeModel ?? '—' }}</div>
+                  <div style="font-size:11px;color:var(--t4)">{{ v.vehicleType | titlecase }}</div>
+                </td>
+
+                <!-- Actions -->
+                <td>
+                  <div class="row-actions">
+                    <button class="ra" title="Assign Driver"
+                            (click)="openAssignDriver(v)" type="button">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+                      </svg>
+                    </button>
+                    <button class="ra" title="Edit"
+                            (click)="openEdit(v)" type="button">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                      </svg>
+                    </button>
+                    <button class="ra ra--danger" title="Delete"
+                            (click)="confirmDelete(v)" type="button">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" class="empty-row">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                       style="width:32px;height:32px;opacity:.3;display:block;margin:0 auto 8px">
+                    <rect x="2" y="7" width="20" height="11" rx="2"/>
+                    <circle cx="7" cy="15" r="1.5"/><circle cx="17" cy="15" r="1.5"/>
+                  </svg>
+                  No vehicles found
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="table-ft">
+        <div class="table-ft-info">
+          Showing {{ filteredVehicles().length === 0 ? 0 : ((currentPage() - 1) * 10) + 1 }}–{{ ((currentPage() - 1) * 10) + filteredVehicles().length }} of {{ totalCount() }} vehicles
+        </div>
+        <div class="pag">
+          <button class="pag-btn" [disabled]="currentPage() === 1"
+                  (click)="setPage(currentPage() - 1)" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+          @for (p of pageRange; track p) {
+            <button class="pag-btn" [class.active]="currentPage() === p"
+                    (click)="setPage(p)" type="button">{{ p }}</button>
+          }
+          <button class="pag-btn" [disabled]="currentPage() === totalPages()"
+                  (click)="setPage(currentPage() + 1)" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+    }
   </div>
 
   <!-- Branded Footer -->
@@ -271,7 +268,10 @@
           <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
         </svg>
       </div>
-      <div class="bf-text"><strong>Asiri Laboratories</strong> — Mobile Service Platform<br>Trusted healthcare, delivered to your doorstep</div>
+      <div class="bf-text">
+        <strong>Asiri Laboratories</strong> — Mobile Service Platform<br>
+        Trusted healthcare, delivered to your doorstep
+      </div>
     </div>
     <div class="bf-right">
       <div class="bf-status"><div class="bf-dot"></div>All systems operational</div>
@@ -282,3 +282,19 @@
     </div>
   </footer>
 </div>
+
+@if (editingVehicle()) {
+  <app-vehicle-edit-modal
+    [vehicle]="editingVehicle()"
+    (closed)="closeEdit()"
+    (saved)="onVehicleUpdated($event)">
+  </app-vehicle-edit-modal>
+}
+
+@if (assigningVehicle()) {
+  <app-assign-driver-modal
+    [vehicle]="assigningVehicle()"
+    (closed)="closeAssign()"
+    (assigned)="onDriverAssigned($event)">
+  </app-assign-driver-modal>
+}

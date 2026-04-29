@@ -1,5 +1,4 @@
 <div class="pg">
-  <!-- Page Header -->
   <div class="pg-hdr">
     <div class="pg-hdr-l">
       <h1>Patient Management</h1>
@@ -49,7 +48,7 @@
           <rect x="9" y="3" width="6" height="4" rx="1"/>
         </svg>
       </div>
-      <div><div class="st-label">New Today</div><div class="st-num">{{ stats().newToday }}</div></div>
+      <div><div class="st-label">New Patients</div><div class="st-num">{{ stats().newToday }}</div></div>
     </div>
     <div class="st">
       <div class="st-ico st-ico--amber">
@@ -68,14 +67,14 @@
         <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
       </svg>
       <input [value]="searchQuery()" (input)="onSearch($event)"
-             placeholder="Search by name, UHID, or phone..." autocomplete="off"/>
+             placeholder="Search by name, UHID, NIC, or phone..." autocomplete="off"/>
     </div>
     @for (f of [
-      {key:'all', label:'All Patients'},
-      {key:'regular', label:'Regular'},
-      {key:'new', label:'New'},
-      {key:'vip', label:'VIP'},
-      {key:'flagged', label:'Flagged'}
+      {key:'all',         label:'All Patients'},
+      {key:'regular',     label:'Regular'},
+      {key:'new',         label:'New'},
+      {key:'vip',         label:'VIP'},
+      {key:'blacklisted', label:'Blacklisted'}
     ]; track f.key) {
       <button class="chip" [class.active]="activeFilter() === f.key"
               (click)="setFilter($any(f.key))" type="button">
@@ -84,8 +83,9 @@
     }
   </div>
 
-  <!-- Main content: table + detail panel -->
-  <div class="content-grid">
+  <!-- Main content -->
+    <div class="content-grid" [class.content-grid--full]="!selectedPatient()" style="width: 100%;">
+
     <!-- Table -->
     <div class="table-card">
       <div class="table-top">
@@ -93,224 +93,247 @@
           <h3>All Patients</h3>
           <span class="table-count">{{ totalCount() | number }} total</span>
         </div>
-        <select class="sort-select" [value]="sortOrder()"
-                (change)="sortOrder.set($any($event.target).value)">
+        <select class="sort-select" [value]="sortOrder()" (change)="onSortChange($event)">
           <option value="newest">Sort: Newest</option>
           <option value="oldest">Sort: Oldest</option>
-          <option value="name">Sort: Name A–Z</option>
-          <option value="visits">Sort: Most Visits</option>
         </select>
       </div>
 
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Patient</th>
-              <th>UHID</th>
-              <th>Phone</th>
-              <th>Emergency</th>
-              <th>Visits</th>
-              <th>Last Visit</th>
-              <th>Flag</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (p of filteredPatients(); track p.id) {
-              <tr [class.selected]="selectedId() === p.id" (click)="selectPatient(p.id)">
-
-                <!-- Patient -->
-                <td>
-                  <div class="p-cell">
-                    <div class="p-av" [class.p-av--vip]="p.flag === 'vip'">{{ p.initials }}</div>
-                    <div>
-                      <div class="p-name">{{ p.fullName }}</div>
-                      <div class="p-meta">{{ p.gender }}, {{ p.age }} · {{ p.address }}</div>
-                    </div>
-                  </div>
-                </td>
-
-                <!-- UHID -->
-                <td>
-                  @if (p.uhid) {
-                    <span class="uhid-badge">{{ p.uhid }}</span>
-                  } @else {
-                    <span class="uhid-unregistered">Unregistered</span>
-                  }
-                </td>
-
-                <!-- Phone -->
-                <td><span class="mono-text">{{ p.phone }}</span></td>
-
-                <!-- Emergency -->
-                <td>
-                  @if (p.emergencyPhone) {
-                    <span style="font-size:13px;color:var(--t2)">{{ p.emergencyPhone }}</span>
-                  } @else {
-                    <span class="not-provided">Not provided</span>
-                  }
-                </td>
-
-                <!-- Visits -->
-                <td><span class="visits-num">{{ p.totalVisits }}</span></td>
-
-                <!-- Last visit -->
-                <td><span class="date-text">{{ p.lastVisitDate | date:'MMM d, y' }}</span></td>
-
-                <!-- Flag -->
-                <td>
-                  <span class="flag-badge" [ngClass]="flagClass(p.flag)">
-                    @if (p.flag === 'flagged' && p.pendingCharges > 0) {
-                      Rs. {{ p.pendingCharges }}
-                    } @else {
-                      {{ flagLabel(p.flag) }}
-                    }
-                  </span>
-                </td>
-
-                <!-- Actions -->
-                <td>
-                  <div class="row-actions" (click)="$event.stopPropagation()">
-                    <button class="ra" title="View" (click)="selectPatient(p.id)" type="button">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                        <circle cx="12" cy="12" r="3"/>
-                      </svg>
-                    </button>
-                    <button class="ra" title="Edit" (click)="openEdit(p)" type="button">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                      </svg>
-                    </button>
-                    <button class="ra ra--danger" title="Delete" (click)="confirmDelete(p)" type="button">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="3 6 5 6 21 6"/>
-                        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
-                      </svg>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            } @empty {
-              <tr><td colspan="8" class="empty-row">No patients found</td></tr>
-            }
-          </tbody>
-        </table>
-      </div>
-
-      <div class="table-ft">
-        <div class="table-ft-info">Showing 1–{{ filteredPatients().length }} of {{ totalCount() | number }} patients</div>
-        <div class="pag">
-          <button class="pag-btn" [disabled]="currentPage() === 1" (click)="setPage(currentPage() - 1)" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-          </button>
-          @for (p of pageRange; track p) {
-            <button class="pag-btn" [class.active]="currentPage() === p" (click)="setPage(p)" type="button">{{ p }}</button>
-          }
-          <button class="pag-btn" [disabled]="currentPage() === totalPages" (click)="setPage(currentPage() + 1)" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-          </button>
+      @if (isLoading()) {
+        <div class="table-loading">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin">
+            <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".25"/>
+            <path d="M21 12a9 9 0 00-9-9"/>
+          </svg>
+          Loading patients...
         </div>
-      </div>
+      } @else {
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Patient</th>
+                <th>UHID</th>
+                <th>Phone</th>
+                <th>Emergency</th>
+                <th>Flag</th>
+                <th>Pending</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of patients(); track p.id) {
+                <tr [class.selected]="selectedId() === p.id" (click)="selectPatient(p.id)">
+
+                  <td>
+                    <div class="p-cell">
+                      <div class="p-av" [class.p-av--vip]="p.flag === 'vip'">
+                        {{ getInitials(p.fullName) }}
+                      </div>
+                      <div>
+                        <div class="p-name">{{ p.fullName }}</div>
+                        <div class="p-meta">
+                          {{ p.gender | titlecase }}, {{ getAge(p.dateOfBirth) }} yrs
+                          @if (p.city) { · {{ p.city }} }
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td>
+                    @if (p.uhid) {
+                      <span class="uhid-badge">{{ p.uhid }}</span>
+                    } @else {
+                      <span class="uhid-unregistered">Unregistered</span>
+                    }
+                  </td>
+
+                  <td><span class="mono-text">{{ p.phone }}</span></td>
+
+                  <td>
+                    @if (p.emergencyPhone) {
+                      <span style="font-size:13px;color:var(--t2)">{{ p.emergencyPhone }}</span>
+                    } @else {
+                      <span class="not-provided">Not provided</span>
+                    }
+                  </td>
+
+                  <td>
+                    <span class="flag-badge" [ngClass]="flagClass(p.flag)">
+                      {{ flagLabel(p.flag) }}
+                    </span>
+                  </td>
+
+                  <td>
+                    @if (p.pendingCharges > 0) {
+                      <span style="color:var(--srt);font-weight:600;font-size:13px">
+                        Rs. {{ p.pendingCharges | number }}
+                      </span>
+                    } @else {
+                      <span style="color:var(--t5);font-size:13px">—</span>
+                    }
+                  </td>
+
+                  <td>
+                    <div class="row-actions" (click)="$event.stopPropagation()">
+                      <button class="ra" title="View" (click)="selectPatient(p.id)" type="button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                          <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                      </button>
+                      <button class="ra" title="Edit" (click)="openEdit(p)" type="button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                          <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                      </button>
+                      <button class="ra ra--danger" title="Delete" (click)="confirmDelete(p)" type="button">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polyline points="3 6 5 6 21 6"/>
+                          <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="7" class="empty-row">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                         style="width:32px;height:32px;opacity:.3;display:block;margin:0 auto 8px">
+                      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    No patients found
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-ft">
+          <div class="table-ft-info">
+            Showing {{ patients().length === 0 ? 0 : ((currentPage() - 1) * 10) + 1 }}–{{ ((currentPage() - 1) * 10) + patients().length }} of {{ totalCount() | number }} patients
+          </div>
+          <div class="pag">
+            <button class="pag-btn" [disabled]="currentPage() === 1"
+                    (click)="setPage(currentPage() - 1)" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+            </button>
+            @for (p of pageRange; track p) {
+              <button class="pag-btn" [class.active]="currentPage() === p"
+                      (click)="setPage(p)" type="button">{{ p }}</button>
+            }
+            <button class="pag-btn" [disabled]="currentPage() === totalPages()"
+                    (click)="setPage(currentPage() + 1)" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+      }
     </div>
 
     <!-- Detail Panel -->
-    @if (selectedPatient) {
+    @if (selectedPatient()) {
       <div class="detail-panel">
-        <!-- Header -->
         <div class="dp-header">
-          <div class="dp-avatar" [class.dp-avatar--vip]="selectedPatient.flag === 'vip'">
-            {{ selectedPatient.initials }}
+          <div class="dp-avatar" [class.dp-avatar--vip]="selectedPatient()!.flag === 'vip'">
+            {{ getInitials(selectedPatient()!.fullName) }}
           </div>
-          <div class="dp-name">{{ selectedPatient.fullName }}</div>
+          <div class="dp-name">{{ selectedPatient()!.fullName }}</div>
           <div class="dp-sub">
-            {{ selectedPatient.gender === 'M' ? 'Male' : 'Female' }}, {{ selectedPatient.age }} years
-            · {{ selectedPatient.address }}
+            {{ selectedPatient()!.gender | titlecase }}, {{ getAge(selectedPatient()!.dateOfBirth) }} yrs
+            @if (selectedPatient()!.city) { · {{ selectedPatient()!.city }} }
           </div>
-          @if (selectedPatient.uhid) {
-            <div class="dp-uhid">{{ selectedPatient.uhid }}</div>
+          @if (selectedPatient()!.uhid) {
+            <div class="dp-uhid">{{ selectedPatient()!.uhid }}</div>
           } @else {
-            <div class="dp-uhid dp-uhid--unregistered">No UHID</div>
+            <div class="dp-uhid dp-uhid--unregistered">No UHID assigned</div>
           }
         </div>
 
-        <!-- Contact -->
         <div class="dp-section">
           <div class="dp-section-title">Contact Information</div>
           <div class="dp-row">
             <span class="dp-row-label">Phone</span>
-            <span class="dp-row-val">{{ selectedPatient.phone }}</span>
+            <span class="dp-row-val">{{ selectedPatient()!.phone }}</span>
           </div>
+          @if (selectedPatient()!.email) {
+            <div class="dp-row">
+              <span class="dp-row-label">Email</span>
+              <span class="dp-row-val">{{ selectedPatient()!.email }}</span>
+            </div>
+          }
           <div class="dp-row">
             <span class="dp-row-label">Emergency</span>
-            <span class="dp-row-val">{{ selectedPatient.emergencyPhone ?? 'Not provided' }}</span>
+            <span class="dp-row-val">
+              {{ selectedPatient()!.emergencyPhone ?? 'Not provided' }}
+              @if (selectedPatient()!.emergencyName) {
+                <span style="color:var(--t4)"> ({{ selectedPatient()!.emergencyName }})</span>
+              }
+            </span>
+          </div>
+          <div class="dp-row">
+            <span class="dp-row-label">Address</span>
+            <span class="dp-row-val">{{ selectedPatient()!.address }}</span>
           </div>
         </div>
 
-        <!-- Medical -->
-        @if (selectedPatient.allergies || selectedPatient.conditions) {
+        @if (selectedPatient()!.allergies || selectedPatient()!.existingConditions) {
           <div class="dp-section">
             <div class="dp-section-title">Medical Notes</div>
-            @if (selectedPatient.allergies) {
+            @if (selectedPatient()!.allergies) {
               <div class="dp-row">
                 <span class="dp-row-label">Allergies</span>
-                <span class="dp-row-val">{{ selectedPatient.allergies }}</span>
+                <span class="dp-row-val">{{ selectedPatient()!.allergies }}</span>
               </div>
             }
-            @if (selectedPatient.conditions) {
+            @if (selectedPatient()!.existingConditions) {
               <div class="dp-row">
                 <span class="dp-row-label">Conditions</span>
-                <span class="dp-row-val">{{ selectedPatient.conditions }}</span>
+                <span class="dp-row-val">{{ selectedPatient()!.existingConditions }}</span>
               </div>
             }
           </div>
         }
 
-        <!-- Stats -->
         <div class="dp-section">
-          <div class="dp-section-title">Visit Summary</div>
+          <div class="dp-section-title">Account</div>
           <div class="dp-row">
-            <span class="dp-row-label">Total Visits</span>
-            <span class="dp-row-val">{{ selectedPatient.totalVisits }}</span>
-          </div>
-          <div class="dp-row">
-            <span class="dp-row-label">Last Visit</span>
-            <span class="dp-row-val">{{ selectedPatient.lastVisitDate | date:'dd MMM y' }}</span>
+            <span class="dp-row-label">Flag</span>
+            <span class="flag-badge" [ngClass]="flagClass(selectedPatient()!.flag)">
+              {{ flagLabel(selectedPatient()!.flag) }}
+            </span>
           </div>
           <div class="dp-row">
             <span class="dp-row-label">Pending Charges</span>
-            <span class="dp-row-val"
-                  [style.color]="selectedPatient.pendingCharges > 0 ? 'var(--srt)' : 'var(--sgt)'">
-              {{ selectedPatient.pendingCharges > 0 ? 'Rs. ' + selectedPatient.pendingCharges : 'Rs. 0' }}
+            <span [style.color]="selectedPatient()!.pendingCharges > 0 ? 'var(--srt)' : 'var(--sgt)'">
+              Rs. {{ selectedPatient()!.pendingCharges | number }}
             </span>
+          </div>
+          <div class="dp-row">
+            <span class="dp-row-label">Registered</span>
+            <span class="dp-row-val">{{ selectedPatient()!.createdAt | date:'dd MMM y' }}</span>
           </div>
         </div>
 
-        <!-- Recent bookings -->
-        <div class="dp-section">
-          <div class="dp-section-title">Recent Bookings</div>
-          @for (b of selectedPatient.recentBookings; track b.date) {
-            <div class="dp-booking">
-              <span class="dp-b-date">{{ b.date }}</span>
-              <span class="dp-b-test">{{ b.testName }}</span>
-              <span class="dp-b-status" [ngClass]="b.status === 'done' ? 'dp-b-done' : 'dp-b-cancel'">
-                {{ b.status === 'done' ? 'Done' : 'Cancelled' }}
-              </span>
-            </div>
-          }
-        </div>
-
-        <!-- Actions -->
         <div class="dp-actions">
-          <button class="dp-btn primary" (click)="newBooking(selectedPatient)" type="button">
+          <button class="dp-btn primary" (click)="newBooking(selectedPatient()!)" type="button">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/>
             </svg>
             New Booking
           </button>
-          <button class="dp-btn" (click)="openEdit(selectedPatient)" type="button">
+          <button class="dp-btn" (click)="openEdit(selectedPatient()!)" type="button">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
               <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
@@ -320,9 +343,9 @@
         </div>
       </div>
     }
+
   </div>
 
-  <!-- Branded Footer -->
   <footer class="brand-footer">
     <div class="bf-left">
       <div class="bf-logo">
@@ -341,3 +364,11 @@
     </div>
   </footer>
 </div>
+
+@if (editingPatient()) {
+  <app-patient-edit-modal
+    [patient]="editingPatient()"
+    (closed)="closeEdit()"
+    (saved)="onPatientUpdated($event)">
+  </app-patient-edit-modal>
+}

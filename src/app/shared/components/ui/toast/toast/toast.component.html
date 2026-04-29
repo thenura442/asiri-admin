@@ -1,5 +1,5 @@
 <div class="toast-container">
-  @for (toast of modal.toasts(); track toast.id) {
+  @for (toast of notification.toasts(); track toast.id) {
     <div class="toast toast--{{ toast.type }}" @slideIn>
       <div class="toast-icon">
         @switch (toast.type) {
@@ -26,7 +26,10 @@
           }
         }
       </div>
-      <span class="toast-message">{{ toast.message }}</span>
+      <div class="toast-content">
+        <div class="toast-title">{{ toast.title }}</div>
+        <div class="toast-message">{{ toast.message }}</div>
+      </div>
       <button class="toast-close" (click)="dismiss(toast.id)" aria-label="Dismiss">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>

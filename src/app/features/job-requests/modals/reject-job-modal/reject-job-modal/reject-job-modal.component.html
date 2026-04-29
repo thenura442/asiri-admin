@@ -1,5 +1,6 @@
 <div class="backdrop" (click)="close()">
   <div class="modal sm" (click)="$event.stopPropagation()">
+
     <div class="m-head">
       <div class="m-head-l">
         <div class="m-head-ico red">
@@ -10,7 +11,9 @@
         </div>
         <div class="m-head-text">
           <h2>Reject Request</h2>
-          <p>Provide a reason for rejecting this job request</p>
+          @if (jobNumber()) {
+            <p>Rejecting request #{{ jobNumber() }}</p>
+          }
         </div>
       </div>
       <button class="m-close" (click)="close()" type="button">
@@ -21,32 +24,46 @@
     </div>
 
     <div class="m-body">
-      <div class="ctx">
-        <div class="ctx-item">
-          <div class="ctx-label">Request ID</div>
-          <div class="ctx-val mono">{{ jobNumber() }}</div>
-        </div>
-      </div>
 
       <div class="fg">
-        <label class="fl">Rejection Reason *</label>
-        <select class="fi" [value]="reason()" (change)="reason.set($any($event.target).value)">
+        <label class="fl">Rejection Reason <span class="req">*</span></label>
+        <select class="fi"
+                [class.fi--error]="errors()['reason']"
+                [value]="reason()"
+                (change)="onReasonChange($any($event.target).value)">
           <option value="">Select reason...</option>
           @for (r of reasons; track r) {
             <option [value]="r">{{ r }}</option>
           }
         </select>
+        @if (errors()['reason']) {
+          <span class="field-error">{{ errors()['reason'] }}</span>
+        }
       </div>
+
       <div class="fg">
-        <label class="fl">Notes (mandatory)</label>
-        <textarea class="fi" [value]="notes()" (input)="notes.set($any($event.target).value)"
-                  placeholder="Provide additional details about the rejection..."></textarea>
+        <label class="fl">Details <span class="req">*</span></label>
+        <textarea class="fi"
+                  [class.fi--error]="errors()['notes']"
+                  [value]="notes()"
+                  (input)="onNotesChange($any($event.target).value)"
+                  placeholder="Provide additional details about the rejection..."
+                  style="min-height:80px"></textarea>
+        @if (errors()['notes']) {
+          <span class="field-error">{{ errors()['notes'] }}</span>
+        }
       </div>
+
     </div>
 
     <div class="m-foot">
-      <button class="btn" (click)="close()" type="button">Cancel</button>
-      <button class="btn btn-danger" (click)="submit()" type="button">Submit Rejection</button>
+      <button class="btn" (click)="close()"
+              [disabled]="isSubmitting()" type="button">Cancel</button>
+      <button class="btn btn-danger" (click)="submit()"
+              [disabled]="isSubmitting()" type="button">
+        @if (isSubmitting()) { Rejecting... } @else { Submit Rejection }
+      </button>
     </div>
+
   </div>
 </div>

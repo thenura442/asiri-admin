@@ -1,17 +1,23 @@
-import { Component, output, signal } from '@angular/core';
+import { Component, output, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { NotificationService } from '@core/services/notification/notification.service';
+import { ModalService } from '@shared/services/modal/modal.service';
 
 @Component({
   selector: 'app-notify-sa-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule],
   templateUrl: './notify-sa-modal.component.html',
   styleUrl: './notify-sa-modal.component.scss'
 })
 export class NotifySaModalComponent {
   closed    = output<void>();
-  submitted = output<{ category: string; details: string; urgency: string }>();
+  submitted = output<void>();
+
+  private notification = inject(NotificationService);
+
+  isSubmitting = signal(false);
+  errors       = signal<Record<string, string>>({});
 
   jobId    = signal('');
   category = signal('');
@@ -26,9 +32,29 @@ export class NotifySaModalComponent {
 
   setUrgency(val: string): void { this.urgency.set(val); }
 
+  private validate(): boolean {
+    const e: Record<string, string> = {};
+    if (!this.category()) e['category'] = 'Please select a category';
+    if (!this.details().trim()) e['details'] = 'Please provide details about the issue';
+    this.errors.set(e);
+    return Object.keys(e).length === 0;
+  }
+
+  private clearError(field: string): void {
+    this.errors.update(e => { const c = { ...e }; delete c[field]; return c; });
+  }
+
+  onCategoryChange(v: string): void { this.category.set(v); this.clearError('category'); }
+  onDetailsChange(v: string):  void { this.details.set(v);  this.clearError('details'); }
+
   submit(): void {
-    if (!this.category() || !this.details()) return;
-    this.submitted.emit({ category: this.category(), details: this.details(), urgency: this.urgency() });
+    if (!this.validate()) {
+      this.notification.error('Validation Failed', 'Please fill in all required fields.');
+      return;
+    }
+    // POST /api/escalations endpoint when backend is ready
+    this.notification.success('Escalation Submitted', 'Super Admin has been notified.');
+    this.submitted.emit();
     this.closed.emit();
   }
 

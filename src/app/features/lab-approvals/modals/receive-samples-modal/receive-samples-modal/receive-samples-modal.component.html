@@ -1,5 +1,6 @@
 <div class="backdrop" (click)="close()">
   <div class="modal md" (click)="$event.stopPropagation()">
+
     <div class="m-head">
       <div class="m-head-l">
         <div class="m-head-ico">
@@ -10,7 +11,7 @@
         </div>
         <div class="m-head-text">
           <h2>Receive Samples</h2>
-          <p>Confirm receipt of samples for processing</p>
+          <p>Confirm receipt of samples for #{{ approval()?.requestNumber }}</p>
         </div>
       </div>
       <button class="m-close" (click)="close()" type="button">
@@ -21,88 +22,108 @@
     </div>
 
     <div class="m-body">
-      <!-- Context strip -->
+
       @if (approval()) {
         <div class="ctx-strip">
           <div class="ctx-item">
-            <div class="ctx-label">Request ID</div>
-            <div class="ctx-val ctx-val--mono">{{ approval().requestId }}</div>
+            <div class="ctx-label">Request</div>
+            <div class="ctx-val ctx-val--mono">{{ approval()!.requestNumber }}</div>
           </div>
           <div class="ctx-item">
             <div class="ctx-label">Patient</div>
-            <div class="ctx-val">{{ approval().patientName }}</div>
+            <div class="ctx-val">{{ approval()!.patient.fullName }}</div>
           </div>
-          <div class="ctx-item">
-            <div class="ctx-label">UHID</div>
-            <div class="ctx-val ctx-val--mono">{{ approval().uhid }}</div>
-          </div>
-          <div class="ctx-item">
-            <div class="ctx-label">Center</div>
-            <div class="ctx-val">{{ approval().collectingCenter }}</div>
-          </div>
-        </div>
-
-        <!-- Samples checklist -->
-        <div class="section-label">Samples Received</div>
-        <div class="check-group">
-          @for (test of approval().tests; track test) {
-            <div class="check-item" [class.checked]="isChecked(test)" (click)="toggleTest(test)">
-              <div class="check-box" [class.checked]="isChecked(test)">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="3">
-                  <polyline points="20 6 9 17 4 12"/>
-                </svg>
-              </div>
-              <div class="check-text">{{ test }}</div>
+          @if (approval()!.patient.uhid) {
+            <div class="ctx-item">
+              <div class="ctx-label">UHID</div>
+              <div class="ctx-val ctx-val--mono">{{ approval()!.patient.uhid }}</div>
             </div>
           }
         </div>
       }
 
-      <!-- Sample condition -->
-      <div class="fg" style="margin-top:20px">
-        <label class="fl">Sample Condition *</label>
+      <div class="m-section-label">Samples Checklist</div>
+      <div class="check-group">
+        @for (item of testItems(); track item.id) {
+          <div class="check-item-block">
+            <div class="check-row" (click)="toggleReceived(item.id)">
+              <div class="check-box" [class.checked]="item.received">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </div>
+              <div class="check-text">
+                <span class="check-name">{{ item.name }}</span>
+                <span class="check-code">{{ item.code }}</span>
+              </div>
+            </div>
+            @if (!item.received) {
+              <div class="not-received-reason">
+                <input class="fi"
+                       [class.fi--error]="errors()['reason_' + item.id]"
+                       [value]="item.notReceivedReason"
+                       (input)="onNotReceivedReason(item.id, $any($event.target).value)"
+                       placeholder="Reason not received (required)..."/>
+                @if (errors()['reason_' + item.id]) {
+                  <span class="field-error">{{ errors()['reason_' + item.id] }}</span>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="fg" style="margin-top:16px">
+        <label class="fl">Sample Condition <span class="req">*</span></label>
         <div class="radio-row">
           <button class="radio-pill" [class.active]="sampleCondition() === 'good'"
                   (click)="sampleCondition.set('good')" type="button">Good</button>
-          <button class="radio-pill radio-pill--warn" [class.active]="sampleCondition() === 'compromised'"
+          <button class="radio-pill warn" [class.active]="sampleCondition() === 'compromised'"
                   (click)="sampleCondition.set('compromised')" type="button">Compromised</button>
-          <button class="radio-pill radio-pill--danger" [class.active]="sampleCondition() === 'rejected'"
+          <button class="radio-pill danger" [class.active]="sampleCondition() === 'rejected'"
                   (click)="sampleCondition.set('rejected')" type="button">Rejected</button>
         </div>
       </div>
 
-      <div class="fg-row">
-        <div class="fg">
-          <label class="fl">Received By</label>
-          <input class="fi" [value]="receivedBy()"
-                 (input)="receivedBy.set($any($event.target).value)"
-                 placeholder="Lab technician name"/>
-        </div>
-        <div class="fg">
-          <label class="fl">Time Received</label>
-          <input class="fi fi-mono" type="time" [value]="receivedAt()"
-                 (change)="receivedAt.set($any($event.target).value)"/>
-        </div>
+      <div class="fg">
+        <label class="fl">Received By</label>
+        <input class="fi"
+               [value]="receivedBy()"
+               (input)="receivedBy.set($any($event.target).value)"
+               placeholder="Lab technician name (optional)"/>
       </div>
 
       <div class="fg">
-        <label class="fl">Condition Notes</label>
-        <textarea class="fi" [value]="conditionNotes()"
-                  (input)="conditionNotes.set($any($event.target).value)"
-                  placeholder="Any notes on sample condition or handling..."
+        <label class="fl">Overall Notes</label>
+        <textarea class="fi"
+                  [value]="overallNotes()"
+                  (input)="overallNotes.set($any($event.target).value)"
+                  placeholder="Any notes on sample handling or condition..."
                   style="min-height:70px"></textarea>
       </div>
+
     </div>
 
     <div class="m-foot">
-      <button class="btn" (click)="close()" type="button">Cancel</button>
-      <button class="btn btn-primary" (click)="confirm()" [disabled]="!canConfirm" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
-          <polyline points="22 4 12 14.01 9 11.01"/>
-        </svg>
-        Confirm Receipt
+      <button class="btn" (click)="close()"
+              [disabled]="isSubmitting()" type="button">Cancel</button>
+      <button class="btn btn-primary" (click)="confirm()"
+              [disabled]="isSubmitting() || testItems().length === 0" type="button">
+        @if (isSubmitting()) {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin">
+            <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".25"/>
+            <path d="M21 12a9 9 0 00-9-9"/>
+          </svg>
+          Confirming...
+        } @else {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+          Confirm Receipt
+        }
       </button>
     </div>
+
   </div>
 </div>

@@ -1,5 +1,6 @@
 <div class="backdrop" (click)="close()">
   <div class="modal md" (click)="$event.stopPropagation()">
+
     <div class="m-head">
       <div class="m-head-l">
         <div class="m-head-ico">
@@ -10,7 +11,11 @@
         </div>
         <div class="m-head-text">
           <h2>Edit Patient</h2>
-          <p>Update patient information — UHID: <strong class="mono">{{ uhid() }}</strong></p>
+          @if (patient()?.uhid) {
+            <p>UHID: <strong class="mono">{{ patient()!.uhid }}</strong></p>
+          } @else {
+            <p>Update patient information</p>
+          }
         </div>
       </div>
       <button class="m-close" (click)="close()" type="button">
@@ -21,43 +26,73 @@
     </div>
 
     <div class="m-body">
+
       <div class="fg-row">
         <div class="fg">
-          <label class="fl">Full Name</label>
-          <input class="fi" [value]="fullName()" (input)="fullName.set($any($event.target).value)"/>
+          <label class="fl">Full Name <span class="req">*</span></label>
+          <input class="fi"
+                 [class.fi--error]="errors()['fullName']"
+                 [value]="fullName()"
+                 (input)="onFullName($any($event.target).value)"/>
+          @if (errors()['fullName']) {
+            <span class="field-error">{{ errors()['fullName'] }}</span>
+          }
         </div>
         <div class="fg">
-          <label class="fl">NIC</label>
-          <input class="fi fi-mono" [value]="nic()" (input)="nic.set($any($event.target).value)"/>
+          <label class="fl">NIC <span class="req">*</span></label>
+          <input class="fi fi-mono"
+                 [class.fi--error]="errors()['nic']"
+                 [value]="nic()"
+                 (input)="onNic($any($event.target).value)"/>
+          @if (errors()['nic']) {
+            <span class="field-error">{{ errors()['nic'] }}</span>
+          }
         </div>
       </div>
+
       <div class="fg-row">
         <div class="fg">
-          <label class="fl">Phone</label>
-          <input class="fi" [value]="phone()" (input)="phone.set($any($event.target).value)"/>
+          <label class="fl">Phone <span class="req">*</span></label>
+          <input class="fi"
+                 [class.fi--error]="errors()['phone']"
+                 [value]="phone()"
+                 (input)="onPhone($any($event.target).value)"/>
+          @if (errors()['phone']) {
+            <span class="field-error">{{ errors()['phone'] }}</span>
+          }
         </div>
         <div class="fg">
-          <label class="fl">UHID</label>
-          <input class="fi fi-mono" [value]="uhid()" (input)="uhid.set($any($event.target).value)"/>
+          <label class="fl">Emergency Contact Phone</label>
+          <input class="fi"
+                 [value]="emergencyPhone()"
+                 (input)="emergencyPhone.set($any($event.target).value)"/>
         </div>
       </div>
-      <div class="fg">
-        <label class="fl">Address</label>
-        <input class="fi" [value]="address()" (input)="address.set($any($event.target).value)"/>
-      </div>
+
       <div class="fg-row">
+        <div class="fg">
+          <label class="fl">Address <span class="req">*</span></label>
+          <input class="fi"
+                 [class.fi--error]="errors()['address']"
+                 [value]="address()"
+                 (input)="onAddress($any($event.target).value)"/>
+          @if (errors()['address']) {
+            <span class="field-error">{{ errors()['address'] }}</span>
+          }
+        </div>
         <div class="fg">
           <label class="fl">Emergency Contact Name</label>
-          <input class="fi" [value]="emergencyName()" (input)="emergencyName.set($any($event.target).value)"/>
-        </div>
-        <div class="fg">
-          <label class="fl">Emergency Contact Number</label>
-          <input class="fi" [value]="emergencyPhone()" (input)="emergencyPhone.set($any($event.target).value)"/>
+          <input class="fi"
+                 [value]="emergencyName()"
+                 (input)="emergencyName.set($any($event.target).value)"/>
         </div>
       </div>
+
       <div class="fg">
-        <label class="fl">Flag</label>
+        <label class="fl">Patient Flag <span class="req">*</span></label>
         <div class="radio-row">
+          <button class="radio-pill" [class.active]="flag() === 'new'"
+                  (click)="setFlag('new')" type="button">New</button>
           <button class="radio-pill" [class.active]="flag() === 'regular'"
                   (click)="setFlag('regular')" type="button">Regular</button>
           <button class="radio-pill radio-pill--vip" [class.active]="flag() === 'vip'"
@@ -66,13 +101,26 @@
                   (click)="setFlag('blacklisted')" type="button">Blacklisted</button>
         </div>
       </div>
+
     </div>
 
     <div class="m-foot">
-      <button class="btn btn-danger" (click)="confirmDelete()" type="button">Delete Patient</button>
+      <button class="btn btn-danger"
+              (click)="confirmDelete()"
+              [disabled]="isSaving() || isDeleting()"
+              type="button">
+        @if (isDeleting()) { Deleting... } @else { Delete Patient }
+      </button>
       <div style="flex:1"></div>
-      <button class="btn" (click)="close()" type="button">Cancel</button>
-      <button class="btn btn-primary" (click)="save()" type="button">Update Patient</button>
+      <button class="btn" (click)="close()"
+              [disabled]="isSaving() || isDeleting()"
+              type="button">Cancel</button>
+      <button class="btn btn-primary" (click)="save()"
+              [disabled]="isSaving() || isDeleting()"
+              type="button">
+        @if (isSaving()) { Saving... } @else { Update Patient }
+      </button>
     </div>
+
   </div>
 </div>

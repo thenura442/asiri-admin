@@ -1,0 +1,113 @@
+<div class="backdrop" (click)="close()">
+  <div class="modal md" (click)="$event.stopPropagation()">
+
+    <div class="m-head">
+      <div class="m-head-l">
+        <div class="m-head-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+        </div>
+        <div class="m-head-text">
+          <h2>Upload Lab Reports</h2>
+          <p>Upload PDF reports for #{{ approval()?.requestNumber }}</p>
+        </div>
+      </div>
+      <button class="m-close" (click)="close()" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="m-body">
+
+      @if (approval()) {
+        <div class="ctx-strip">
+          <div class="ctx-item">
+            <div class="ctx-label">Request</div>
+            <div class="ctx-val ctx-val--mono">{{ approval()!.requestNumber }}</div>
+          </div>
+          <div class="ctx-item">
+            <div class="ctx-label">Patient</div>
+            <div class="ctx-val">{{ approval()!.patient.fullName }}</div>
+          </div>
+        </div>
+      }
+
+      <div class="m-section-label">Reports Per Test</div>
+
+      @for (item of testItems(); track item.id) {
+        <div class="report-test-block">
+          <div class="rtb-head">
+            <div class="rtb-name">{{ item.name }}</div>
+            <div class="rtb-code">{{ item.code }}</div>
+            @if (item.reportUrl) {
+              <span class="rtb-uploaded">✓ Report uploaded</span>
+            }
+          </div>
+
+          <app-file-upload
+            label="Upload PDF Report"
+            accept="application/pdf"
+            [maxSizeMb]="25"
+            hint="PDF only, max 25MB"
+            (uploaded)="onReportUpload(item.id, $event)">
+          </app-file-upload>
+
+          @if (errors()['report_' + item.id]) {
+            <span class="field-error">{{ errors()['report_' + item.id] }}</span>
+          }
+
+          <div class="rtb-critical">
+            <label class="toggle" style="cursor:pointer">
+              <input type="checkbox" [checked]="item.isCriticalValue"
+                     (change)="toggleCritical(item.id)"/>
+              <span class="toggle-track"></span>
+            </label>
+            <span class="toggle-label-text" style="font-size:13px">
+              Critical Value — requires immediate alert to patient/doctor
+            </span>
+          </div>
+
+          @if (item.isCriticalValue) {
+            <div class="fg" style="margin-top:8px">
+              <label class="fl">Critical Value Notes</label>
+              <textarea class="fi"
+                        [value]="item.criticalNotes"
+                        (input)="onCriticalNotes(item.id, $any($event.target).value)"
+                        placeholder="Describe the critical finding..."
+                        style="min-height:60px"></textarea>
+            </div>
+          }
+        </div>
+      }
+
+    </div>
+
+    <div class="m-foot">
+      <button class="btn" (click)="close()"
+              [disabled]="isSubmitting()" type="button">Cancel</button>
+      <button class="btn btn-primary" (click)="submit()"
+              [disabled]="isSubmitting()" type="button">
+        @if (isSubmitting()) {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin">
+            <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".25"/>
+            <path d="M21 12a9 9 0 00-9-9"/>
+          </svg>
+          Uploading...
+        } @else {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Submit Reports
+        }
+      </button>
+    </div>
+
+  </div>
+</div>

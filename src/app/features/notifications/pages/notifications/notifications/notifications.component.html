@@ -1,5 +1,4 @@
 <div class="pg">
-  <!-- Page Header -->
   <div class="pg-hdr">
     <div>
       <h1>Notifications</h1>
@@ -14,7 +13,8 @@
   </div>
 
   <div class="notif-layout">
-    <!-- ── Feed ── -->
+
+    <!-- Feed -->
     <div class="feed">
       <div class="feed-head">
         <div class="feed-tabs">
@@ -30,13 +30,22 @@
         }
       </div>
 
-      @for (group of ['Today', 'Yesterday']; track group) {
-        @if (hasGroup($any(group))) {
-          <div class="time-group">{{ group }}</div>
-          @for (n of filteredByGroup($any(group)); track n.id) {
-            <div class="notif" [class.unread]="n.unread" (click)="markRead(n.id)">
-              <div class="n-ico" [ngClass]="'n-ico-' + n.type">
-                @switch (n.type) {
+      @if (isLoading()) {
+        <div class="feed-loading">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin">
+            <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".25"/>
+            <path d="M21 12a9 9 0 00-9-9"/>
+          </svg>
+          Loading notifications...
+        </div>
+      } @else {
+
+        @if (todayItems().length > 0) {
+          <div class="time-group">Today</div>
+          @for (n of todayItems(); track n.id) {
+            <div class="notif" [class.unread]="!n.isRead" (click)="markRead(n.id)">
+              <div class="n-ico" [ngClass]="'n-ico-' + typeToIcon(n.type)">
+                @switch (typeToIcon(n.type)) {
                   @case ('new') {
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                       <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
@@ -55,16 +64,16 @@
                       <line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
                     </svg>
                   }
-                  @case ('info') {
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                      <circle cx="12" cy="12" r="10"/>
-                      <line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
-                    </svg>
-                  }
                   @case ('ok') {
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                       <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
                       <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                  }
+                  @default {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                      <circle cx="12" cy="12" r="10"/>
+                      <line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
                     </svg>
                   }
                 }
@@ -73,91 +82,103 @@
                 <div class="n-title">{{ n.title }}</div>
                 <div class="n-msg">{{ n.message }}</div>
                 <div class="n-time">
-                  @if (n.unread) { <span class="n-dot"></span> }
-                  {{ n.time }}
+                  @if (!n.isRead) { <span class="n-dot"></span> }
+                  {{ timeAgo(n.createdAt) }}
                 </div>
               </div>
             </div>
           }
         }
-      }
 
-      @if (filteredByGroup('Today').length === 0 && filteredByGroup('Yesterday').length === 0) {
-        <div class="empty-feed">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-            <path d="M13.73 21a2 2 0 01-3.46 0"/>
-          </svg>
-          <p>No notifications in this category</p>
-        </div>
-      }
-    </div>
-
-    <!-- ── Sidebar ── -->
-    <div class="notif-sidebar">
-      <!-- Quick Stats -->
-      <div class="pref-card">
-        <div class="pref-title">Quick Stats</div>
-        <div class="notif-stats">
-          <div class="ns"><div class="ns-val">{{ stats.unread }}</div><div class="ns-label">Unread</div></div>
-          <div class="ns"><div class="ns-val">{{ stats.today }}</div><div class="ns-label">Today</div></div>
-          <div class="ns"><div class="ns-val">{{ stats.thisWeek }}</div><div class="ns-label">This Week</div></div>
-          <div class="ns"><div class="ns-val">{{ stats.critical }}</div><div class="ns-label">Critical</div></div>
-        </div>
-      </div>
-
-      <!-- Preferences -->
-      <div class="pref-card">
-        <div class="pref-title">Notification Preferences</div>
-        <div class="pref-desc">Choose which alerts you want to receive</div>
-
-        <div class="pref-section">
-          <div class="pref-section-title">Alert Types</div>
-          @for (pref of preferences(); track pref.label; let i = $index) {
-            <div class="pref-row">
-              <span class="pref-label">{{ pref.label }}</span>
-              <label class="toggle">
-                <input type="checkbox" [checked]="pref.value" (change)="togglePref(i)"/>
-                <span class="toggle-track"></span>
-              </label>
-            </div>
-          }
-        </div>
-
-        <div class="pref-section">
-          <div class="pref-section-title">Delivery Channels</div>
-          <div class="pref-channels">
-            @for (ch of channels(); track ch.label; let i = $index) {
-              <button class="channel" [class.active]="ch.active"
-                      (click)="toggleChannel(i)" type="button">
-                @switch (ch.icon) {
-                  @case ('bell') {
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+        @if (olderItems().length > 0) {
+          <div class="time-group">Earlier</div>
+          @for (n of olderItems(); track n.id) {
+            <div class="notif" [class.unread]="!n.isRead" (click)="markRead(n.id)">
+              <div class="n-ico" [ngClass]="'n-ico-' + typeToIcon(n.type)">
+                @switch (typeToIcon(n.type)) {
+                  @case ('new') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                      <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+                      <rect x="9" y="3" width="6" height="4" rx="1"/>
                     </svg>
                   }
-                  @case ('sms') {
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+                  @case ('warn') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                      <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                      <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
                     </svg>
                   }
-                  @case ('email') {
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                      <polyline points="22 6 12 13 2 6"/>
+                  @case ('err') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                      <circle cx="12" cy="12" r="10"/>
+                      <line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+                    </svg>
+                  }
+                  @case ('ok') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                      <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                      <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                  }
+                  @default {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                      <circle cx="12" cy="12" r="10"/>
+                      <line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
                     </svg>
                   }
                 }
-                {{ ch.label }}
-              </button>
-            }
+              </div>
+              <div class="n-body">
+                <div class="n-title">{{ n.title }}</div>
+                <div class="n-msg">{{ n.message }}</div>
+                <div class="n-time">
+                  @if (!n.isRead) { <span class="n-dot"></span> }
+                  {{ timeAgo(n.createdAt) }}
+                </div>
+              </div>
+            </div>
+          }
+        }
+
+        @if (todayItems().length === 0 && olderItems().length === 0) {
+          <div class="empty-feed">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 01-3.46 0"/>
+            </svg>
+            <p>No notifications in this category</p>
+          </div>
+        }
+      }
+    </div>
+
+    <!-- Sidebar -->
+    <div class="notif-sidebar">
+      <div class="pref-card">
+        <div class="pref-title">Quick Stats</div>
+        <div class="notif-stats">
+          <div class="ns">
+            <div class="ns-val">{{ stats().unread }}</div>
+            <div class="ns-label">Unread</div>
+          </div>
+          <div class="ns">
+            <div class="ns-val">{{ todayItems().length }}</div>
+            <div class="ns-label">Today</div>
+          </div>
+          <div class="ns">
+            <div class="ns-val">{{ items().length }}</div>
+            <div class="ns-label">Loaded</div>
+          </div>
+          <div class="ns">
+            <div class="ns-val">{{ unreadCount() }}</div>
+            <div class="ns-label">Pending</div>
           </div>
         </div>
       </div>
     </div>
+
   </div>
 
-  <!-- Branded Footer -->
   <footer class="brand-footer">
     <div class="bf-left">
       <div class="bf-logo">

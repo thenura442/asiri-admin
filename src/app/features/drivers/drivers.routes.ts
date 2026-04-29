@@ -9,6 +9,6 @@ export const driverRoutes: Routes = [
   {
     path: 'register',
     loadComponent: () =>
-      import('./pages/driver-register/driver-register/driver-register.component').then(m => m.DriverRegisterComponent)
+      import('./pages/driver-register/driver-register/driver-register.component').then(m => m.DriverRegistrationComponent)
   }
 ];

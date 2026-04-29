@@ -1,106 +1,188 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { finalize } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { PatientService, PatientParams } from '../../../services/patient/patient.service';
 import { ModalService } from '@shared/services/modal/modal.service';
-import { TimeAgoPipe } from '@shared/pipes/time-ago/time-ago.pipe';
+import { NotificationService } from '@core/services/notification/notification.service';
+import { Patient, PatientFlag } from '@core/models/patient.model';
+import { PatientEditModalComponent } from '@features/patients/modals/patient-edit-modal/patient-edit-modal/patient-edit-modal.component';
 
-interface PatientStats { total: number; activeThisMonth: number; newToday: number; vip: number; }
-
-interface PatientBooking { date: string; testName: string; status: 'done' | 'cancelled'; }
-
-interface Patient {
-  id: string; fullName: string; initials: string;
-  age: number; gender: string; address: string;
-  uhid: string | null; phone: string; emergencyPhone: string | null;
-  totalVisits: number; lastVisitDate: string;
-  flag: 'regular' | 'new' | 'vip' | 'flagged';
-  pendingCharges: number;
-  allergies: string | null; conditions: string | null;
-  recentBookings: PatientBooking[];
+interface PatientStats {
+  total:           number;
+  activeThisMonth: number;
+  newToday:        number;
+  vip:             number;
 }
 
 @Component({
   selector: 'app-patient-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, TimeAgoPipe],
+  imports: [CommonModule, RouterModule, PatientEditModalComponent],
   templateUrl: './patient-list.component.html',
   styleUrl: './patient-list.component.scss'
 })
 export class PatientListComponent implements OnInit {
-  private modal = inject(ModalService);
+  private patientSvc   = inject(PatientService);
+  private modal        = inject(ModalService);
+  private notification = inject(NotificationService);
 
-  activeFilter = signal<'all' | 'regular' | 'new' | 'vip' | 'flagged'>('all');
-  searchQuery  = signal('');
-  sortOrder    = signal('newest');
-  selectedId   = signal<string | null>(null);
-  currentPage  = signal(1);
-  totalCount   = signal(1284);
+  activeFilter  = signal<'all' | PatientFlag>('all');
+  searchQuery   = signal('');
+  sortOrder     = signal('newest');
+  selectedId    = signal<string | null>(null);
+  currentPage   = signal(1);
+  totalPages    = signal(1);
+  totalCount    = signal(0);
+  isLoading     = signal(false);
+  editingPatient = signal<Patient | null>(null);
 
-  stats = signal<PatientStats>({ total: 1284, activeThisMonth: 89, newToday: 12, vip: 34 });
+  stats    = signal<PatientStats>({ total: 0, activeThisMonth: 0, newToday: 0, vip: 0 });
+  patients = signal<Patient[]>([]);
 
-  patients = signal<Patient[]>([
-    { id: 'p1', fullName: 'Kamala Perera',      initials: 'KP', age: 52, gender: 'F', address: 'Dehiwala',  uhid: 'UHID-331087', phone: '+94 77 234 5678', emergencyPhone: '+94 71 876 5432', totalVisits: 14, lastVisitDate: '2025-10-15', flag: 'regular', pendingCharges: 0, allergies: null, conditions: 'Diabetes', recentBookings: [{ date: '15 Oct', testName: 'Thyroid Panel', status: 'done' }, { date: '12 Sep', testName: 'FBS', status: 'done' }] },
-    { id: 'p2', fullName: 'Johnathan Doe',       initials: 'JD', age: 45, gender: 'M', address: 'Colombo 03', uhid: 'UHID-129938', phone: '+94 77 456 7890', emergencyPhone: '+94 71 654 3210', totalVisits: 8,  lastVisitDate: '2025-10-24', flag: 'regular', pendingCharges: 0, allergies: 'Penicillin', conditions: null, recentBookings: [{ date: '24 Oct', testName: 'Full Blood Count', status: 'done' }, { date: '01 Sep', testName: 'Lipid Panel', status: 'done' }] },
-    { id: 'p3', fullName: 'Sarah Jenkins',       initials: 'SJ', age: 29, gender: 'F', address: 'Kandy',      uhid: null, phone: '+94 76 123 4567', emergencyPhone: null, totalVisits: 1, lastVisitDate: '2025-10-24', flag: 'new', pendingCharges: 0, allergies: null, conditions: null, recentBookings: [{ date: '24 Oct', testName: 'Lipid Profile', status: 'done' }] },
-    { id: 'p4', fullName: 'Robert Brown',        initials: 'RB', age: 61, gender: 'M', address: 'Negombo',    uhid: 'UHID-445210', phone: '+94 77 890 1234', emergencyPhone: '+94 71 098 7654', totalVisits: 22, lastVisitDate: '2025-10-23', flag: 'vip', pendingCharges: 0, allergies: null, conditions: 'Hypertension', recentBookings: [{ date: '23 Oct', testName: 'FBS', status: 'done' }, { date: '15 Oct', testName: 'HBA1C', status: 'cancelled' }] },
-    { id: 'p5', fullName: 'Malinda Amarasinghe', initials: 'MA', age: 34, gender: 'M', address: 'Borella',    uhid: 'UHID-228901', phone: '+94 76 345 6789', emergencyPhone: '+94 77 543 2109', totalVisits: 3,  lastVisitDate: '2025-10-18', flag: 'flagged', pendingCharges: 500, allergies: null, conditions: null, recentBookings: [{ date: '18 Oct', testName: 'CBC', status: 'cancelled' }, { date: '10 Oct', testName: 'FBS', status: 'cancelled' }] },
-    { id: 'p6', fullName: 'Nimal Samaraweera',   initials: 'NS', age: 38, gender: 'M', address: 'Borella',    uhid: 'UHID-220145', phone: '+94 71 234 5678', emergencyPhone: '+94 76 876 5432', totalVisits: 6,  lastVisitDate: '2025-10-20', flag: 'regular', pendingCharges: 0, allergies: null, conditions: null, recentBookings: [{ date: '20 Oct', testName: 'HBA1C', status: 'done' }] },
-  ]);
+  selectedPatient = computed(() =>
+    this.patients().find(p => p.id === this.selectedId()) ?? null
+  );
 
-  ngOnInit(): void { this.selectedId.set(this.patients()[0].id); }
-
-  get selectedPatient(): Patient | null {
-    return this.patients().find(p => p.id === this.selectedId()) ?? null;
+  ngOnInit(): void {
+    this.loadPatients();
+    this.loadStats();
   }
 
-  filteredPatients(): Patient[] {
-    let list = this.patients();
-    if (this.activeFilter() !== 'all') list = list.filter(p => p.flag === this.activeFilter());
-    const q = this.searchQuery().toLowerCase();
-    if (q) list = list.filter(p =>
-      p.fullName.toLowerCase().includes(q) ||
-      (p.uhid ?? '').toLowerCase().includes(q) ||
-      p.phone.includes(q)
-    );
-    return list;
+  private loadPatients(): void {
+    const filter = this.activeFilter();
+    const params: PatientParams = {
+      page:      this.currentPage(),
+      limit:     10,
+      search:    this.searchQuery() || undefined,
+      flag:      filter !== 'all' ? filter : undefined,
+      sortOrder: this.sortOrder() === 'oldest' ? 'asc' : 'desc',
+    };
+
+    this.isLoading.set(true);
+    this.patientSvc.getAll(params)
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: (res) => {
+          this.patients.set(res.data);
+          this.totalCount.set(res.meta.total);
+          this.totalPages.set(res.meta.totalPages);
+          if (!this.selectedId() && res.data.length > 0) {
+            this.selectedId.set(res.data[0].id);
+          }
+        },
+        error: (err: HttpErrorResponse) => {
+          if (err.status === 0)        this.notification.error('Connection Error', 'Cannot reach the server. Check your internet.');
+          else if (err.status === 500) this.notification.error('Server Error', 'Something went wrong. Please try again.');
+          else                         this.notification.error('Error', err.error?.message ?? 'Failed to load patients.');
+        }
+      });
   }
 
-  setFilter(f: 'all' | 'regular' | 'new' | 'vip' | 'flagged'): void { this.activeFilter.set(f); }
+  private loadStats(): void {
+    this.patientSvc.getAll({ page: 1, limit: 1 }).subscribe({
+      next: (res) => {
+        const total = res.meta.total;
+        this.patientSvc.getAll({ page: 1, limit: 1, flag: 'vip' }).subscribe(r => {
+          this.stats.update(s => ({ ...s, total, vip: r.meta.total }));
+        });
+        this.patientSvc.getAll({ page: 1, limit: 1, flag: 'new' }).subscribe(r => {
+          this.stats.update(s => ({ ...s, newToday: r.meta.total }));
+        });
+      },
+      error: () => {}
+    });
+  }
+
+  setFilter(f: 'all' | PatientFlag): void {
+    this.activeFilter.set(f);
+    this.currentPage.set(1);
+    this.selectedId.set(null);
+    this.loadPatients();
+  }
+
   selectPatient(id: string): void { this.selectedId.set(id); }
-  onSearch(e: Event): void { this.searchQuery.set((e.target as HTMLInputElement).value); }
 
-  flagClass(flag: string): string {
-    return { regular: 'flag-ok', new: 'flag-warn', vip: 'flag-vip', flagged: 'flag-risk' }[flag] ?? 'flag-ok';
+  onSearch(e: Event): void {
+    this.searchQuery.set((e.target as HTMLInputElement).value);
+    this.currentPage.set(1);
+    this.selectedId.set(null);
+    this.loadPatients();
   }
 
-  flagLabel(flag: string): string {
-    return { regular: 'Regular', new: 'New', vip: 'VIP', flagged: 'Flagged' }[flag] ?? flag;
+  onSortChange(e: Event): void {
+    this.sortOrder.set((e.target as HTMLSelectElement).value);
+    this.currentPage.set(1);
+    this.loadPatients();
   }
 
-  openEdit(p: Patient): void {
-    this.modal.info(`Edit modal for ${p.fullName}`);
+  setPage(p: number): void {
+    if (p < 1 || p > this.totalPages()) return;
+    this.currentPage.set(p);
+    this.loadPatients();
+  }
+
+  get pageRange(): number[] {
+    const total   = this.totalPages();
+    const current = this.currentPage();
+    const start   = Math.max(1, current - 2);
+    const end     = Math.min(total, current + 2);
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+  }
+
+  openEdit(p: Patient): void  { this.editingPatient.set(p); }
+  closeEdit(): void           { this.editingPatient.set(null); }
+
+  onPatientUpdated(_updated: Patient): void {
+    this.editingPatient.set(null);
+    this.loadPatients();
   }
 
   newBooking(p: Patient): void {
-    this.modal.info(`New booking for ${p.fullName}`);
+    this.notification.info('New Booking', `Booking flow for ${p.fullName} coming soon.`);
   }
 
   confirmDelete(p: Patient): void {
     this.modal.confirm({
-      title: 'Delete Patient',
-      message: `Delete ${p.fullName}'s record? This cannot be undone.`,
+      title:        'Delete Patient',
+      message:      `Delete ${p.fullName}'s record? This action cannot be undone.`,
       confirmLabel: 'Delete',
-      danger: true
+      danger:       true
     }).subscribe(ok => {
-      if (ok) {
-        this.patients.update(list => list.filter(x => x.id !== p.id));
-        this.selectedId.set(this.patients()[0]?.id ?? null);
-        this.modal.success('Patient deleted');
-      }
+      if (!ok) return;
+      this.patientSvc.delete(p.id).subscribe({
+        next: () => {
+          this.notification.success('Patient Deleted', `${p.fullName}'s record has been removed.`);
+          if (this.selectedId() === p.id) this.selectedId.set(null);
+          this.loadPatients();
+        },
+        error: (err: HttpErrorResponse) => {
+          if (err.status === 400) this.notification.error('Cannot Delete', err.error?.message ?? 'Patient may have active bookings.');
+          else                    this.notification.error('Error', err.error?.message ?? 'Failed to delete patient.');
+        }
+      });
     });
   }
 
-  get totalPages(): number { return Math.ceil(this.totalCount() / 10); }
-  get pageRange(): number[] { return Array.from({ length: Math.min(this.totalPages, 5) }, (_, i) => i + 1); }
-  setPage(p: number): void { this.currentPage.set(p); }
+  getInitials(fullName: string): string {
+    return fullName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  }
+
+  getAge(dateOfBirth: string): number {
+    const today = new Date();
+    const dob   = new Date(dateOfBirth);
+    let age = today.getFullYear() - dob.getFullYear();
+    const m = today.getMonth() - dob.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+    return age;
+  }
+
+  flagClass(flag: string): string {
+    return { regular: 'flag-ok', new: 'flag-warn', vip: 'flag-vip', blacklisted: 'flag-risk' }[flag] ?? 'flag-ok';
+  }
+
+  flagLabel(flag: string): string {
+    return { regular: 'Regular', new: 'New', vip: 'VIP', blacklisted: 'Blacklisted' }[flag] ?? flag;
+  }
 }

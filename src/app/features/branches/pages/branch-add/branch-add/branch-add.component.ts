@@ -185,6 +185,7 @@ export class BranchAddComponent implements OnInit {
     }
   }
 
+  
   private maybeUpdateGps(): void {
     this.updateCheck(4, !!this.latitude() && !!this.longitude());
   }

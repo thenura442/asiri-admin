@@ -7,6 +7,7 @@ import {
   CreateBranchDto,
   UpdateBranchDto
 } from '@core/models/branch.model';
+import { map } from 'rxjs/operators';
 
 export interface BranchParams {
   page?:     number;
@@ -30,7 +31,9 @@ export class BranchService {
   }
 
   getLabs(): Observable<Branch[]> {
-    return this.api.get<Branch[]>('/branches/labs');
+    return this.api.get<{ data: Branch[] }>('/branches/labs').pipe(
+      map(res => res.data)
+    );
   }
 
   create(data: CreateBranchDto): Observable<Branch> {

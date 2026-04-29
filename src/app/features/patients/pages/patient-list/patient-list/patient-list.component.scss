@@ -73,6 +73,8 @@
   gap: 20px;
   align-items: start;
 
+  &--full { grid-template-columns: 1fr; }  // ← add this
+
   @media (max-width: 1200px) { grid-template-columns: 1fr 320px; }
   @media (max-width: 900px)  { grid-template-columns: 1fr; }
 }

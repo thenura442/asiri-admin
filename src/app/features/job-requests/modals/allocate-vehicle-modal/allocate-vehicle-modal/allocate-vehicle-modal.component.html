@@ -1,5 +1,6 @@
 <div class="backdrop" (click)="close()">
   <div class="modal md" (click)="$event.stopPropagation()">
+
     <div class="m-head">
       <div class="m-head-l">
         <div class="m-head-ico">
@@ -10,7 +11,9 @@
         </div>
         <div class="m-head-text">
           <h2>Allocate Vehicle</h2>
-          <p>Select a vehicle and driver for {{ jobNumber() }}</p>
+          @if (job()) {
+            <p>Select a vehicle for request #{{ job()!.requestNumber }}</p>
+          }
         </div>
       </div>
       <button class="m-close" (click)="close()" type="button">
@@ -21,66 +24,68 @@
     </div>
 
     <div class="m-body">
-      <!-- Vehicle list -->
-      <div class="vehicle-list">
-        @for (v of vehicles(); track v.id) {
-          <div class="vehicle-row" [class.vehicle-row--selected]="selectedVehicleId() === v.id"
-               (click)="select(v.id)">
-            <div class="vr-left">
-              <div class="vr-plate">{{ v.plateNumber }}</div>
-              <div class="vr-meta">{{ v.vehicleType }} · Driver: {{ v.driverName }}</div>
-            </div>
-            <div class="vr-center">
-              <div class="vr-dist">{{ v.distanceKm }} km</div>
-              <div class="vr-eta">ETA {{ v.etaMinutes }} min</div>
-            </div>
-            <div class="vr-right">
-              @if (v.isRecommended) {
-                <span class="vr-rec">Recommended</span>
-              }
-              <button class="vr-assign" [class.vr-assign--selected]="selectedVehicleId() === v.id"
-                      (click)="select(v.id); $event.stopPropagation()" type="button">
-                {{ selectedVehicleId() === v.id ? '✓ Selected' : 'Assign' }}
-              </button>
-            </div>
-          </div>
-        }
-      </div>
 
-      <!-- PickMe section -->
-      <div class="pickme-section">
-        <div class="pickme-toggle">
-          <div class="pickme-label">
-            <span>Use External Transport (PickMe)</span>
-            <span class="pickme-sub">Driver still required for GPS tracking</span>
-          </div>
-          <div class="tgl" [class.on]="usePickMe()" (click)="usePickMe.update(v => !v)"></div>
+      @if (isLoading()) {
+        <div style="text-align:center;padding:32px;color:var(--t4)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               class="spin" style="width:24px;height:24px;display:inline-block">
+            <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".25"/>
+            <path d="M21 12a9 9 0 00-9-9"/>
+          </svg>
+          <div style="margin-top:8px">Finding available vehicles...</div>
         </div>
-
-        @if (usePickMe()) {
-          <div class="pickme-inputs">
-            <div class="fg">
-              <label class="fl">One-way PickMe fare (Rs.)</label>
-              <input class="fi" type="number" [value]="pickMeFare()"
-                     (input)="pickMeFare.set(+$any($event.target).value)"
-                     placeholder="Enter one-way fare"/>
-            </div>
-            @if (pickMeFare() > 0) {
-              <div class="pickme-calc">
-                <span>(Rs. {{ pickMeFare() }} × 2) + Rs. 200 =</span>
-                <strong>Rs. {{ pickMeTotal }}</strong>
+      } @else if (vehicles().length === 0) {
+        <div style="text-align:center;padding:32px;color:var(--t4)">
+          No vehicles available for this job location.
+        </div>
+      } @else {
+        <div class="vehicle-list">
+          @for (v of vehicles(); track v.id) {
+            <div class="vehicle-row"
+                 [class.vehicle-row--selected]="selectedVehicleId() === v.id"
+                 (click)="selectVehicle(v)">
+              <div class="vr-left">
+                <div class="vr-plate">{{ v.plateNumber }}</div>
+                <div class="vr-meta">
+                  {{ v.vehicleType | titlecase }} · {{ getDriverName(v) }}
+                </div>
               </div>
-            }
-          </div>
-        }
-      </div>
+              <div class="vr-center">
+                <div class="vr-dist">{{ v.distanceKm | number:'1.1-1' }} km away</div>
+                <div class="vr-eta">ETA {{ v.etaMinutes }} min</div>
+              </div>
+              <div class="vr-right">
+                <button class="vr-assign"
+                        [class.vr-assign--selected]="selectedVehicleId() === v.id"
+                        (click)="selectVehicle(v)" type="button">
+                  {{ selectedVehicleId() === v.id ? '✓ Selected' : 'Select' }}
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
     </div>
 
     <div class="m-foot">
-      <button class="btn" (click)="close()" type="button">Cancel</button>
-      <button class="btn btn-primary" (click)="confirm()" [disabled]="!selectedVehicleId()" type="button">
-        Confirm Assignment
+      <button class="btn" (click)="close()"
+              [disabled]="isAllocating()" type="button">Cancel</button>
+      <button class="btn btn-primary" (click)="confirm()"
+              [disabled]="!selectedVehicleId() || isAllocating() || isLoading()"
+              type="button">
+        @if (isAllocating()) {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin"
+               style="width:16px;height:16px;display:inline-block;vertical-align:middle;margin-right:6px">
+            <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".25"/>
+            <path d="M21 12a9 9 0 00-9-9"/>
+          </svg>
+          Allocating...
+        } @else {
+          Confirm Allocation
+        }
       </button>
     </div>
+
   </div>
 </div>

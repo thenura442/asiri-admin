@@ -1,5 +1,6 @@
 <div class="backdrop" (click)="close()">
   <div class="modal md" (click)="$event.stopPropagation()">
+
     <div class="m-head">
       <div class="m-head-l">
         <div class="m-head-ico">
@@ -21,71 +22,106 @@
     </div>
 
     <div class="m-body">
+
       <div class="fg-row">
         <div class="fg">
-          <label class="fl">Full Name</label>
-          <input class="fi" [value]="fullName()" (input)="fullName.set($any($event.target).value)"/>
+          <label class="fl">Full Name <span class="req">*</span></label>
+          <input class="fi"
+                 [class.fi--error]="errors()['fullName']"
+                 [value]="fullName()"
+                 (input)="onFullName($any($event.target).value)"/>
+          @if (errors()['fullName']) {
+            <span class="field-error">{{ errors()['fullName'] }}</span>
+          }
         </div>
         <div class="fg">
-          <label class="fl">NIC</label>
-          <input class="fi fi-mono" [value]="nic()" (input)="nic.set($any($event.target).value)"/>
+          <label class="fl">NIC <span class="req">*</span></label>
+          <input class="fi fi-mono"
+                 [class.fi--error]="errors()['nic']"
+                 [value]="nic()"
+                 (input)="onNic($any($event.target).value)"/>
+          @if (errors()['nic']) {
+            <span class="field-error">{{ errors()['nic'] }}</span>
+          }
         </div>
       </div>
+
       <div class="fg-row">
         <div class="fg">
           <label class="fl">Date of Birth</label>
-          <input class="fi" type="date" [value]="dob()" (change)="dob.set($any($event.target).value)"/>
+          <input class="fi" type="date"
+                 [value]="dateOfBirth()"
+                 (change)="dateOfBirth.set($any($event.target).value)"/>
         </div>
         <div class="fg">
-          <label class="fl">Contact Number</label>
-          <input class="fi" [value]="phone()" (input)="phone.set($any($event.target).value)"/>
+          <label class="fl">Contact Number <span class="req">*</span></label>
+          <input class="fi"
+                 [class.fi--error]="errors()['phone']"
+                 [value]="phone()"
+                 (input)="onPhone($any($event.target).value)"/>
+          @if (errors()['phone']) {
+            <span class="field-error">{{ errors()['phone'] }}</span>
+          }
         </div>
       </div>
+
       <div class="fg-row">
         <div class="fg">
-          <label class="fl">License Number</label>
-          <input class="fi fi-mono" [value]="licenseNumber()" (input)="licenseNumber.set($any($event.target).value)"/>
+          <label class="fl">License Number <span class="req">*</span></label>
+          <input class="fi fi-mono"
+                 [class.fi--error]="errors()['licenseNumber']"
+                 [value]="licenseNumber()"
+                 (input)="onLicenseNumber($any($event.target).value)"/>
+          @if (errors()['licenseNumber']) {
+            <span class="field-error">{{ errors()['licenseNumber'] }}</span>
+          }
         </div>
         <div class="fg">
-          <label class="fl">License Expiry</label>
-          <input class="fi" type="date" [value]="licenseExpiry()" (change)="licenseExpiry.set($any($event.target).value)"/>
+          <label class="fl">License Expiry <span class="req">*</span></label>
+          <input class="fi" type="date"
+                 [class.fi--error]="errors()['licenseExpiry']"
+                 [value]="licenseExpiry()"
+                 (change)="onLicenseExpiry($any($event.target).value)"/>
+          @if (errors()['licenseExpiry']) {
+            <span class="field-error">{{ errors()['licenseExpiry'] }}</span>
+          }
         </div>
       </div>
+
       <div class="fg">
-        <label class="fl">Base Lab</label>
-        <select class="fi" [value]="branchName()" (change)="branchName.set($any($event.target).value)">
-          @for (b of branches; track b) {
-            <option [value]="b" [selected]="b === branchName()">{{ b }}</option>
-          }
-        </select>
-      </div>
-      <div class="fg">
-        <label class="fl">Status</label>
+        <label class="fl">Status <span class="req">*</span></label>
         <div class="radio-row">
-          <button class="radio-pill" [class.active]="status() === 'active'"
+          <button class="radio-pill"
+                  [class.active]="status() === 'active'"
                   (click)="setStatus('active')" type="button">Active</button>
-          <button class="radio-pill" [class.active]="status() === 'inactive'"
+          <button class="radio-pill"
+                  [class.active]="status() === 'inactive'"
                   (click)="setStatus('inactive')" type="button">Inactive</button>
-          <button class="radio-pill radio-pill--danger" [class.active]="status() === 'suspended'"
+          <button class="radio-pill radio-pill--danger"
+                  [class.active]="status() === 'suspended'"
                   (click)="setStatus('suspended')" type="button">Suspended</button>
         </div>
       </div>
-      @if (status() !== 'active') {
-        <div class="fg">
-          <label class="fl">Reason for Status Change</label>
-          <textarea class="fi" [value]="statusReason()"
-                    (input)="statusReason.set($any($event.target).value)"
-                    placeholder="Required when changing status..."
-                    style="min-height:60px"></textarea>
-        </div>
-      }
+
     </div>
 
     <div class="m-foot">
-      <button class="btn btn-danger" (click)="confirmDelete()" type="button">Delete Driver</button>
+      <button class="btn btn-danger"
+              (click)="confirmDelete()"
+              [disabled]="isSaving() || isDeleting()"
+              type="button">
+        @if (isDeleting()) { Deleting... } @else { Delete Driver }
+      </button>
       <div style="flex:1"></div>
-      <button class="btn" (click)="close()" type="button">Cancel</button>
-      <button class="btn btn-primary" (click)="save()" type="button">Update Driver</button>
+      <button class="btn" (click)="close()"
+              [disabled]="isSaving() || isDeleting()"
+              type="button">Cancel</button>
+      <button class="btn btn-primary" (click)="save()"
+              [disabled]="isSaving() || isDeleting()"
+              type="button">
+        @if (isSaving()) { Saving... } @else { Update Driver }
+      </button>
     </div>
+
   </div>
 </div>

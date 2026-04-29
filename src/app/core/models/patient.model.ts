@@ -1,57 +1,69 @@
+export type Gender      = 'male' | 'female' | 'other';
+export type PatientFlag = 'new' | 'regular' | 'vip' | 'blacklisted';
+
 export interface Patient {
-  id:                    string;
-  auth_user_id:          string | null;
-  uhid:                  string | null;
-  full_name:             string;
-  nic:                   string;
-  date_of_birth:         string;
-  gender:                Gender;
-  phone:                 string;
-  email:                 string | null;
-  blood_group:           string | null;
-  nationality:           string | null;
-  address:               string;
-  city:                  string | null;
-  district:              string | null;
-  postal_code:           string | null;
-  landmark:              string | null;
-  emergency_name:        string | null;
-  emergency_phone:       string | null;
-  flag:                  PatientFlag;
-  flag_new_until:        string | null;
-  pending_charges:       number;
-  allergies:             string | null;
-  existing_conditions:   string | null;
-  special_instructions:  string | null;
-  notes:                 string | null;
-  created_at:            string;
-  updated_at:            string;
+  id:                   string;
+  authUserId:           string | null;
+  uhid:                 string | null;
+  fullName:             string;
+  nic:                  string;
+  dateOfBirth:          string;
+  gender:               Gender;
+  phone:                string;
+  email:                string | null;
+  bloodGroup:           string | null;
+  nationality:          string | null;
+  address:              string;
+  city:                 string | null;
+  district:             string | null;
+  postalCode:           string | null;
+  landmark:             string | null;
+  emergencyName:        string | null;
+  emergencyPhone:       string | null;
+  flag:                 PatientFlag;
+  flagNewUntil:         string | null;
+  pendingCharges:       number;
+  allergies:            string | null;
+  existingConditions:   string | null;
+  specialInstructions:  string | null;
+  notes:                string | null;
+  createdAt:            string;
+  updatedAt:            string;
 }
 
-export type Gender      = 'male' | 'female' | 'other';
-export type PatientFlag = 'regular' | 'vip' | 'new' | 'blacklisted';
+export interface PatientListResponse {
+  data: Patient[];
+  meta: {
+    page:       number;
+    limit:      number;
+    total:      number;
+    totalPages: number;
+    hasNext:    boolean;
+    hasPrev:    boolean;
+  };
+}
 
 export interface CreatePatientDto {
-  full_name:              string;
-  nic:                    string;
-  date_of_birth:          string;
-  gender:                 Gender;
-  phone:                  string;
-  address:                string;
-  email?:                 string;
-  blood_group?:           string;
-  nationality?:           string;
-  city?:                  string;
-  district?:              string;
-  postal_code?:           string;
-  landmark?:              string;
-  emergency_name?:        string;
-  emergency_phone?:       string;
-  flag?:                  PatientFlag;
-  allergies?:             string;
-  existing_conditions?:   string;
-  special_instructions?:  string;
-  notes?:                 string;
+  fullName:            string;
+  nic:                 string;
+  dateOfBirth:         string;
+  gender:              Gender;
+  phone:               string;
+  address:             string;
+  email?:              string;
+  bloodGroup?:         string;
+  nationality?:        string;
+  city?:               string;
+  district?:           string;
+  postalCode?:         string;
+  landmark?:           string;
+  emergencyName?:      string;
+  emergencyPhone?:     string;
+  allergies?:          string;
+  existingConditions?: string;
+  // flag, specialInstructions, notes — not accepted by backend on create
 }
 
-export interface UpdatePatientDto extends Partial<CreatePatientDto> {}
+export interface UpdatePatientDto extends Partial<CreatePatientDto> {
+  flag?: PatientFlag;
+}

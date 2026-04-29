@@ -1,69 +1,125 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { finalize, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { HttpErrorResponse } from '@angular/common/http';
+import { DriverService, DriverParams } from '../../../services/driver/driver.service';
 import { ModalService } from '@shared/services/modal/modal.service';
-import { TimeAgoPipe } from '@shared/pipes/time-ago/time-ago.pipe';
+import { NotificationService } from '@core/services/notification/notification.service';
+import { Driver } from '@core/models/driver.model';
+import { DriverEditModalComponent } from '@features/drivers/modals/driver-edit-modal/driver-edit-modal/driver-edit-modal.component';
 
-interface DriverStats { total: number; active: number; onJob: number; suspended: number; }
-
-interface Driver {
-  id: string; fullName: string; initials: string; phone: string;
-  nic: string; licenseNumber: string; licenseExpiry: string;
-  status: 'active' | 'inactive' | 'suspended';
-  branchName: string; currentJobId: string | null;
+interface DriverStats {
+  total:     number;
+  active:    number;
+  inactive:  number;
+  suspended: number;
 }
 
 @Component({
   selector: 'app-driver-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, TimeAgoPipe],
+  imports: [CommonModule, RouterModule, DriverEditModalComponent],
   templateUrl: './driver-list.component.html',
   styleUrl: './driver-list.component.scss'
 })
-export class DriverListComponent implements OnInit {
-  private modal = inject(ModalService);
+export class DriverListComponent implements OnInit, OnDestroy {
+  private driverSvc    = inject(DriverService);
+  private modal        = inject(ModalService);
+  private notification = inject(NotificationService);
+
+  private searchSubject = new Subject<string>();
+  private destroy$      = new Subject<void>();
 
   activeFilter = signal<'all' | 'active' | 'inactive' | 'suspended'>('all');
   searchQuery  = signal('');
   currentPage  = signal(1);
-  totalCount   = signal(48);
+  totalPages   = signal(1);
+  totalCount   = signal(0);
+  isLoading    = signal(false);
+  editingDriver = signal<Driver | null>(null);
 
-  stats = signal<DriverStats>({ total: 48, active: 42, onJob: 12, suspended: 2 });
+  stats   = signal<DriverStats>({ total: 0, active: 0, inactive: 0, suspended: 0 });
+  drivers = signal<Driver[]>([]);
 
-  drivers = signal<Driver[]>([
-    { id: 'd1', fullName: 'Nimal Perera',    initials: 'NP', phone: '+94 77 123 4567', nic: '199812345678', licenseNumber: 'B-9823412-A', licenseExpiry: '2027-12-31', status: 'active',    branchName: 'Asiri Central',    currentJobId: 'j1' },
-    { id: 'd2', fullName: 'Kamal Silva',     initials: 'KS', phone: '+94 71 882 1109', nic: '199245678912', licenseNumber: 'B-1123567-B', licenseExpiry: '2026-04-30', status: 'active',    branchName: 'Asiri Surgical',   currentJobId: null },
-    { id: 'd3', fullName: 'Sunil Gamage',    initials: 'SG', phone: '+94 76 554 3321', nic: '198856789012', licenseNumber: 'B-7845123-C', licenseExpiry: '2028-11-30', status: 'inactive',  branchName: 'Asiri Central',    currentJobId: null },
-    { id: 'd4', fullName: 'Arjun Kumara',    initials: 'AK', phone: '+94 77 998 7654', nic: '200112349876', licenseNumber: 'B-4456789-D', licenseExpiry: '2027-09-30', status: 'suspended', branchName: 'Asiri Matara Lab', currentJobId: null },
-  ]);
+  ngOnInit(): void {
+    this.searchSubject.pipe(
+      debounceTime(350),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      this.currentPage.set(1);
+      this.loadDrivers();
+    });
 
-  ngOnInit(): void {}
-
-  filteredDrivers(): Driver[] {
-    let list = this.drivers();
-    if (this.activeFilter() !== 'all') list = list.filter(d => d.status === this.activeFilter());
-    const q = this.searchQuery().toLowerCase();
-    if (q) list = list.filter(d =>
-      d.fullName.toLowerCase().includes(q) ||
-      d.nic.toLowerCase().includes(q) ||
-      d.licenseNumber.toLowerCase().includes(q) ||
-      d.phone.includes(q)
-    );
-    return list;
+    this.loadDrivers();
   }
 
-  setFilter(f: 'all' | 'active' | 'inactive' | 'suspended'): void { this.activeFilter.set(f); }
-  onSearch(e: Event): void { this.searchQuery.set((e.target as HTMLInputElement).value); }
-
-  isLicenseExpiringSoon(expiry: string): boolean {
-    const exp = new Date(expiry);
-    const diff = (exp.getTime() - Date.now()) / (1000 * 60 * 60 * 24);
-    return diff <= 90 && diff > 0;
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
-  isLicenseExpired(expiry: string): boolean {
-    return new Date(expiry) < new Date();
+  private loadDrivers(): void {
+    const filter = this.activeFilter();
+    const params: DriverParams = {
+      page:   this.currentPage(),
+      limit:  10,
+      search: this.searchQuery() || undefined,
+      status: filter !== 'all' ? filter : undefined,
+    };
+
+    this.isLoading.set(true);
+    this.driverSvc.getAll(params)
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: (res) => {
+          this.drivers.set(res.data);
+          this.totalCount.set(res.meta.total);
+          this.totalPages.set(res.meta.totalPages);
+          // Update total stat from response — no extra API calls
+          this.stats.update(s => ({ ...s, total: res.meta.total }));
+        },
+        error: (err: HttpErrorResponse) => {
+          if (err.status === 0)        this.notification.error('Connection Error', 'Cannot reach the server. Check your internet.');
+          else if (err.status === 500) this.notification.error('Server Error', 'Something went wrong. Please try again.');
+          else                         this.notification.error('Error', err.error?.message ?? 'Failed to load drivers.');
+        }
+      });
   }
+
+  setFilter(f: 'all' | 'active' | 'inactive' | 'suspended'): void {
+    this.activeFilter.set(f);
+    this.currentPage.set(1);
+    this.loadDrivers();
+  }
+
+  onSearch(e: Event): void {
+    this.searchQuery.set((e.target as HTMLInputElement).value);
+    this.searchSubject.next(this.searchQuery());
+  }
+
+  setPage(p: number): void {
+    if (p < 1 || p > this.totalPages()) return;
+    this.currentPage.set(p);
+    this.loadDrivers();
+  }
+
+  get pageRange(): number[] {
+    const total   = this.totalPages();
+    const current = this.currentPage();
+    const start   = Math.max(1, current - 2);
+    const end     = Math.min(total, current + 2);
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+  }
+
+  getInitials(fullName: string): string {
+    return fullName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  }
+
+  isLicenseExpiringSoon(warning: string): boolean { return warning === 'expiring_soon'; }
+  isLicenseExpired(warning: string):      boolean { return warning === 'expired'; }
 
   formatExpiry(expiry: string): string {
     return new Date(expiry).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
@@ -77,46 +133,64 @@ export class DriverListComponent implements OnInit {
     return { active: 'Active', inactive: 'Inactive', suspended: 'Suspended' }[status] ?? status;
   }
 
+  // REPLACE openEdit method
   openEdit(driver: Driver): void {
-    this.modal.info(`Edit modal for ${driver.fullName} would open here`);
+    this.editingDriver.set(driver);
+  }
+
+  closeEdit(): void {
+    this.editingDriver.set(null);
+  }
+
+  onDriverUpdated(updated: Driver): void {
+    this.loadDrivers();
   }
 
   toggleStatus(driver: Driver): void {
     const isActive = driver.status === 'active';
     this.modal.confirm({
-      title: isActive ? 'Suspend Driver' : 'Reactivate Driver',
-      message: isActive
-        ? `Suspend ${driver.fullName}? They will not be able to accept jobs.`
-        : `Reactivate ${driver.fullName}?`,
+      title:        isActive ? 'Suspend Driver' : 'Reactivate Driver',
+      message:      isActive
+        ? `Suspend ${driver.fullName}? They will not be able to accept new jobs.`
+        : `Reactivate ${driver.fullName}? They will be able to accept jobs again.`,
       confirmLabel: isActive ? 'Suspend' : 'Reactivate',
-      danger: isActive
+      danger:       isActive
     }).subscribe(ok => {
-      if (ok) {
-        this.drivers.update(list => list.map(d =>
-          d.id === driver.id
-            ? { ...d, status: (isActive ? 'suspended' : 'active') as any }
-            : d
-        ));
-        this.modal.success(`Driver ${isActive ? 'suspended' : 'reactivated'}`);
-      }
+      if (!ok) return;
+      const newStatus = isActive ? 'suspended' : 'active';
+      this.driverSvc.update(driver.id, { status: newStatus }).subscribe({
+        next: () => {
+          this.notification.success(
+            isActive ? 'Driver Suspended' : 'Driver Reactivated',
+            `${driver.fullName} has been ${isActive ? 'suspended' : 'reactivated'}.`
+          );
+          this.loadDrivers();
+        },
+        error: (err: HttpErrorResponse) => {
+          this.notification.error('Error', err.error?.message ?? 'Failed to update driver status.');
+        }
+      });
     });
   }
 
   confirmDelete(driver: Driver): void {
     this.modal.confirm({
-      title: 'Delete Driver',
-      message: `Delete ${driver.fullName}? This cannot be undone.`,
+      title:        'Delete Driver',
+      message:      `Delete ${driver.fullName}? This action cannot be undone.`,
       confirmLabel: 'Delete',
-      danger: true
+      danger:       true
     }).subscribe(ok => {
-      if (ok) {
-        this.drivers.update(list => list.filter(d => d.id !== driver.id));
-        this.modal.success('Driver deleted');
-      }
+      if (!ok) return;
+      this.driverSvc.delete(driver.id).subscribe({
+        next: () => {
+          this.notification.success('Driver Deleted', `${driver.fullName} has been removed.`);
+          this.loadDrivers();
+        },
+        error: (err: HttpErrorResponse) => {
+          if (err.status === 400) this.notification.error('Cannot Delete', err.error?.message ?? 'Driver may be currently on an active job.');
+          else                    this.notification.error('Error', err.error?.message ?? 'Failed to delete driver.');
+        }
+      });
     });
   }
-
-  get totalPages(): number { return Math.ceil(this.totalCount() / 10); }
-  get pageRange(): number[] { return Array.from({ length: Math.min(this.totalPages, 5) }, (_, i) => i + 1); }
-  setPage(p: number): void { this.currentPage.set(p); }
 }

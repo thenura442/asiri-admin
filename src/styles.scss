@@ -565,7 +565,6 @@ img {
   max-width: 360px;
 }
 
-
 // Footer
 
 .pg {
@@ -577,4 +576,41 @@ img {
 
 .brand-footer {
   margin-top: auto !important;
+}
+
+// Loading state
+.table-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 64px 24px;
+  font-size: 13px;
+  color: var(--t4);
+  font-weight: 500;
+
+  svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    animation: spin 0.8s linear infinite;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+app-upload-report-modal,
+app-receive-samples-modal,
+app-report-issue-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+
+  .backdrop {
+    pointer-events: all;
+  }
 }

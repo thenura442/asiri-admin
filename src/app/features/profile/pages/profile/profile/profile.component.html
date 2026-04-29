@@ -6,17 +6,27 @@
     </div>
   </div>
 
+  @if (isLoading()) {
+    <div class="table-loading">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin">
+        <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".25"/>
+        <path d="M21 12a9 9 0 00-9-9"/>
+      </svg>
+      Loading profile...
+    </div>
+  } @else {
+
   <div class="profile-grid">
     <!-- ── Left: Profile Identity Card ── -->
     <div class="profile-card">
       <div class="profile-card-top">
-        <div class="p-avatar">{{ initials }}</div>
+        <div class="p-avatar">{{ initials() }}</div>
         <div class="p-name">{{ fullName() }}</div>
         <div class="p-role">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
           </svg>
-          {{ role }}
+          {{ profile()?.roleTitle ?? profile()?.role }}
         </div>
       </div>
       <div class="profile-card-body">
@@ -40,7 +50,7 @@
           </div>
           <div>
             <div class="p-info-label">Phone</div>
-            <div class="p-info-val">{{ phone() }}</div>
+            <div class="p-info-val">{{ phone() || '—' }}</div>
           </div>
         </div>
         <div class="p-info-row">
@@ -52,7 +62,7 @@
           </div>
           <div>
             <div class="p-info-label">Member Since</div>
-            <div class="p-info-val p-info-val--mono">{{ memberSince }}</div>
+            <div class="p-info-val p-info-val--mono">{{ memberSince() }}</div>
           </div>
         </div>
         <div class="p-info-row">
@@ -63,7 +73,7 @@
           </div>
           <div>
             <div class="p-info-label">Last Login</div>
-            <div class="p-info-val p-info-val--mono">{{ lastLogin }}</div>
+            <div class="p-info-val p-info-val--mono">{{ lastLogin() }}</div>
           </div>
         </div>
       </div>
@@ -96,8 +106,7 @@
             </div>
             <div class="form-group">
               <label class="form-label">Email</label>
-              <input class="form-input" type="email" [value]="email()"
-                     (input)="email.set($any($event.target).value)"/>
+              <input class="form-input" type="email" [value]="email()" disabled/>
             </div>
             <div class="form-group">
               <label class="form-label">Phone</label>
@@ -106,23 +115,33 @@
             </div>
             <div class="form-group">
               <label class="form-label">Role</label>
-              <input class="form-input" [value]="role" disabled/>
+              <input class="form-input" [value]="profile()?.roleTitle ?? profile()?.role ?? ''" disabled/>
             </div>
           </div>
         </div>
         <div class="card-foot">
-          <button class="btn" type="button">Cancel</button>
-          <button class="btn btn-primary" (click)="savePersonalInfo()" [disabled]="!canSavePersonal" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
-              <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
-            </svg>
-            Save Changes
+          <button class="btn" (click)="loadProfile()"
+                  [disabled]="isSaving()" type="button">Cancel</button>
+          <button class="btn btn-primary" (click)="savePersonalInfo()"
+                  [disabled]="!canSavePersonal" type="button">
+            @if (isSaving()) {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin">
+                <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".25"/>
+                <path d="M21 12a9 9 0 00-9-9"/>
+              </svg>
+              Saving...
+            } @else {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+                <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+              </svg>
+              Save Changes
+            }
           </button>
         </div>
       </div>
 
-      <!-- Branch Status toggle (Front Office) -->
+      <!-- Branch Status toggle -->
       <div class="card card--branch">
         <div class="card-head">
           <div class="card-head-l">
@@ -146,7 +165,7 @@
                 <div class="branch-status-text">
                   {{ branchOnline() ? 'Currently Online' : 'Currently Offline' }}
                 </div>
-                <div class="branch-name">{{ branchName }}</div>
+                <div class="branch-name">{{ profile()?.branch?.name ?? '—' }}</div>
               </div>
             </div>
             <label class="toggle">
@@ -161,7 +180,7 @@
                 <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
                 <polyline points="22 4 12 14.01 9 11.01"/>
               </svg>
-              No active dispatched jobs — safe to go offline
+              Branch is online — accepting new job dispatches
             </div>
           } @else {
             <div class="branch-status-note branch-status-note--warn">
@@ -196,22 +215,31 @@
             <div class="form-group full">
               <label class="form-label">Current Password</label>
               <input class="form-input" type="password"
-                     [value]="currentPw()" (input)="currentPw.set($any($event.target).value)"
+                     [value]="currentPw()"
+                     (input)="currentPw.set($any($event.target).value)"
                      placeholder="Enter current password"/>
             </div>
             <div class="form-group">
               <label class="form-label">New Password</label>
               <input class="form-input" type="password"
-                     [value]="newPw()" (input)="newPw.set($any($event.target).value)"
+                     [value]="newPw()"
+                     (input)="newPw.set($any($event.target).value)"
                      placeholder="Enter new password"
                      [class.form-input--error]="newPw().length > 0 && newPw().length < 8"/>
+              @if (newPw().length > 0 && newPw().length < 8) {
+                <span class="field-error">Must be at least 8 characters</span>
+              }
             </div>
             <div class="form-group">
               <label class="form-label">Confirm New Password</label>
               <input class="form-input" type="password"
-                     [value]="confirmPw()" (input)="confirmPw.set($any($event.target).value)"
+                     [value]="confirmPw()"
+                     (input)="confirmPw.set($any($event.target).value)"
                      placeholder="Confirm new password"
                      [class.form-input--error]="confirmPw().length > 0 && confirmPw() !== newPw()"/>
+              @if (confirmPw().length > 0 && confirmPw() !== newPw()) {
+                <span class="field-error">Passwords do not match</span>
+              }
             </div>
           </div>
           <div class="pw-rules">
@@ -221,11 +249,19 @@
         <div class="card-foot">
           <button class="btn btn-primary" (click)="changePassword()"
                   [disabled]="!canChangePassword" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="11" width="18" height="11" rx="2"/>
-              <path d="M7 11V7a5 5 0 0110 0v4"/>
-            </svg>
-            Update Password
+            @if (isChangingPw()) {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin">
+                <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".25"/>
+                <path d="M21 12a9 9 0 00-9-9"/>
+              </svg>
+              Updating...
+            } @else {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2"/>
+                <path d="M7 11V7a5 5 0 0110 0v4"/>
+              </svg>
+              Update Password
+            }
           </button>
         </div>
       </div>
@@ -307,11 +343,13 @@
                     <div class="session-device">
                       @if (s.deviceType === 'desktop') {
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+                          <rect x="2" y="3" width="20" height="14" rx="2"/>
+                          <path d="M8 21h8M12 17v4"/>
                         </svg>
                       } @else {
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/>
+                          <rect x="5" y="2" width="14" height="20" rx="2"/>
+                          <path d="M12 18h.01"/>
                         </svg>
                       }
                       {{ s.device }}
@@ -345,7 +383,8 @@
     </div>
   </div>
 
-  <!-- Branded Footer -->
+  } <!-- end @else isLoading -->
+
   <footer class="brand-footer">
     <div class="bf-left">
       <div class="bf-logo">

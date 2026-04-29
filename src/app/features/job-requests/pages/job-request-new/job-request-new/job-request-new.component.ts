@@ -1,158 +1,219 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { finalize } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { JobRequestService } from '../../../services/job-request/job-request.service';
+import { PatientService } from '@features/patients/services/patient/patient.service';
+import { TestService } from '@features/tests/services/test/test.service';
 import { ModalService } from '@shared/services/modal/modal.service';
+import { NotificationService } from '@core/services/notification/notification.service';
 import { CustomDropdownComponent, DropdownOption } from '@shared/components/ui/custom-dropdown/custom-dropdown/custom-dropdown.component';
 import { FileUploadComponent } from '@shared/components/ui/file-upload/file-upload/file-upload.component';
+import { CreateJobRequestDto } from '@core/models/job-request.model';
+import { Test } from '@core/models/test.model';
 
 interface ChecklistItem { label: string; required: boolean; done: boolean; }
+interface SelectedTest  { id: string; name: string; code: string; price: number; }
 
 @Component({
   selector: 'app-job-request-new',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, FileUploadComponent, CustomDropdownComponent],
+  imports: [CommonModule, RouterModule, CustomDropdownComponent, FileUploadComponent],
   templateUrl: './job-request-new.component.html',
   styleUrl: './job-request-new.component.scss'
 })
-export class JobRequestNewComponent {
-  private router = inject(Router);
-  private modal  = inject(ModalService);
+export class JobRequestNewComponent implements OnInit {
+  private router       = inject(Router);
+  private modal        = inject(ModalService);
+  private notification = inject(NotificationService);
+  private jobSvc       = inject(JobRequestService);
+  private patientSvc   = inject(PatientService);
+  private testSvc      = inject(TestService);
 
-  isSubmitting = signal(false);
+  isSubmitting  = signal(false);
+  isLoadingData = signal(false);
+  submitted     = signal(false);
+  errors        = signal<Record<string, string>>({});
 
   // Form fields
-  selectedPatientId = signal<string | null>(null);
-  address           = signal('');
-  city              = signal('');
-  landmark          = signal('');
-  selectedTestIds   = signal<string[]>([]);
-  requestType       = signal('immediate');
-  urgency           = signal('normal');
-  fasting           = signal('no');
-  scheduledAt       = signal('');
+  selectedPatientId   = signal<string | null>(null);
+  address             = signal('');
+  city                = signal('');
+  landmark            = signal('');
+  selectedTests       = signal<SelectedTest[]>([]);
+  urgency             = signal<string>('normal');
+  source              = signal<string | null>('phone');
+  scheduledAt         = signal('');
   specialInstructions = signal('');
-  prescriptionUrl   = signal<string | null>(null);
+  prescriptionUrl     = signal<string | null>(null);
 
-  // Queue stats
-  queueStats = signal({ pending: 42, inProgress: 18, completed: 145, onlineDrivers: 8 });
-
-  // Dropdown options
-  patientOptions: DropdownOption[] = [
-    { value: 'p1', label: 'Kamala Perera', meta: 'UHID-2026-0412' },
-    { value: 'p2', label: 'Johnathan Doe', meta: 'UHID-2026-0389' },
-    { value: 'p3', label: 'Sarah Jenkins', meta: 'UHID-2026-0401' },
-    { value: 'p4', label: 'Robert Brown',  meta: 'UHID-2026-0356' },
-  ];
+  // Dropdown options from API
+  patientOptions = signal<DropdownOption[]>([]);
+  testOptions    = signal<DropdownOption[]>([]);
+  allTests       = signal<Test[]>([]);
 
   sourceOptions: DropdownOption[] = [
-    { value: 'phone', label: 'Phone Call', dot: 'var(--sbl)' },
-    { value: 'walk_in', label: 'Walk-in', dot: 'var(--sg)' },
-    { value: 'whatsapp', label: 'WhatsApp', dot: 'var(--sg)' },
-    { value: 'referral', label: 'Referral', dot: 'var(--sa)' },
-    { value: 'repeat', label: 'Repeat Booking', dot: 'var(--accent)' },
-  ];
-
-  testOptions: DropdownOption[] = [
-    { value: 'fbc',     label: 'Full Blood Count (FBC)',    meta: 'Rs. 1,500', group: 'Blood Tests' },
-    { value: 'lipid',   label: 'Lipid Profile',            meta: 'Rs. 2,800', group: 'Blood Tests' },
-    { value: 'fbs',     label: 'Fasting Blood Sugar',      meta: 'Rs. 800',   group: 'Blood Tests' },
-    { value: 'hba1c',   label: 'HBA1C',                    meta: 'Rs. 3,200', group: 'Blood Tests' },
-    { value: 'thyroid', label: 'Thyroid Panel (TSH/T3/T4)',meta: 'Rs. 4,500', group: 'Blood Tests' },
-    { value: 'urine',   label: 'Urine Full Report',        meta: 'Rs. 600',   group: 'Urine Tests' },
-  ];
-
-  typeOptions: DropdownOption[] = [
-    { value: 'immediate', label: 'Immediate (ASAP)', dot: 'var(--sg)' },
-    { value: 'scheduled', label: 'Scheduled',        dot: 'var(--sbl)' },
+    { value: 'phone',    label: 'Phone Call',      dot: 'var(--sbl)'    },
+    { value: 'walk_in',  label: 'Walk-in',         dot: 'var(--sg)'     },
+    { value: 'whatsapp', label: 'WhatsApp',        dot: 'var(--sg)'     },
+    { value: 'referral', label: 'Referral',        dot: 'var(--sa)'     },
+    { value: 'repeat',   label: 'Repeat Booking',  dot: 'var(--accent)' },
   ];
 
   urgencyOptions: DropdownOption[] = [
-    { value: 'normal', label: 'Normal',                    dot: 'var(--sg)' },
-    { value: 'urgent', label: 'Urgent (priority dispatch)',dot: 'var(--sr)' },
+    { value: 'normal', label: 'Normal',                     dot: 'var(--sg)' },
+    { value: 'urgent', label: 'Urgent — priority dispatch', dot: 'var(--sr)' },
   ];
-
-  fastingOptions: DropdownOption[] = [
-    { value: 'no',        label: 'No',                                dot: 'var(--t5)' },
-    { value: 'yes_done',  label: 'Yes — Patient has been informed',   dot: 'var(--sg)' },
-    { value: 'yes_todo',  label: 'Yes — Patient needs to be informed',dot: 'var(--sa)' },
-  ];
-
-  selectedSource = signal<string | null>('phone');
 
   checklist = signal<ChecklistItem[]>([
-    { label: 'Patient selected or registered', required: false, done: false },
-    { label: 'Collection address entered',     required: true,  done: false },
-    { label: 'At least one test selected',     required: true,  done: false },
-    { label: 'Schedule type confirmed',        required: true,  done: false },
-    { label: 'Priority level set',             required: false, done: false },
-    { label: 'Patient notified',               required: false, done: false },
+    { label: 'Patient selected',           required: true, done: false },
+    { label: 'Collection address entered', required: true, done: false },
+    { label: 'At least one test selected', required: true, done: false },
+    { label: 'Urgency level set',          required: true, done: false },
   ]);
 
-  recentBookings = [
-    { initials: 'KP', name: 'Kamala Perera',  date: 'Today, 08:30', status: 'In Progress', statusClass: 'status-prog' },
-    { initials: 'JD', name: 'Johnathan Doe',  date: 'Today, 07:45', status: 'Completed',   statusClass: 'status-done' },
-    { initials: 'SJ', name: 'Sarah Jenkins',  date: 'Yesterday',    status: 'Completed',   statusClass: 'status-done' },
-  ];
+  ngOnInit(): void {
+    this.loadPatients();
+    this.loadTests();
+    this.updateCheck(3, true); // urgency defaults to 'normal'
+  }
+
+  private loadPatients(): void {
+    this.isLoadingData.set(true);
+    this.patientSvc.getAll({ page: 1, limit: 100 })
+      .pipe(finalize(() => this.isLoadingData.set(false)))
+      .subscribe({
+        next: (res) => {
+          this.patientOptions.set(
+            res.data.map(p => ({
+              value: p.id,
+              label: p.fullName,
+              meta:  p.uhid ?? p.phone,
+            }))
+          );
+        },
+        error: () => this.notification.error('Error', 'Failed to load patients.')
+      });
+  }
+
+  private loadTests(): void {
+    this.testSvc.getAll({ page: 1, limit: 100, isActive: true }).subscribe({
+      next: (res) => {
+        this.allTests.set(res.data);
+        this.testOptions.set(
+          res.data.map(t => ({
+            value: t.id,
+            label: t.name,
+            meta:  `Rs. ${t.price.toLocaleString('en-LK')} · ${t.sampleType}`,
+          }))
+        );
+      },
+      error: () => this.notification.error('Error', 'Failed to load tests.')
+    });
+  }
+
+  private updateCheck(i: number, done: boolean): void {
+    const list = [...this.checklist()];
+    list[i] = { ...list[i], done };
+    this.checklist.set(list);
+  }
+
+  private clearError(field: string): void {
+    this.errors.update(e => { const c = { ...e }; delete c[field]; return c; });
+  }
 
   onPatientSelect(id: string | null): void {
     this.selectedPatientId.set(id);
-    this.updateChecklist(0, !!id);
+    this.updateCheck(0, !!id);
+    this.clearError('patientId');
   }
 
   onAddressInput(val: string): void {
     this.address.set(val);
-    this.updateChecklist(1, val.trim().length > 0);
+    this.updateCheck(1, val.trim().length > 0);
+    this.clearError('address');
   }
 
   onTestSelect(id: string | null): void {
     if (!id) return;
-    const cur = this.selectedTestIds();
-    if (!cur.includes(id)) this.selectedTestIds.set([...cur, id]);
-    this.updateChecklist(2, true);
+    if (this.selectedTests().find(t => t.id === id)) return;
+    const test = this.allTests().find(t => t.id === id);
+    if (!test) return;
+    this.selectedTests.update(list => [
+      ...list,
+      { id: test.id, name: test.name, code: test.code, price: test.price }
+    ]);
+    this.updateCheck(2, true);
+    this.clearError('testIds');
   }
 
   removeTest(id: string): void {
-    this.selectedTestIds.set(this.selectedTestIds().filter(t => t !== id));
-    this.updateChecklist(2, this.selectedTestIds().length > 0);
-  }
-
-  onTypeSelect(val: string | null): void {
-    this.requestType.set(val ?? 'immediate');
-    this.updateChecklist(3, true);
+    this.selectedTests.update(list => list.filter(t => t.id !== id));
+    this.updateCheck(2, this.selectedTests().length > 0);
   }
 
   onUrgencySelect(val: string | null): void {
     this.urgency.set(val ?? 'normal');
-    this.updateChecklist(4, true);
+    this.updateCheck(3, true);
   }
 
-  private updateChecklist(index: number, done: boolean): void {
-    const list = [...this.checklist()];
-    list[index] = { ...list[index], done };
-    this.checklist.set(list);
-  }
-
-  getTestLabel(id: string): string {
-    return this.testOptions.find(o => o.value === id)?.label ?? id;
+  onPrescriptionUpload(event: { url?: string; file: File }): void {
+    this.prescriptionUrl.set(event.url ?? null);
   }
 
   estimatedTotal(): number {
-    const prices: Record<string, number> = { fbc: 1500, lipid: 2800, fbs: 800, hba1c: 3200, thyroid: 4500, urine: 600 };
-    return this.selectedTestIds().reduce((sum, id) => sum + (prices[id] ?? 0), 0);
+    return this.selectedTests().reduce((sum, t) => sum + t.price, 0);
   }
 
-  get canSubmit(): boolean {
-    return !!this.selectedPatientId() && this.address().trim().length > 0 && this.selectedTestIds().length > 0;
+  private validate(): boolean {
+    const e: Record<string, string> = {};
+    if (!this.selectedPatientId())         e['patientId'] = 'Please select a patient';
+    if (!this.address().trim())            e['address']   = 'Collection address is required';
+    if (this.selectedTests().length === 0) e['testIds']   = 'Please select at least one test';
+    this.errors.set(e);
+    return Object.keys(e).length === 0;
   }
 
   submit(): void {
-    if (!this.canSubmit) { this.modal.error('Please fill in all required fields'); return; }
+    this.submitted.set(true);
+    if (!this.validate()) {
+      this.notification.error('Validation Failed', 'Please fix the errors below.');
+      return;
+    }
+
+    const scheduled = this.scheduledAt();
+
+    const dto: CreateJobRequestDto = {
+      patientId:       this.selectedPatientId()!,
+      address:         this.address().trim(),
+      testIds:         this.selectedTests().map(t => t.id),
+      urgency:         this.urgency() as 'normal' | 'urgent',
+      scheduledAt:     scheduled || null,
+      isScheduled:     !!scheduled,
+      prescriptionUrl: this.prescriptionUrl() || null,
+      notes:           null,
+      latitude:        null,
+      longitude:       null,
+    };
+
     this.isSubmitting.set(true);
-    setTimeout(() => {
-      this.modal.success('Job request created successfully');
-      this.router.navigate(['/job-requests']);
-    }, 800);
+    this.jobSvc.create(dto)
+      .pipe(finalize(() => this.isSubmitting.set(false)))
+      .subscribe({
+        next: (job) => {
+          this.notification.success('Job Request Created', `Request #${job.requestNumber} has been submitted successfully.`);
+          this.router.navigate(['/job-requests']);
+        },
+        error: (err: HttpErrorResponse) => {
+          if (err.status === 0)        this.notification.error('Connection Error', 'Cannot reach the server. Check your internet.');
+          else if (err.status === 400) this.notification.error('Validation Error', Array.isArray(err.error?.message) ? err.error.message.join(', ') : err.error?.message ?? 'Invalid data.');
+          else if (err.status === 409) this.notification.error('Conflict', err.error?.message ?? 'A conflict occurred.');
+          else if (err.status === 422) this.notification.error('Business Rule Error', err.error?.message ?? 'This request cannot be processed.');
+          else if (err.status === 500) this.notification.error('Server Error', 'Something went wrong. Please try again.');
+          else                         this.notification.error('Error', err.error?.message ?? 'Failed to create job request.');
+        }
+      });
   }
 
   cancel(): void { this.router.navigate(['/job-requests']); }

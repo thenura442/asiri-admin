@@ -1,32 +1,44 @@
 import { SampleType } from '../enums/sample-type.enum';
 
-export interface LabTest {
-  id:                    string;
-  name:                  string;
-  code:                  string;
-  price:                 number;
-  turnaround_time:       string | null;
-  sample_type:           SampleType;
-  prescription_req:      boolean;
-  time_sensitivity_hrs:  number | null;
-  is_active:             boolean;
-  notes:                 string | null;
-  created_at:            string;
-  updated_at:            string;
-  deleted_at:            string | null;
+export interface Test {
+  id:                   string;
+  name:                 string;
+  code:                 string;
+  price:                number;
+  turnaroundTime:       string | null;
+  sampleType:           SampleType;
+  prescriptionReq:      boolean;
+  timeSensitivityHrs:   number | null;
+  isActive:             boolean;
+  notes:                string | null;
+  createdAt:            string;
+  updatedAt:            string;
+  deletedAt:            string | null;
 }
 
-export interface CreateLabTestDto {
-  name:                  string;
-  code:                  string;
-  price:                 number;
-  turnaround_time?:      string;
-  sample_type:           SampleType;
-  prescription_req?:     boolean;
-  time_sensitivity_hrs?: number;
-  notes?:                string;
+export interface TestListResponse {
+  data: Test[];
+  meta: {
+    page:       number;
+    limit:      number;
+    total:      number;
+    totalPages: number;
+    hasNext:    boolean;
+    hasPrev:    boolean;
+  };
 }
 
-export interface UpdateLabTestDto extends Partial<CreateLabTestDto> {
-  is_active?: boolean;
+export interface CreateTestDto {
+  name:                 string;
+  code:                 string;
+  price:                number;
+  sampleType:           SampleType;
+  turnaroundTime?:      string;
+  prescriptionReq?:     boolean;
+  timeSensitivityHrs?:  number;
+  notes?:               string;
+}
+
+export interface UpdateTestDto extends Partial<CreateTestDto> {
+  isActive?: boolean;
 }

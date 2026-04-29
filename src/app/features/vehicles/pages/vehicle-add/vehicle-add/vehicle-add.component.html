@@ -20,42 +20,79 @@
           <div class="fs-title">Vehicle Details</div>
         </div>
         <div class="form-grid">
+
           <div class="form-group">
-            <label class="form-label">Vehicle ID <span>*</span></label>
+            <label class="form-label">Vehicle ID Code</label>
             <input class="form-input form-input--mono" type="text"
-                   [value]="vehicleIdCode()" (input)="onVehicleId($any($event.target).value)"
+                   [value]="vehicleIdCode()"
+                   (input)="onVehicleId($any($event.target).value)"
                    placeholder="e.g. AS-MOB-45"/>
           </div>
+
           <div class="form-group">
-            <label class="form-label">License Plate Number <span>*</span></label>
-            <input class="form-input" type="text"
-                   [value]="plateNumber()" (input)="onPlate($any($event.target).value)"
+            <label class="form-label">License Plate Number <span class="req">*</span></label>
+            <input class="form-input"
+                   [class.form-input--error]="errors()['plateNumber']"
+                   type="text"
+                   [value]="plateNumber()"
+                   (input)="onPlate($any($event.target).value)"
                    placeholder="e.g. WP ABC-1234"/>
+            @if (errors()['plateNumber']) {
+              <span class="field-error">{{ errors()['plateNumber'] }}</span>
+            }
           </div>
+
           <div class="form-group">
-            <label class="form-label">Vehicle Type <span>*</span></label>
-            <app-custom-dropdown [options]="typeOptions" [value]="vehicleType()"
-                                 placeholder="Select type..." (changed)="onTypeSelect($event)">
+            <label class="form-label">Chassis Number <span class="req">*</span></label>
+            <input class="form-input form-input--mono"
+                   [class.form-input--error]="errors()['chassisNumber']"
+                   type="text"
+                   [value]="chassisNumber()"
+                   (input)="onChassis($any($event.target).value)"
+                   placeholder="e.g. JMFGH12E8BZ012345"/>
+            @if (errors()['chassisNumber']) {
+              <span class="field-error">{{ errors()['chassisNumber'] }}</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Vehicle Type <span class="req">*</span></label>
+            <app-custom-dropdown
+              [options]="typeOptions"
+              [value]="vehicleType()"
+              [class.form-input--error]="errors()['vehicleType']"
+              placeholder="Select type..."
+              (changed)="onTypeSelect($event)">
             </app-custom-dropdown>
+            @if (errors()['vehicleType']) {
+              <span class="field-error">{{ errors()['vehicleType'] }}</span>
+            }
           </div>
+
           <div class="form-group">
-            <label class="form-label">Make &amp; Model <span>*</span></label>
+            <label class="form-label">Make &amp; Model</label>
             <input class="form-input" type="text"
-                   [value]="makeModel()" (input)="makeModel.set($any($event.target).value)"
+                   [value]="makeModel()"
+                   (input)="makeModel.set($any($event.target).value)"
                    placeholder="e.g. Toyota HiAce KDH 201"/>
           </div>
+
           <div class="form-group">
             <label class="form-label">Year of Manufacture</label>
-            <input class="form-input" type="number" min="2000" max="2026"
-                   [value]="year()" (input)="year.set($any($event.target).value)"
+            <input class="form-input" type="number" min="2000" max="2030"
+                   [value]="year()"
+                   (input)="year.set($any($event.target).value)"
                    placeholder="e.g. 2022"/>
           </div>
+
           <div class="form-group">
             <label class="form-label">Color</label>
             <input class="form-input" type="text"
-                   [value]="color()" (input)="color.set($any($event.target).value)"
+                   [value]="color()"
+                   (input)="color.set($any($event.target).value)"
                    placeholder="e.g. White"/>
           </div>
+
         </div>
       </div>
 
@@ -71,20 +108,27 @@
           <div class="fs-title">Base Assignment</div>
         </div>
         <div class="form-grid">
+
           <div class="form-group">
-            <label class="form-label">Base Branch <span>*</span></label>
-            <app-custom-dropdown [options]="branchOptions" [value]="branchId()"
-                                 placeholder="Select branch..." [searchable]="true"
-                                 (changed)="onBranchSelect($event)">
-            </app-custom-dropdown>
+            <label class="form-label">Base Branch <span class="req">*</span></label>
+            @if (isLoadingData()) {
+              <div class="form-input" style="color:var(--t4)">Loading branches...</div>
+            } @else {
+              <app-custom-dropdown
+                [options]="branchOptions()"
+                [value]="branchId()"
+                [class.form-input--error]="errors()['branchId']"
+                placeholder="Select lab branch..."
+                [searchable]="true"
+                (changed)="onBranchSelect($event)">
+              </app-custom-dropdown>
+            }
+            @if (errors()['branchId']) {
+              <span class="field-error">{{ errors()['branchId'] }}</span>
+            }
+            <span class="field-hint">Only lab-type branches are available for vehicle assignment</span>
           </div>
-          <div class="form-group">
-            <label class="form-label">Default Driver</label>
-            <app-custom-dropdown [options]="driverOptions" [value]="driverId()"
-                                 placeholder="None (assign later)"
-                                 (changed)="driverId.set($event)">
-            </app-custom-dropdown>
-          </div>
+
         </div>
       </div>
 
@@ -99,43 +143,56 @@
           <div class="fs-title">Insurance &amp; Compliance</div>
         </div>
         <div class="form-grid">
+
           <div class="form-group">
             <label class="form-label">Insurance Provider</label>
             <input class="form-input" type="text"
-                   [value]="insuranceProvider()" (input)="insuranceProvider.set($any($event.target).value)"
+                   [value]="insuranceProvider()"
+                   (input)="insuranceProvider.set($any($event.target).value)"
                    placeholder="e.g. Sri Lanka Insurance Corp."/>
           </div>
+
           <div class="form-group">
-            <label class="form-label">Insurance Expiry <span>*</span></label>
+            <label class="form-label">Insurance Expiry</label>
             <input class="form-input" type="date"
-                   [value]="insuranceExpiry()" (change)="onInsuranceExpiry($any($event.target).value)"/>
+                   [value]="insuranceExpiry()"
+                   (change)="onInsuranceExpiry($any($event.target).value)"/>
           </div>
+
           <div class="form-group">
-            <label class="form-label">Revenue License Expiry <span>*</span></label>
+            <label class="form-label">Revenue License Expiry</label>
             <input class="form-input" type="date"
-                   [value]="revenueLicExpiry()" (change)="revenueLicExpiry.set($any($event.target).value)"/>
+                   [value]="revenueLicExpiry()"
+                   (change)="onRevenueLicExpiry($any($event.target).value)"/>
           </div>
+
           <div class="form-group">
             <label class="form-label">Last Service Date</label>
             <input class="form-input" type="date"
-                   [value]="lastServiceDate()" (change)="lastServiceDate.set($any($event.target).value)"/>
+                   [value]="lastServiceDate()"
+                   (change)="lastServiceDate.set($any($event.target).value)"/>
           </div>
+
           <div class="form-group">
             <label class="form-label">Current Mileage (km)</label>
-            <input class="form-input form-input--mono" type="number"
-                   [value]="mileage()" (input)="mileage.set($any($event.target).value)"
+            <input class="form-input form-input--mono" type="number" min="0"
+                   [value]="mileage()"
+                   (input)="mileage.set($any($event.target).value)"
                    placeholder="e.g. 45000"/>
           </div>
+
           <div class="form-group">
             <label class="form-label">Next Service Due (km)</label>
-            <input class="form-input form-input--mono" type="number"
-                   [value]="nextServiceKm()" (input)="nextServiceKm.set($any($event.target).value)"
+            <input class="form-input form-input--mono" type="number" min="0"
+                   [value]="nextServiceKm()"
+                   (input)="nextServiceKm.set($any($event.target).value)"
                    placeholder="e.g. 50000"/>
           </div>
+
         </div>
       </div>
 
-      <!-- Section 4: Equipment & Photos -->
+      <!-- Section 4: Documents -->
       <div class="form-section">
         <div class="fs-head">
           <div class="fs-ico">
@@ -145,19 +202,9 @@
               <polyline points="21 15 16 10 5 21"/>
             </svg>
           </div>
-          <div class="fs-title">Equipment &amp; Photos</div>
+          <div class="fs-title">Documents &amp; Photos</div>
         </div>
         <div class="form-grid">
-          <div class="form-group">
-            <label class="form-label">Vehicle Photo <span>*</span></label>
-            <app-file-upload
-              label="Upload Vehicle Photo"
-              accept="image/*"
-              [maxSizeMb]="5"
-              hint="PNG, JPG up to 5MB"
-              (uploaded)="onPhotoUpload()">
-            </app-file-upload>
-          </div>
           <div class="form-group">
             <label class="form-label">Insurance Certificate</label>
             <app-file-upload
@@ -165,7 +212,7 @@
               accept="image/*,application/pdf"
               [maxSizeMb]="10"
               hint="PDF, PNG, JPG up to 10MB"
-              (uploaded)="insuranceCertUrl.set($event.file.name)">
+              (uploaded)="onInsuranceCertUpload($event)">
             </app-file-upload>
           </div>
         </div>
@@ -180,25 +227,35 @@
 
       <!-- Form Footer -->
       <div class="form-footer">
-        <button class="btn" (click)="cancel()" type="button">
+        <button class="btn" (click)="cancel()" type="button" [disabled]="isSubmitting()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
           </svg>
           Cancel
         </button>
-        <button class="btn btn-primary" (click)="submit()" [disabled]="isSubmitting()" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="2" y="7" width="20" height="11" rx="2"/>
-            <circle cx="7" cy="15" r="1.5"/><circle cx="17" cy="15" r="1.5"/>
-            <path d="M12 7V4"/><path d="M10 4h4"/>
-          </svg>
-          {{ isSubmitting() ? 'Registering...' : 'Register Vehicle' }}
+        <button class="btn btn-primary" (click)="submit()"
+                [disabled]="isSubmitting() || isLoadingData()" type="button">
+          @if (isSubmitting()) {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin">
+              <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".25"/>
+              <path d="M21 12a9 9 0 00-9-9"/>
+            </svg>
+            Registering...
+          } @else {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="7" width="20" height="11" rx="2"/>
+              <circle cx="7" cy="15" r="1.5"/><circle cx="17" cy="15" r="1.5"/>
+              <path d="M12 7V4"/><path d="M10 4h4"/>
+            </svg>
+            Register Vehicle
+          }
         </button>
       </div>
     </div>
 
     <!-- ── Context Sidebar ── -->
     <div class="ctx-sidebar">
+
       <!-- Vehicle Checklist -->
       <div class="ctx-card">
         <div class="ctx-card-head">
@@ -208,7 +265,7 @@
               <rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 14l2 2 4-4"/>
             </svg>
           </div>
-          <h3>Vehicle Checklist</h3>
+          <h3>Registration Checklist</h3>
         </div>
         <div class="checklist">
           @for (item of checklist(); track item.label) {
@@ -239,45 +296,21 @@
         </div>
         <div class="ctx-stats">
           <div class="ctx-stat">
-            <div class="ctx-stat-val">{{ fleetStats.total }}</div>
+            <div class="ctx-stat-val">{{ fleetStats().total }}</div>
             <div class="ctx-stat-label">Total Fleet</div>
           </div>
           <div class="ctx-stat">
-            <div class="ctx-stat-val">{{ fleetStats.active }}</div>
+            <div class="ctx-stat-val">{{ fleetStats().available }}</div>
+            <div class="ctx-stat-label">Available</div>
+          </div>
+          <div class="ctx-stat">
+            <div class="ctx-stat-val">{{ fleetStats().busy }}</div>
             <div class="ctx-stat-label">Active</div>
           </div>
           <div class="ctx-stat">
-            <div class="ctx-stat-val">{{ fleetStats.maintenance }}</div>
-            <div class="ctx-stat-label">Maintenance</div>
-          </div>
-          <div class="ctx-stat">
-            <div class="ctx-stat-val">{{ fleetStats.offline }}</div>
+            <div class="ctx-stat-val">{{ fleetStats().offline }}</div>
             <div class="ctx-stat-label">Offline</div>
           </div>
-        </div>
-      </div>
-
-      <!-- Recent Additions -->
-      <div class="ctx-card">
-        <div class="ctx-card-head">
-          <div class="ctx-card-ico">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-            </svg>
-          </div>
-          <h3>Recent Additions</h3>
-        </div>
-        <div class="ctx-recent">
-          @for (item of recentAdditions; track item.id) {
-            <div class="ctx-r-item">
-              <div class="ctx-r-av">{{ item.initials }}</div>
-              <div class="ctx-r-info">
-                <div class="ctx-r-name">{{ item.id }}</div>
-                <div class="ctx-r-date">{{ item.date }}</div>
-              </div>
-              <span class="ctx-r-badge" [ngClass]="item.cls">{{ item.status }}</span>
-            </div>
-          }
         </div>
       </div>
 
@@ -307,6 +340,7 @@
           </div>
         </div>
       </div>
+
     </div>
   </div>
 

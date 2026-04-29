@@ -5,7 +5,6 @@
   </div>
 
   <div class="form-layout">
-    <!-- ── Main Form ── -->
     <div class="form-card">
 
       <!-- Section 1: Patient -->
@@ -13,22 +12,33 @@
         <div class="fs-head">
           <div class="fs-ico">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
             </svg>
           </div>
           <div class="fs-title">Patient Information</div>
         </div>
         <div class="form-grid">
+
           <div class="form-group">
-            <label class="form-label">Patient <span>*</span></label>
-            <app-custom-dropdown
-              [options]="patientOptions"
-              [value]="selectedPatientId()"
-              placeholder="Search or select existing patient..."
-              [searchable]="true"
-              (changed)="onPatientSelect($event)">
-            </app-custom-dropdown>
+            <label class="form-label">Patient <span class="req">*</span></label>
+            @if (isLoadingData()) {
+              <div class="form-input" style="color:var(--t4)">Loading patients...</div>
+            } @else {
+              <app-custom-dropdown
+                [options]="patientOptions()"
+                [value]="selectedPatientId()"
+                [class.form-input--error]="errors()['patientId']"
+                placeholder="Search or select patient..."
+                [searchable]="true"
+                (changed)="onPatientSelect($event)">
+              </app-custom-dropdown>
+            }
+            @if (errors()['patientId']) {
+              <span class="field-error">{{ errors()['patientId'] }}</span>
+            }
           </div>
+
           <div class="form-group">
             <label class="form-label">Or Register New</label>
             <a routerLink="/patients/add" class="register-link">
@@ -38,15 +48,17 @@
               Register New Patient
             </a>
           </div>
+
           <div class="form-group">
-            <label class="form-label">Request Source <span>*</span></label>
+            <label class="form-label">Request Source</label>
             <app-custom-dropdown
               [options]="sourceOptions"
-              [value]="selectedSource()"
+              [value]="source()"
               placeholder="Select source..."
-              (changed)="selectedSource.set($event)">
+              (changed)="source.set($event)">
             </app-custom-dropdown>
           </div>
+
         </div>
       </div>
 
@@ -62,25 +74,36 @@
           <div class="fs-title">Collection Address</div>
         </div>
         <div class="form-grid">
+
           <div class="form-group full">
-            <label class="form-label">Address <span>*</span></label>
-            <input class="form-input" type="text"
+            <label class="form-label">Address <span class="req">*</span></label>
+            <input class="form-input"
+                   [class.form-input--error]="errors()['address']"
+                   type="text"
                    [value]="address()"
                    (input)="onAddressInput($any($event.target).value)"
                    placeholder="Street address for sample collection visit"/>
+            @if (errors()['address']) {
+              <span class="field-error">{{ errors()['address'] }}</span>
+            }
           </div>
+
           <div class="form-group">
-            <label class="form-label">City <span>*</span></label>
-            <input class="form-input" type="text" [value]="city()"
+            <label class="form-label">City</label>
+            <input class="form-input" type="text"
+                   [value]="city()"
                    (input)="city.set($any($event.target).value)"
                    placeholder="e.g. Colombo 03"/>
           </div>
+
           <div class="form-group">
             <label class="form-label">Landmark / Directions</label>
-            <input class="form-input" type="text" [value]="landmark()"
+            <input class="form-input" type="text"
+                   [value]="landmark()"
                    (input)="landmark.set($any($event.target).value)"
                    placeholder="Nearest landmark for driver"/>
           </div>
+
         </div>
         <div class="geocode-hint">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -103,79 +126,72 @@
         </div>
         <div class="form-grid">
           <div class="form-group full">
-            <label class="form-label">Tests Required <span>*</span></label>
+            <label class="form-label">Tests Required <span class="req">*</span></label>
             <app-custom-dropdown
-              [options]="testOptions"
+              [options]="testOptions()"
               [value]="null"
-              placeholder="Select tests..."
+              [class.form-input--error]="errors()['testIds']"
+              placeholder="Search and select tests..."
               [searchable]="true"
               (changed)="onTestSelect($event)">
             </app-custom-dropdown>
+            @if (errors()['testIds']) {
+              <span class="field-error">{{ errors()['testIds'] }}</span>
+            }
           </div>
         </div>
 
-        @if (selectedTestIds().length > 0) {
+        @if (selectedTests().length > 0) {
           <div class="selected-tests">
-            @for (id of selectedTestIds(); track id) {
+            @for (test of selectedTests(); track test.id) {
               <div class="selected-test-chip">
-                {{ getTestLabel(id) }}
-                <button (click)="removeTest(id)" type="button">&times;</button>
+                <span>{{ test.name }}</span>
+                <span class="test-chip-price">Rs. {{ test.price | number }}</span>
+                <button (click)="removeTest(test.id)" type="button">&times;</button>
               </div>
             }
           </div>
+          <div class="price-estimate">
+            <span>Estimated Total</span>
+            <span class="price-val">Rs. {{ estimatedTotal() | number }}</span>
+          </div>
         }
-
-        <div class="price-estimate">
-          <span>Estimated Total</span>
-          <span class="price-val">Rs. {{ estimatedTotal().toLocaleString('en-LK') }}</span>
-        </div>
       </div>
 
-      <!-- Section 4: Scheduling -->
+      <!-- Section 4: Scheduling & Priority -->
       <div class="form-section">
         <div class="fs-head">
           <div class="fs-ico">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+              <rect x="3" y="4" width="18" height="18" rx="2"/>
+              <path d="M16 2v4M8 2v4M3 10h18"/>
             </svg>
           </div>
           <div class="fs-title">Scheduling &amp; Priority</div>
         </div>
         <div class="form-grid">
+
           <div class="form-group">
-            <label class="form-label">Request Type <span>*</span></label>
-            <app-custom-dropdown
-              [options]="typeOptions"
-              [value]="requestType()"
-              (changed)="onTypeSelect($event)">
-            </app-custom-dropdown>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Preferred Date &amp; Time</label>
-            <input class="form-input" type="datetime-local"
-                   [value]="scheduledAt()"
-                   (change)="scheduledAt.set($any($event.target).value)"/>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Urgency <span>*</span></label>
+            <label class="form-label">Urgency <span class="req">*</span></label>
             <app-custom-dropdown
               [options]="urgencyOptions"
               [value]="urgency()"
               (changed)="onUrgencySelect($event)">
             </app-custom-dropdown>
           </div>
+
           <div class="form-group">
-            <label class="form-label">Fasting Required?</label>
-            <app-custom-dropdown
-              [options]="fastingOptions"
-              [value]="fasting()"
-              (changed)="fasting.set($event ?? 'no')">
-            </app-custom-dropdown>
+            <label class="form-label">Preferred Date &amp; Time</label>
+            <input class="form-input" type="datetime-local"
+                   [value]="scheduledAt()"
+                   (change)="scheduledAt.set($any($event.target).value)"/>
+            <span class="field-hint">Leave blank for immediate dispatch</span>
           </div>
+
         </div>
       </div>
 
-      <!-- Section 5: Prescription & Notes -->
+      <!-- Section 5: Notes & Prescription -->
       <div class="form-section">
         <div class="fs-head">
           <div class="fs-ico">
@@ -187,6 +203,7 @@
           <div class="fs-title">Prescription &amp; Notes</div>
         </div>
         <div class="form-grid">
+
           <div class="form-group">
             <label class="form-label">Prescription Upload</label>
             <app-file-upload
@@ -194,52 +211,65 @@
               accept="image/*,application/pdf"
               [maxSizeMb]="10"
               hint="PDF, PNG, JPG up to 10MB"
-              (uploaded)="prescriptionUrl.set($event.file.name)">
+              (uploaded)="onPrescriptionUpload($event)">
             </app-file-upload>
           </div>
+
           <div class="form-group">
             <label class="form-label">Special Instructions</label>
-            <textarea
-              class="form-input form-textarea"
-              [value]="specialInstructions()"
-              (input)="specialInstructions.set($any($event.target).value)"
-              placeholder="Any special instructions for the driver or technician...">
+            <textarea class="form-input form-textarea"
+                      [value]="specialInstructions()"
+                      (input)="specialInstructions.set($any($event.target).value)"
+                      placeholder="Any special instructions for the driver or technician...">
             </textarea>
           </div>
+
         </div>
       </div>
 
       <!-- Form Footer -->
       <div class="form-footer">
-        <button class="btn" (click)="cancel()" type="button">
+        <button class="btn" (click)="cancel()"
+                [disabled]="isSubmitting()" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
           </svg>
           Cancel
         </button>
-        <button class="btn btn-primary" (click)="submit()" [disabled]="isSubmitting()" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
-            <rect x="9" y="3" width="6" height="4" rx="1"/>
-            <path d="M9 14l2 2 4-4"/>
-          </svg>
-          {{ isSubmitting() ? 'Submitting...' : 'Submit Job Request' }}
+        <button class="btn btn-primary" (click)="submit()"
+                [disabled]="isSubmitting() || isLoadingData()" type="button">
+          @if (isSubmitting()) {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin">
+              <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".25"/>
+              <path d="M21 12a9 9 0 00-9-9"/>
+            </svg>
+            Submitting...
+          } @else {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+              <rect x="9" y="3" width="6" height="4" rx="1"/>
+              <path d="M9 14l2 2 4-4"/>
+            </svg>
+            Submit Job Request
+          }
         </button>
       </div>
+
     </div>
 
-    <!-- ── Context Sidebar ── -->
+    <!-- Sidebar -->
     <div class="ctx-sidebar">
-      <!-- Booking Summary Checklist -->
+
       <div class="ctx-card">
         <div class="ctx-card-head">
           <div class="ctx-card-ico">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
               <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
-              <rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 14l2 2 4-4"/>
+              <rect x="9" y="3" width="6" height="4" rx="1"/>
+              <path d="M9 14l2 2 4-4"/>
             </svg>
           </div>
-          <h3>Booking Summary</h3>
+          <h3>Booking Checklist</h3>
         </div>
         <div class="checklist">
           @for (item of checklist(); track item.label) {
@@ -258,63 +288,28 @@
         </div>
       </div>
 
-      <!-- Today's Queue -->
       <div class="ctx-card">
         <div class="ctx-card-head">
           <div class="ctx-card-ico">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="16" x2="12" y2="12"/>
+              <line x1="12" y1="8" x2="12.01" y2="8"/>
             </svg>
           </div>
-          <h3>Today's Queue</h3>
+          <h3>Quick Tips</h3>
         </div>
-        <div class="ctx-stats">
-          <div class="ctx-stat">
-            <div class="ctx-stat-val">{{ queueStats().pending }}</div>
-            <div class="ctx-stat-label">Pending</div>
-          </div>
-          <div class="ctx-stat">
-            <div class="ctx-stat-val">{{ queueStats().inProgress }}</div>
-            <div class="ctx-stat-label">In Progress</div>
-          </div>
-          <div class="ctx-stat">
-            <div class="ctx-stat-val">{{ queueStats().completed }}</div>
-            <div class="ctx-stat-label">Completed</div>
-          </div>
-          <div class="ctx-stat">
-            <div class="ctx-stat-val">{{ queueStats().onlineDrivers }}</div>
-            <div class="ctx-stat-label">Drivers Online</div>
-          </div>
+        <div class="ctx-tips">
+          <div class="ctx-tip"><div class="ctx-tip-num">1</div>Select existing patient or register new before submitting</div>
+          <div class="ctx-tip"><div class="ctx-tip-num">2</div>Mark urgent only if sample must be collected within 2 hours</div>
+          <div class="ctx-tip"><div class="ctx-tip-num">3</div>Upload prescription if any selected test requires one</div>
+          <div class="ctx-tip"><div class="ctx-tip-num">4</div>Address will be used for driver GPS navigation</div>
         </div>
       </div>
 
-      <!-- Recent Bookings -->
-      <div class="ctx-card">
-        <div class="ctx-card-head">
-          <div class="ctx-card-ico">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-            </svg>
-          </div>
-          <h3>Recent Bookings</h3>
-        </div>
-        <div class="ctx-recent">
-          @for (booking of recentBookings; track booking.name) {
-            <div class="ctx-r-item">
-              <div class="ctx-r-av">{{ booking.initials }}</div>
-              <div class="ctx-r-info">
-                <div class="ctx-r-name">{{ booking.name }}</div>
-                <div class="ctx-r-date">{{ booking.date }}</div>
-              </div>
-              <span class="ctx-r-badge" [ngClass]="booking.statusClass">{{ booking.status }}</span>
-            </div>
-          }
-        </div>
-      </div>
     </div>
   </div>
 
-  <!-- Branded Footer -->
   <footer class="brand-footer">
     <div class="bf-left">
       <div class="bf-logo">

@@ -1,16 +1,18 @@
 <div class="backdrop" (click)="close()">
   <div class="modal sm" (click)="$event.stopPropagation()">
+
     <div class="m-head">
       <div class="m-head-l">
         <div class="m-head-ico red">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
           </svg>
         </div>
         <div class="m-head-text">
-          <h2>Report Issue</h2>
-          <p>Report a lab processing issue for {{ approval()?.requestId }}</p>
+          <h2>Report Lab Issue</h2>
+          <p>Report a processing issue for #{{ approval()?.requestNumber }}</p>
         </div>
       </div>
       <button class="m-close" (click)="close()" type="button">
@@ -21,50 +23,73 @@
     </div>
 
     <div class="m-body">
+
       <div class="fg">
-        <label class="fl">Issue Category *</label>
-        <select class="fi" [value]="issueCategory()"
-                (change)="issueCategory.set($any($event.target).value)">
+        <label class="fl">Issue Category <span class="req">*</span></label>
+        <select class="fi"
+                [class.fi--error]="errors()['category']"
+                [value]="issueCategory()"
+                (change)="onCategoryChange($any($event.target).value)">
           <option value="">Select category...</option>
           @for (cat of issueCategories; track cat) {
-            <option [value]="cat">{{ cat }}</option>
+            <option [value]="cat">{{ issueCategoryLabel(cat) }}</option>
           }
         </select>
+        @if (errors()['category']) {
+          <span class="field-error">{{ errors()['category'] }}</span>
+        }
       </div>
 
       <div class="fg">
-        <label class="fl">Details *</label>
-        <textarea class="fi" [value]="issueDetails()"
-                  (input)="issueDetails.set($any($event.target).value)"
-                  placeholder="Describe the issue in detail..."></textarea>
+        <label class="fl">Issue Details <span class="req">*</span></label>
+        <textarea class="fi"
+                  [class.fi--error]="errors()['details']"
+                  [value]="issueDetails()"
+                  (input)="onDetailsChange($any($event.target).value)"
+                  placeholder="Describe the issue in detail (minimum 5 characters)..."
+                  style="min-height:80px"></textarea>
+        @if (errors()['details']) {
+          <span class="field-error">{{ errors()['details'] }}</span>
+        }
       </div>
 
       @if (approval()?.tests?.length) {
-        <label class="fl" style="display:block; margin-bottom:10px">Affected Tests</label>
-        <div class="check-group">
-          @for (test of approval().tests; track test) {
-            <div class="check-item" [class.checked]="isAffected(test)"
-                 (click)="toggleTest(test)">
-              <div class="check-box" [class.checked]="isAffected(test)">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="3">
-                  <polyline points="20 6 9 17 4 12"/>
-                </svg>
-              </div>
-              <div class="check-text">{{ test }}</div>
-            </div>
+        <div class="fg">
+          <label class="fl">Affected Tests <span class="req">*</span></label>
+          @if (errors()['affectedTests']) {
+            <span class="field-error" style="display:block;margin-bottom:8px">
+              {{ errors()['affectedTests'] }}
+            </span>
           }
+          <div class="check-group">
+            @for (t of approval()!.tests; track t.id) {
+              <div class="check-item" [class.checked]="isAffected(t.id)"
+                   (click)="toggleTest(t.id)">
+                <div class="check-box" [class.checked]="isAffected(t.id)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke-width="3">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                </div>
+                <div class="check-text">
+                  {{ t.test.name }}
+                  <span style="color:var(--t4);font-size:11px;margin-left:4px">{{ t.test.code }}</span>
+                </div>
+              </div>
+            }
+          </div>
         </div>
       }
+
     </div>
 
     <div class="m-foot">
-      <button class="btn" (click)="close()" type="button">Cancel</button>
-      <button class="btn btn-danger" (click)="submit()" [disabled]="!canSubmit" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-        </svg>
-        Submit Issue
+      <button class="btn" (click)="close()"
+              [disabled]="isSubmitting()" type="button">Cancel</button>
+      <button class="btn btn-danger" (click)="submit()"
+              [disabled]="isSubmitting()" type="button">
+        @if (isSubmitting()) { Submitting... } @else { Submit Issue }
       </button>
     </div>
+
   </div>
 </div>

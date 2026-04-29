@@ -1,11 +1,10 @@
 <div class="pg">
   <div class="pg-hdr">
-    <h1>Manual Driver Registration</h1>
+    <h1>Register New Driver</h1>
     <p>Register a new driver for laboratory mobile services and vehicle assignments</p>
   </div>
 
   <div class="form-layout">
-    <!-- ── Main Form ── -->
     <div class="form-card">
 
       <!-- Section 1: Personal Information -->
@@ -13,39 +12,115 @@
         <div class="fs-head">
           <div class="fs-ico">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
             </svg>
           </div>
           <div class="fs-title">Personal Information</div>
         </div>
         <div class="form-grid">
+
           <div class="form-group">
-            <label class="form-label">Full Name <span>*</span></label>
-            <input class="form-input" type="text"
-                   [value]="fullName()" (input)="onFullName($any($event.target).value)"
+            <label class="form-label">Full Name <span class="req">*</span></label>
+            <input class="form-input"
+                   [class.form-input--error]="errors()['fullName']"
+                   type="text"
+                   [value]="fullName()"
+                   (input)="onFullName($any($event.target).value)"
                    placeholder="Enter full name as per NIC"/>
+            @if (errors()['fullName']) {
+              <span class="field-error">{{ errors()['fullName'] }}</span>
+            }
           </div>
+
           <div class="form-group">
-            <label class="form-label">NIC (National ID Number) <span>*</span></label>
-            <input class="form-input form-input--mono" type="text"
-                   [value]="nic()" (input)="onNic($any($event.target).value)"
+            <label class="form-label">NIC Number <span class="req">*</span></label>
+            <input class="form-input form-input--mono"
+                   [class.form-input--error]="errors()['nic']"
+                   type="text"
+                   [value]="nic()"
+                   (input)="onNic($any($event.target).value)"
                    placeholder="e.g. 199012345678 or 901234567V"/>
+            @if (errors()['nic']) {
+              <span class="field-error">{{ errors()['nic'] }}</span>
+            }
           </div>
+
           <div class="form-group">
-            <label class="form-label">Date of Birth <span>*</span></label>
-            <input class="form-input" type="date"
-                   [value]="dob()" (change)="dob.set($any($event.target).value)"/>
+            <label class="form-label">Date of Birth <span class="req">*</span></label>
+            <input class="form-input"
+                   [class.form-input--error]="errors()['dateOfBirth']"
+                   type="date"
+                   [value]="dateOfBirth()"
+                   (change)="onDob($any($event.target).value)"/>
+            @if (errors()['dateOfBirth']) {
+              <span class="field-error">{{ errors()['dateOfBirth'] }}</span>
+            }
           </div>
+
           <div class="form-group">
-            <label class="form-label">Contact Number <span>*</span></label>
-            <input class="form-input" type="tel"
-                   [value]="phone()" (input)="onPhone($any($event.target).value)"
+            <label class="form-label">Contact Number <span class="req">*</span></label>
+            <input class="form-input"
+                   [class.form-input--error]="errors()['phone']"
+                   type="tel"
+                   [value]="phone()"
+                   (input)="onPhone($any($event.target).value)"
                    placeholder="+94 7X XXX XXXX"/>
+            @if (errors()['phone']) {
+              <span class="field-error">{{ errors()['phone'] }}</span>
+            }
           </div>
+
+          <div class="form-group">
+            <label class="form-label">Staff ID</label>
+            <input class="form-input form-input--mono"
+                   type="text"
+                   [value]="staffId()"
+                   (input)="staffId.set($any($event.target).value)"
+                   placeholder="e.g. ASR-2024-045 (optional)"/>
+            <span class="field-hint">Asiri HR staff ID — optional</span>
+          </div>
+
         </div>
       </div>
 
-      <!-- Section 2: License Information -->
+      <!-- Section 2: Branch Assignment -->
+      <div class="form-section">
+        <div class="fs-head">
+          <div class="fs-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <div class="fs-title">Branch Assignment</div>
+        </div>
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label class="form-label">Base Lab Branch <span class="req">*</span></label>
+            @if (isLoadingData()) {
+              <div class="form-input" style="color:var(--t4)">Loading branches...</div>
+            } @else {
+              <app-custom-dropdown
+                [options]="branchOptions()"
+                [value]="branchId()"
+                [class.form-input--error]="errors()['branchId']"
+                placeholder="Select lab branch..."
+                [searchable]="true"
+                (changed)="onBranchSelect($event)">
+              </app-custom-dropdown>
+            }
+            @if (errors()['branchId']) {
+              <span class="field-error">{{ errors()['branchId'] }}</span>
+            }
+            <span class="field-hint">Only lab-type branches can be assigned to drivers</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Section 3: License Information -->
       <div class="form-section">
         <div class="fs-head">
           <div class="fs-ico">
@@ -59,23 +134,40 @@
           <div class="fs-title">License Information</div>
         </div>
         <div class="form-grid">
+
           <div class="form-group">
-            <label class="form-label">License Number <span>*</span></label>
-            <input class="form-input form-input--mono" type="text"
-                   [value]="licenseNumber()" (input)="onLicenseNumber($any($event.target).value)"
+            <label class="form-label">License Number <span class="req">*</span></label>
+            <input class="form-input form-input--mono"
+                   [class.form-input--error]="errors()['licenseNumber']"
+                   type="text"
+                   [value]="licenseNumber()"
+                   (input)="onLicenseNumber($any($event.target).value)"
                    placeholder="e.g. B1234567"/>
-            <span class="form-hint">Must be a valid Sri Lanka driving license</span>
+            @if (errors()['licenseNumber']) {
+              <span class="field-error">{{ errors()['licenseNumber'] }}</span>
+            } @else {
+              <span class="field-hint">Must be a valid Sri Lanka driving license</span>
+            }
           </div>
+
           <div class="form-group">
-            <label class="form-label">License Expiry Date <span>*</span></label>
-            <input class="form-input" type="date"
-                   [value]="licenseExpiry()" (change)="onLicenseExpiry($any($event.target).value)"/>
-            <span class="form-hint">Must be valid for at least 6 months from today</span>
+            <label class="form-label">License Expiry Date <span class="req">*</span></label>
+            <input class="form-input"
+                   [class.form-input--error]="errors()['licenseExpiry']"
+                   type="date"
+                   [value]="licenseExpiry()"
+                   (change)="onLicenseExpiry($any($event.target).value)"/>
+            @if (errors()['licenseExpiry']) {
+              <span class="field-error">{{ errors()['licenseExpiry'] }}</span>
+            } @else {
+              <span class="field-hint">Must be valid for at least 6 months from today</span>
+            }
           </div>
+
         </div>
       </div>
 
-      <!-- Section 3: Documentation -->
+      <!-- Section 4: Documents -->
       <div class="form-section">
         <div class="fs-head">
           <div class="fs-ico">
@@ -87,18 +179,20 @@
           <div class="fs-title">Documentation</div>
         </div>
         <div class="form-grid">
+
           <div class="form-group">
-            <label class="form-label">Driver License Photo <span>*</span></label>
+            <label class="form-label">Driver License Photo</label>
             <app-file-upload
               label="Upload License Photo"
               accept="image/*"
               [maxSizeMb]="5"
               hint="PNG, JPG up to 5MB"
-              (uploaded)="onLicensePhoto()">
+              (uploaded)="onLicensePhotoUpload($event)">
             </app-file-upload>
           </div>
+
           <div class="form-group">
-            <label class="form-label">ID Front / Back <span>*</span></label>
+            <label class="form-label">National ID — Front &amp; Back</label>
             <div class="id-upload-grid">
               <div>
                 <div class="id-label">Front</div>
@@ -107,7 +201,7 @@
                   accept="image/*"
                   [maxSizeMb]="5"
                   hint=""
-                  (uploaded)="onIdFront()">
+                  (uploaded)="onIdFrontUpload($event)">
                 </app-file-upload>
               </div>
               <div>
@@ -117,42 +211,54 @@
                   accept="image/*"
                   [maxSizeMb]="5"
                   hint=""
-                  (uploaded)="onIdBack()">
+                  (uploaded)="onIdBackUpload($event)">
                 </app-file-upload>
               </div>
             </div>
           </div>
+
         </div>
       </div>
 
       <!-- Form Footer -->
       <div class="form-footer">
-        <button class="btn" (click)="cancel()" type="button">
+        <button class="btn" (click)="cancel()" [disabled]="isSubmitting()" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
           </svg>
-          Cancel &amp; Reset
+          Cancel
         </button>
-        <button class="btn btn-primary" (click)="submit()" [disabled]="isSubmitting()" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
-            <circle cx="8.5" cy="7" r="4"/>
-            <line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>
-          </svg>
-          {{ isSubmitting() ? 'Registering...' : 'Register Driver' }}
+        <button class="btn btn-primary" (click)="submit()"
+                [disabled]="isSubmitting() || isLoadingData()" type="button">
+          @if (isSubmitting()) {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin">
+              <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".25"/>
+              <path d="M21 12a9 9 0 00-9-9"/>
+            </svg>
+            Registering...
+          } @else {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+              <circle cx="8.5" cy="7" r="4"/>
+              <line x1="20" y1="8" x2="20" y2="14"/>
+              <line x1="23" y1="11" x2="17" y2="11"/>
+            </svg>
+            Register Driver
+          }
         </button>
       </div>
     </div>
 
-    <!-- ── Context Sidebar ── -->
+    <!-- Sidebar -->
     <div class="ctx-sidebar">
-      <!-- Checklist -->
+
       <div class="ctx-card">
         <div class="ctx-card-head">
           <div class="ctx-card-ico">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
               <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
-              <rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 14l2 2 4-4"/>
+              <rect x="9" y="3" width="6" height="4" rx="1"/>
+              <path d="M9 14l2 2 4-4"/>
             </svg>
           </div>
           <h3>Registration Checklist</h3>
@@ -174,90 +280,28 @@
         </div>
       </div>
 
-      <!-- Driver Stats -->
-      <div class="ctx-card">
-        <div class="ctx-card-head">
-          <div class="ctx-card-ico">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-            </svg>
-          </div>
-          <h3>Driver Stats</h3>
-        </div>
-        <div class="ctx-stats">
-          <div class="ctx-stat">
-            <div class="ctx-stat-val">{{ driverStats.total }}</div>
-            <div class="ctx-stat-label">Total Drivers</div>
-          </div>
-          <div class="ctx-stat">
-            <div class="ctx-stat-val">{{ driverStats.activeToday }}</div>
-            <div class="ctx-stat-label">Active Today</div>
-          </div>
-          <div class="ctx-stat">
-            <div class="ctx-stat-val">{{ driverStats.pending }}</div>
-            <div class="ctx-stat-label">Pending</div>
-          </div>
-          <div class="ctx-stat">
-            <div class="ctx-stat-val">{{ driverStats.compliance }}</div>
-            <div class="ctx-stat-label">Compliance</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Recent Registrations -->
-      <div class="ctx-card">
-        <div class="ctx-card-head">
-          <div class="ctx-card-ico">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-            </svg>
-          </div>
-          <h3>Recent Registrations</h3>
-        </div>
-        <div class="ctx-recent">
-          @for (reg of recentRegistrations; track reg.name) {
-            <div class="ctx-r-item">
-              <div class="ctx-r-av">{{ reg.initials }}</div>
-              <div class="ctx-r-info">
-                <div class="ctx-r-name">{{ reg.name }}</div>
-                <div class="ctx-r-date">{{ reg.date }}</div>
-              </div>
-              <span class="ctx-r-badge" [ngClass]="reg.cls">{{ reg.status }}</span>
-            </div>
-          }
-        </div>
-      </div>
-
-      <!-- Quick Tips -->
       <div class="ctx-card">
         <div class="ctx-card-head">
           <div class="ctx-card-ico">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
               <circle cx="12" cy="12" r="10"/>
-              <line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+              <line x1="12" y1="16" x2="12" y2="12"/>
+              <line x1="12" y1="8" x2="12.01" y2="8"/>
             </svg>
           </div>
           <h3>Quick Tips</h3>
         </div>
         <div class="ctx-tips">
-          <div class="ctx-tip">
-            <div class="ctx-tip-num">1</div>
-            Ensure the NIC matches the uploaded ID documents exactly
-          </div>
-          <div class="ctx-tip">
-            <div class="ctx-tip-num">2</div>
-            License must be valid for at least 6 months from today
-          </div>
-          <div class="ctx-tip">
-            <div class="ctx-tip-num">3</div>
-            Photos should be clear, well-lit, and under 5MB
-          </div>
+          <div class="ctx-tip"><div class="ctx-tip-num">1</div>NIC must match uploaded ID documents exactly</div>
+          <div class="ctx-tip"><div class="ctx-tip-num">2</div>License must be valid for at least 6 months from today</div>
+          <div class="ctx-tip"><div class="ctx-tip-num">3</div>Photos must be clear, well-lit, and under 5MB</div>
+          <div class="ctx-tip"><div class="ctx-tip-num">4</div>Only lab-type branches can be assigned to drivers</div>
         </div>
       </div>
+
     </div>
   </div>
 
-  <!-- Privacy Notice -->
   <div class="notice">
     <div class="notice-ico">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -268,12 +312,10 @@
     <div class="notice-text">
       <strong>Note:</strong> All personal and license information provided will be used exclusively
       for logistics management within Asiri Laboratories. By submitting this form, you confirm that
-      the driver has provided consent for data collection in compliance with laboratory standards and
-      privacy regulations.
+      the driver has provided consent for data collection.
     </div>
   </div>
 
-  <!-- Branded Footer -->
   <footer class="brand-footer">
     <div class="bf-left">
       <div class="bf-logo">

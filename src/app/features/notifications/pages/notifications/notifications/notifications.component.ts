@@ -1,21 +1,27 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { finalize } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ApiService } from '@core/services/api/api.service';
+import { NotificationService } from '@core/services/notification/notification.service';
 
-type NotifType = 'new' | 'warn' | 'err' | 'info' | 'ok';
-type FeedTab   = 'all' | 'requests' | 'system' | 'team';
+type FeedTab = 'all' | 'requests' | 'system' | 'team';
 
-interface Notification {
-  id: string;
-  type: NotifType;
-  title: string;
-  message: string;
-  time: string;
-  group: 'Today' | 'Yesterday';
-  category: 'requests' | 'system' | 'team';
-  unread: boolean;
+interface AppNotification {
+  id:        string;
+  type:      string;
+  title:     string;
+  message:   string;
+  isRead:    boolean;
+  createdAt: string;
 }
 
-interface PrefToggle { label: string; value: boolean; }
+interface NotifStats {
+  unread:   number;
+  today:    number;
+  thisWeek: number;
+  critical: number;
+}
 
 @Component({
   selector: 'app-notifications',
@@ -24,71 +30,19 @@ interface PrefToggle { label: string; value: boolean; }
   templateUrl: './notifications.component.html',
   styleUrl: './notifications.component.scss'
 })
-export class NotificationsComponent {
-  activeTab = signal<FeedTab>('all');
+export class NotificationsComponent implements OnInit {
+  private api          = inject(ApiService);
+  private notification = inject(NotificationService);
 
-  notifications = signal<Notification[]>([
-    { id: 'n1', type: 'new',  title: 'New patient request received',       message: 'Kamala Perera requested a Full Blood Count at 42 Temple Rd, Dehiwala. Awaiting vehicle allocation.', time: '2 minutes ago',   group: 'Today',     category: 'requests', unread: true  },
-    { id: 'n2', type: 'warn', title: 'Technician rejected job assignment',  message: 'Sunil Perera rejected job #REQ-8799. Reason: vehicle maintenance required. Please reassign.',         time: '15 minutes ago',  group: 'Today',     category: 'requests', unread: true  },
-    { id: 'n3', type: 'err',  title: 'Vehicle AS-MOB-12 reported breakdown',message: 'Vehicle is at Asiri Central Lab maintenance bay. ETA for repair: 4 hours. 2 pending jobs need reassignment.', time: '32 minutes ago', group: 'Today',   category: 'system',   unread: true  },
-    { id: 'n4', type: 'ok',   title: 'Job #REQ-8795 completed successfully',message: 'Arjun Kumara collected samples from Robert Brown at Negombo. Report processing initiated.',           time: 'Yesterday at 4:32 PM', group: 'Yesterday', category: 'requests', unread: false },
-    { id: 'n5', type: 'info', title: 'New driver registration pending approval', message: 'Rohit Jayawardene submitted a driver application with all required documents. Awaiting review.', time: 'Yesterday at 2:15 PM', group: 'Yesterday', category: 'team',     unread: false },
-    { id: 'n6', type: 'ok',   title: 'Daily report generated',               message: 'October 23 operational report is ready. 89 jobs completed, 7 cancelled. Revenue: Rs. 142,500.',      time: 'Yesterday at 11:59 PM', group: 'Yesterday', category: 'system', unread: false },
-  ]);
+  activeTab   = signal<FeedTab>('all');
+  isLoading   = signal(false);
+  items       = signal<AppNotification[]>([]);
+  currentPage = signal(1);
+  totalPages  = signal(1);
 
-  preferences = signal<PrefToggle[]>([
-    { label: 'New patient requests',  value: true  },
-    { label: 'Job rejections',        value: true  },
-    { label: 'Vehicle breakdowns',    value: true  },
-    { label: 'Job delays',            value: true  },
-    { label: 'Customer complaints',   value: false },
-    { label: 'System errors',         value: true  },
-  ]);
+  stats = signal<NotifStats>({ unread: 0, today: 0, thisWeek: 0, critical: 0 });
 
-  channels = signal<{ label: string; icon: string; active: boolean }[]>([
-    { label: 'In-App', icon: 'bell',  active: true  },
-    { label: 'SMS',    icon: 'sms',   active: false },
-    { label: 'Email',  icon: 'email', active: false },
-  ]);
-
-  stats = { unread: 3, today: 24, thisWeek: 156, critical: 12 };
-
-  unreadCount = computed(() => this.notifications().filter(n => n.unread).length);
-
-  filteredByGroup(group: 'Today' | 'Yesterday'): Notification[] {
-    const tab = this.activeTab();
-    return this.notifications().filter(n =>
-      n.group === group && (tab === 'all' || n.category === tab)
-    );
-  }
-
-  hasGroup(group: 'Today' | 'Yesterday'): boolean {
-    return this.filteredByGroup(group).length > 0;
-  }
-
-  setTab(tab: FeedTab): void { this.activeTab.set(tab); }
-
-  markAllRead(): void {
-    this.notifications.update(list => list.map(n => ({ ...n, unread: false })));
-  }
-
-  markRead(id: string): void {
-    this.notifications.update(list =>
-      list.map(n => n.id === id ? { ...n, unread: false } : n)
-    );
-  }
-
-  togglePref(i: number): void {
-    const list = [...this.preferences()];
-    list[i] = { ...list[i], value: !list[i].value };
-    this.preferences.set(list);
-  }
-
-  toggleChannel(i: number): void {
-    const list = [...this.channels()];
-    list[i] = { ...list[i], active: !list[i].active };
-    this.channels.set(list);
-  }
+  unreadCount = computed(() => this.items().filter(n => !n.isRead).length);
 
   tabs: { key: FeedTab; label: string }[] = [
     { key: 'all',      label: 'All'      },
@@ -96,4 +50,124 @@ export class NotificationsComponent {
     { key: 'system',   label: 'System'   },
     { key: 'team',     label: 'Team'     },
   ];
+
+  // Map API notification types to feed tab categories
+  private typeToCategory(type: string): string {
+    const requestTypes = ['new_request', 'rejection', 'cancellation', 'job_completed', 'report_ready'];
+    const systemTypes  = ['system_alert', 'critical_value', 'broadcast'];
+    const teamTypes    = ['driver_issue', 'lab_issue', 'escalation'];
+    if (requestTypes.includes(type)) return 'requests';
+    if (systemTypes.includes(type))  return 'system';
+    if (teamTypes.includes(type))    return 'team';
+    return 'system';
+  }
+
+  // Map API type to display icon type
+  typeToIcon(type: string): string {
+    if (['new_request', 'report_ready'].includes(type))          return 'new';
+    if (['rejection', 'cancellation', 'driver_issue'].includes(type)) return 'warn';
+    if (['critical_value', 'system_alert'].includes(type))       return 'err';
+    if (['job_completed'].includes(type))                        return 'ok';
+    return 'info';
+  }
+
+  ngOnInit(): void {
+    this.loadNotifications();
+    this.loadStats();
+  }
+
+  private loadNotifications(): void {
+    this.isLoading.set(true);
+    this.api.get<any>('/notifications', { params: { page: this.currentPage(), limit: 50 } })
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: (res) => {
+          this.items.set(res.data ?? res.notifications ?? []);
+          this.totalPages.set(res.meta?.totalPages ?? 1);
+        },
+        error: (err: HttpErrorResponse) => {
+          if (err.status === 0) this.notification.error('Connection Error', 'Cannot reach the server.');
+          else                  this.notification.error('Error', 'Failed to load notifications.');
+        }
+      });
+  }
+
+  private loadStats(): void {
+    this.api.get<any>('/notifications/unread-count').subscribe({
+      next: (res) => {
+        this.stats.update(s => ({ ...s, unread: res.count ?? res.unreadCount ?? 0 }));
+        // Update the bell icon count in topbar
+        this.notification.setUnreadCount(res.count ?? res.unreadCount ?? 0);
+      },
+      error: () => {}
+    });
+  }
+
+  filteredItems(): AppNotification[] {
+    const tab = this.activeTab();
+    if (tab === 'all') return this.items();
+    return this.items().filter(n => this.typeToCategory(n.type) === tab);
+  }
+
+  isToday(dateStr: string): boolean {
+    const d = new Date(dateStr);
+    const t = new Date();
+    return d.getFullYear() === t.getFullYear() &&
+           d.getMonth()    === t.getMonth()    &&
+           d.getDate()     === t.getDate();
+  }
+
+  todayItems(): AppNotification[] {
+    return this.filteredItems().filter(n => this.isToday(n.createdAt));
+  }
+
+  olderItems(): AppNotification[] {
+    return this.filteredItems().filter(n => !this.isToday(n.createdAt));
+  }
+
+  setTab(tab: FeedTab): void { this.activeTab.set(tab); }
+
+  markRead(id: string): void {
+    const item = this.items().find(n => n.id === id);
+    if (!item || item.isRead) return;
+
+    // Optimistic update
+    this.items.update(list => list.map(n => n.id === id ? { ...n, isRead: true } : n));
+    this.notification.decrementUnread();
+
+    this.api.patch<any>(`/notifications/${id}/read`, {}).subscribe({
+      error: () => {
+        // Revert on failure
+        this.items.update(list => list.map(n => n.id === id ? { ...n, isRead: false } : n));
+        this.notification.incrementUnread();
+      }
+    });
+  }
+
+  markAllRead(): void {
+    // Optimistic update
+    this.items.update(list => list.map(n => ({ ...n, isRead: true })));
+    this.notification.setUnreadCount(0);
+
+    this.api.patch<any>('/notifications/mark-all-read', {}).subscribe({
+      next: () => {},
+      error: () => {
+        // Revert on failure
+        this.loadNotifications();
+        this.loadStats();
+        this.notification.error('Error', 'Failed to mark all as read.');
+      }
+    });
+  }
+
+  timeAgo(dateStr: string): string {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins  = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days  = Math.floor(diff / 86400000);
+    if (mins < 1)   return 'just now';
+    if (mins < 60)  return `${mins} minute${mins > 1 ? 's' : ''} ago`;
+    if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    return `${days} day${days > 1 ? 's' : ''} ago`;
+  }
 }

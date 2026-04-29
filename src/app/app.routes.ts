@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from '@core/guards/auth/auth.guard';
 
 export const routes: Routes = [
   // ── Auth pages (full screen, no layout) ──────────────────────
@@ -10,7 +11,7 @@ export const routes: Routes = [
   {
     path: 'forgot-password',
     loadComponent: () =>
-      import('./features/auth/forgot-password/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)
+      import('./features/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)
   },
   {
     path: 'reset-password',
@@ -26,6 +27,7 @@ export const routes: Routes = [
   // ── Main app shell (sidebar + topbar) ─────────────────────────
   {
     path: '',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./shared/components/layout/main-layout/main-layout/main-layout.component').then(m => m.MainLayoutComponent),
     children: [

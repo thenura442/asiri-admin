@@ -1,5 +1,6 @@
 <div class="backdrop" (click)="close()">
   <div class="modal sm" (click)="$event.stopPropagation()">
+
     <div class="m-head">
       <div class="m-head-l">
         <div class="m-head-ico">
@@ -21,54 +22,77 @@
     </div>
 
     <div class="m-body">
+
       <div class="fg-row">
         <div class="fg">
-          <label class="fl">Plate Number</label>
-          <input class="fi fi-mono" [value]="plateNumber()" (input)="plateNumber.set($any($event.target).value)"/>
+          <label class="fl">Plate Number <span class="req">*</span></label>
+          <input class="fi fi-mono"
+                 [class.fi--error]="errors()['plateNumber']"
+                 [value]="plateNumber()"
+                 (input)="onPlateNumber($any($event.target).value)"/>
+          @if (errors()['plateNumber']) {
+            <span class="field-error">{{ errors()['plateNumber'] }}</span>
+          }
         </div>
         <div class="fg">
-          <label class="fl">Chassis Number</label>
-          <input class="fi fi-mono" [value]="chassis()" (input)="chassis.set($any($event.target).value)"/>
+          <label class="fl">Chassis Number <span class="req">*</span></label>
+          <input class="fi fi-mono"
+                 [class.fi--error]="errors()['chassisNumber']"
+                 [value]="chassisNumber()"
+                 (input)="onChassisNumber($any($event.target).value)"/>
+          @if (errors()['chassisNumber']) {
+            <span class="field-error">{{ errors()['chassisNumber'] }}</span>
+          }
         </div>
       </div>
+
       <div class="fg-row">
         <div class="fg">
-          <label class="fl">Type</label>
+          <label class="fl">Vehicle Type <span class="req">*</span></label>
           <select class="fi" [value]="type()" (change)="type.set($any($event.target).value)">
             <option value="van">Van</option>
             <option value="car">Car</option>
           </select>
         </div>
         <div class="fg">
-          <label class="fl">Base Branch</label>
-          <select class="fi" [value]="branch()" (change)="branch.set($any($event.target).value)">
-            <option>Asiri Central Lab</option>
-            <option>Colombo 03 Center</option>
-            <option>Nugegoda Center</option>
-            <option>Dehiwala Center</option>
+          <label class="fl">Status <span class="req">*</span></label>
+          <select class="fi" [value]="status()" (change)="status.set($any($event.target).value)">
+            <option value="available">Available</option>
+            <option value="busy">Busy</option>
+            <option value="offline">Offline</option>
           </select>
         </div>
       </div>
-      <div class="fg">
-        <label class="fl">Status</label>
-        <select class="fi" [value]="status()" (change)="status.set($any($event.target).value)">
-          <option value="available">Available</option>
-          <option value="busy">Busy</option>
-          <option value="offline">Offline</option>
-        </select>
-      </div>
+
       <div class="fg">
         <label class="fl">Notes</label>
-        <textarea class="fi" [value]="notes()" (input)="notes.set($any($event.target).value)"
+        <textarea class="fi"
+                  [value]="notes()"
+                  (input)="notes.set($any($event.target).value)"
+                  placeholder="Optional notes about this vehicle..."
                   style="min-height:70px"></textarea>
       </div>
+
     </div>
 
     <div class="m-foot">
-      <button class="btn btn-danger" (click)="confirmDelete()" type="button">Delete Vehicle</button>
+      <button class="btn btn-danger"
+              (click)="confirmDelete()"
+              [disabled]="isSaving() || isDeleting()"
+              type="button">
+        @if (isDeleting()) { Deleting... } @else { Delete Vehicle }
+      </button>
       <div style="flex:1"></div>
-      <button class="btn" (click)="close()" type="button">Cancel</button>
-      <button class="btn btn-primary" (click)="save()" type="button">Update Vehicle</button>
+      <button class="btn" (click)="close()"
+              [disabled]="isSaving() || isDeleting()"
+              type="button">Cancel</button>
+      <button class="btn btn-primary"
+              (click)="save()"
+              [disabled]="isSaving() || isDeleting()"
+              type="button">
+        @if (isSaving()) { Saving... } @else { Update Vehicle }
+      </button>
     </div>
+
   </div>
 </div>

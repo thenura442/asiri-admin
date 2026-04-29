@@ -1,11 +1,10 @@
 <div class="pg">
-  <!-- Page Header -->
   <div class="pg-hdr">
     <div class="pg-hdr-l">
       <h1>Test &amp; Service Management</h1>
       <p>Manage laboratory tests, pricing, and service availability</p>
     </div>
-    <button class="btn btn-primary" (click)="showAddModal.set(true)" type="button">
+    <button class="btn btn-primary" (click)="openAdd()" type="button">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/>
       </svg>
@@ -20,16 +19,16 @@
       <div class="st-num">{{ stats().total }}</div>
     </div>
     <div class="st">
-      <div class="st-label">Active Services</div>
+      <div class="st-label">Active</div>
       <div class="st-num">{{ stats().active }}</div>
     </div>
     <div class="st">
-      <div class="st-label">Categories</div>
-      <div class="st-num">{{ stats().categories }}</div>
+      <div class="st-label">Inactive</div>
+      <div class="st-num">{{ stats().inactive }}</div>
     </div>
     <div class="st">
       <div class="st-label">Avg. Price</div>
-      <div class="st-num st-num--price">Rs. {{ stats().avgPrice | number }}</div>
+      <div class="st-num">{{ formatPrice(stats().avgPrice) }}</div>
     </div>
   </div>
 
@@ -50,91 +49,107 @@
     }
   </div>
 
-  <!-- Test Cards Grid -->
-  <div class="test-grid">
-    @for (test of filteredTests(); track test.id) {
-      <div class="test-card" [class.test-card--inactive]="!test.isActive">
+  <!-- Loading -->
+  @if (isLoading()) {
+    <div class="table-loading">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin">
+        <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".25"/>
+        <path d="M21 12a9 9 0 00-9-9"/>
+      </svg>
+      Loading tests...
+    </div>
+  } @else {
 
-        <!-- Card Header -->
-        <div class="tc-head">
-          <div class="tc-info">
-            <div class="tc-name">{{ test.name }}</div>
-            <div class="tc-code">{{ test.code }}</div>
-            <div class="tc-tags">
-              <span class="tc-cat" [ngClass]="categoryClass(test.category)">
-                {{ categoryLabel(test.category) }}
-              </span>
-              @if (test.prescriptionRequired) {
-                <span class="tc-rx">Rx Required</span>
-              }
+    <!-- Test Cards Grid -->
+    <div class="test-grid">
+      @for (test of tests(); track test.id) {
+        <div class="test-card" [class.test-card--inactive]="!test.isActive">
+
+          <div class="tc-head">
+            <div class="tc-info">
+              <div class="tc-name">{{ test.name }}</div>
+              <div class="tc-code">{{ test.code }}</div>
+              <div class="tc-tags">
+                <span class="tc-cat" [ngClass]="sampleTypeBadgeClass(test.sampleType)">
+                  {{ sampleTypeLabel(test.sampleType) }}
+                </span>
+                @if (test.prescriptionReq) {
+                  <span class="tc-rx">Rx Required</span>
+                }
+                @if (!test.isActive) {
+                  <span class="tc-inactive-badge">Inactive</span>
+                }
+              </div>
             </div>
+
+            <label class="toggle" [title]="test.isActive ? 'Deactivate' : 'Activate'">
+              <input type="checkbox" [checked]="test.isActive"
+                     (change)="toggleActive(test)"/>
+              <span class="toggle-track"></span>
+            </label>
           </div>
 
-          <!-- Active toggle -->
-          <label class="toggle" [title]="test.isActive ? 'Click to deactivate' : 'Click to activate'">
-            <input type="checkbox" [checked]="test.isActive"
-                   (change)="toggleActive(test)"/>
-            <span class="toggle-track"></span>
-          </label>
+          <div class="tc-body">
+            @if (test.notes) {
+              <p class="tc-desc">{{ test.notes }}</p>
+            }
+            <div class="tc-row">
+              <span class="tc-row-label">Price</span>
+              <span class="tc-price">{{ formatPrice(test.price) }}</span>
+            </div>
+            @if (test.turnaroundTime) {
+              <div class="tc-row">
+                <span class="tc-row-label">Turnaround</span>
+                <span class="tc-row-val">{{ test.turnaroundTime }}</span>
+              </div>
+            }
+            <div class="tc-row">
+              <span class="tc-row-label">Sample Type</span>
+              <span class="tc-row-val">{{ sampleTypeLabel(test.sampleType) }}</span>
+            </div>
+            @if (test.timeSensitivityHrs) {
+              <div class="tc-row">
+                <span class="tc-row-label">Time Sensitive</span>
+                <span class="tc-row-val tc-row-val--warn">
+                  Process within {{ test.timeSensitivityHrs }}h
+                </span>
+              </div>
+            }
+          </div>
+
+          <div class="tc-footer">
+            <button class="tc-btn" (click)="openEdit(test)" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+              Edit
+            </button>
+            <button class="tc-btn tc-btn--danger" (click)="confirmDelete(test)" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+              </svg>
+              Delete
+            </button>
+          </div>
+
         </div>
-
-        <!-- Card Body -->
-        <div class="tc-body">
-          @if (test.description) {
-            <p class="tc-desc">{{ test.description }}</p>
-          }
-          <div class="tc-row">
-            <span class="tc-row-label">Price</span>
-            <span class="tc-price">{{ formatPrice(test.basePrice) }}</span>
-          </div>
-          <div class="tc-row">
-            <span class="tc-row-label">Turnaround</span>
-            <span class="tc-row-val">{{ test.turnaround }}</span>
-          </div>
-          <div class="tc-row">
-            <span class="tc-row-label">Sample Type</span>
-            <span class="tc-row-val">{{ test.sampleType }}</span>
-          </div>
-          <div class="tc-row">
-            <span class="tc-row-label">This Month</span>
-            <span class="tc-row-val">
-              {{ test.ordersThisMonth | number }} orders
-            </span>
-          </div>
-        </div>
-
-        <!-- Card Footer -->
-        <div class="tc-footer">
-          <button class="tc-btn" (click)="openEdit(test)" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+      } @empty {
+        <div class="empty-state">
+          <div class="empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
             </svg>
-            Edit
-          </button>
-          <button class="tc-btn tc-btn--danger" (click)="confirmDelete(test)" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="3 6 5 6 21 6"/>
-              <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
-            </svg>
-            Delete
-          </button>
+          </div>
+          <div class="empty-title">No tests found</div>
+          <div class="empty-sub">Try adjusting your search or filter</div>
         </div>
-      </div>
-    } @empty {
-      <div class="empty-state">
-        <div class="empty-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>
-          </svg>
-        </div>
-        <div class="empty-title">No tests found</div>
-        <div class="empty-sub">Try adjusting your search or filter</div>
-      </div>
-    }
-  </div>
+      }
+    </div>
 
-  <!-- Branded Footer -->
+  }
+
   <footer class="brand-footer">
     <div class="bf-left">
       <div class="bf-logo">
@@ -158,7 +173,7 @@
 @if (showAddModal()) {
   <app-test-add-modal
     (closed)="closeAdd()"
-    (saved)="onTestSaved($event)">
+    (saved)="onTestAdded($event)">
   </app-test-add-modal>
 }
 
@@ -167,6 +182,6 @@
   <app-test-edit-modal
     [test]="editingTest()"
     (closed)="closeEdit()"
-    (saved)="onTestSaved($event)">
+    (saved)="onTestUpdated($event)">
   </app-test-edit-modal>
 }

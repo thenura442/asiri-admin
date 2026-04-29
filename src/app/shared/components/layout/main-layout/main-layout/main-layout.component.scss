@@ -9,5 +9,5 @@
   flex-direction: column;
   transition: margin-left 0.35s cubic-bezier(.16, 1, .3, 1);
   position: relative;
-  z-index: 1;
+  // z-index: 1  ← removed — was creating a stacking context that trapped fixed modals
 }
